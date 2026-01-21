@@ -17,6 +17,11 @@
     "clean": "rm -rf client/node_modules server/node_modules node_modules client/dist server/dist"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "prettier": "^3.7.4"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.6.0",
+    "flubber": "^0.4.2"
   }
 }
