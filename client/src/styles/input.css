@@ -114,8 +114,8 @@ input[type="datetime-local"] {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px #fff inset;
-    -webkit-text-fill-color: #333;
+    -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.15) inset;
+    -webkit-text-fill-color: #ffffff;
     transition: background-color 5000s ease-in-out 0s;
 }
 
