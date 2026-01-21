@@ -122,6 +122,7 @@ const AboutHero = memo(() => {
                     initial="hidden"
                     animate={showName ? 'visible' : 'hidden'}
                     transition={{ duration: 0.6, ease: 'easeOut' }}
+                    className="name"
                 >
                     Нияз
                 </motion.span>

@@ -15,6 +15,10 @@
     gap: 0.1rem;
 }
 
+.about-name .name {
+    margin-right: 6px;
+}
+
 .about-name > span:not(.typewriter) {
     font-size: 4rem;
     font-weight: 900;
