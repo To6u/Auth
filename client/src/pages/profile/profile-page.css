@@ -1,5 +1,5 @@
 .page-profile {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .page-profile .submit-button {

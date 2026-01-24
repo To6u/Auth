@@ -13,6 +13,7 @@
     align-items: baseline;
     flex-wrap: wrap;
     gap: 0.1rem;
+    margin-bottom: 2rem;
 }
 
 .about-name .name {
@@ -20,7 +21,7 @@
 }
 
 .about-name > span:not(.typewriter) {
-    font-size: 4rem;
+    font-size: 11rem;
     font-weight: 900;
 }
 
@@ -34,8 +35,65 @@
 
 .typewriter__cursor {
     animation: blink 0.7s infinite;
-    font-weight: 100;
+    font-weight: 300;
     color: rgba(255, 255, 255, 0.9);
+}
+
+.about-hero-sections {
+    display: grid;
+    grid-template-columns: 40% auto;
+    grid-auto-flow: row;
+    grid-column-gap: 6rem;
+    grid-row-gap: 15rem;
+    padding: 3rem;
+    align-items: start;
+}
+
+.about-hero-right {
+    position: relative;
+    height: 100%;
+}
+
+.about-hero-section-two {
+    position: sticky;
+    top: 60px;
+    align-self: start;
+    z-index: 10;
+}
+
+.about-hero-section-two h2 {
+    font-size: 5rem;
+    line-height: 5rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 2rem;
+}
+
+.about-hero-section-three {
+    grid-column: 2 / 3;
+}
+
+.about-hero-section-title {
+    position: sticky;
+    top: 60px;
+    align-self: flex-end;
+    text-align: right;
+    z-index: 10;
+    margin-bottom: 2rem;
+}
+
+.about-hero-section-title h2 {
+    font-size: 5rem;
+    line-height: 5rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+.about-hero-section-title span {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
 }
 
 @keyframes blink {
@@ -53,7 +111,7 @@
     max-width: 900px;
     padding: 3rem;
     background: rgba(9, 21, 79, 0.7);
-    box-shadow: 5px 5px 30px 5px rgba(0, 0, 0, 0.3), 5px 5px 20px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 0px 0px 20px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 80px;
     corner-shape: squircle;
     position: relative;
@@ -61,7 +119,6 @@
     display: flex;
     flex-direction: column;
     gap: 3rem;
-    margin-top: 2rem;
 }
 
 /* Секции */
@@ -85,15 +142,64 @@
 }
 
 .about-section__content p {
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.8);
-    margin: 0;
+    margin-bottom: 1rem;
+}
+
+.about-section__content p b {
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+    text-underline-offset: 3px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.about-section__content p b:hover {
+    text-decoration-color: rgba(157, 232, 97, 0.7);
+    color: rgba(255, 255, 255, 1);
 }
 
 .about-section__content span {
     font-style: italic;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.about-section__content span:last-child {
+    color: rgba(255, 255, 255, 1);
+}
+
+/* Popover */
+.info-popover {
+    position: absolute;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    background: rgba(20, 40, 100, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    max-width: 280px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: popover-fade-in 0.15s ease-out;
+}
+
+.info-popover::backdrop {
+    background: transparent;
+}
+
+@keyframes popover-fade-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 /* Галерея фотографий */
@@ -136,6 +242,16 @@
     .about-section__content p {
         font-size: 1rem;
     }
+
+    .about-hero-section-two h2,
+    .about-hero-section-title h2 {
+        font-size: 3rem;
+        line-height: 3rem;
+    }
+
+    .about-hero-section-title span {
+        font-size: 1.2rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -158,5 +274,15 @@
 
     .photo-gallery {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .about-hero-section-two h2,
+    .about-hero-section-title h2 {
+        font-size: 2rem;
+        line-height: 2rem;
+    }
+
+    .about-hero-section-title span {
+        font-size: 1rem;
     }
 }

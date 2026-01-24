@@ -28,5 +28,10 @@
 }
 
 body, html {
-    overflow-x: hidden;
+    overflow-x: clip;
+    color: white;
+}
+
+p {
+    font-size: 1.4rem;
 }
