@@ -1,0 +1,82 @@
+.scroll-progress-indicator {
+    position: absolute;
+    left: -30px;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Фоновая линия (трек) */
+.scroll-progress-indicator__track {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 1px;
+}
+
+/* Заполненная линия (прогресс) */
+.scroll-progress-indicator__progress {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 1px;
+    will-change: height;
+}
+
+/* Точка */
+.scroll-progress-indicator__dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    transform: translateY(-50%);
+    will-change: transform;
+}
+
+/* Внешний круг (кольцо) */
+.scroll-progress-indicator__dot-ring {
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    background: rgba(9, 21, 79, 0.9);
+    transition: border-color 0.3s ease;
+}
+
+/* Внутренний круг (заполнение) */
+.scroll-progress-indicator__dot-fill {
+    position: absolute;
+    inset: 2px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    will-change: opacity;
+}
+
+/* Hover эффект на точку */
+.scroll-progress-indicator__dot:hover .scroll-progress-indicator__dot-ring {
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scroll-progress-indicator {
+        left: -20px;
+        width: 10px;
+    }
+
+    .scroll-progress-indicator__dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .scroll-progress-indicator {
+        display: none;
+    }
+}

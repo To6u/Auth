@@ -5,6 +5,7 @@ import { PopoverTrigger } from '@/components/popover-trigger/PopoverTrigger';
 import { fadeInUp } from './animations';
 import { TYPEWRITER_WORDS, TYPEWRITER_CONFIG } from './constants';
 import './about-hero.css';
+import ScrollProgressIndicator from '@/pages/profile/components/about-hero/ScrollProgressIndicator.tsx';
 
 /** Хелпер для комбинирования MotionValue (enter * exit) */
 const useCombinedOpacity = (enter: MotionValue<number>, exit: MotionValue<number>) => {
@@ -181,7 +182,7 @@ export const AboutHero = memo(() => {
                         }}
                     >
                         <h2>Откуда я такой взялся</h2>
-                        <span>родные края</span>
+                        <span>немного о местности</span>
                     </motion.div>
                 </div>
 
@@ -252,7 +253,7 @@ const SectionOneContent = memo(() => (
             </p>
 
             <span>да, круто, что еще можешь рассказать?</span>
-            <p>Чего рассказывать, пока сам не увидишь не поймешь, для кого-то «дыра дырой», кому-то родной край.</p>
+            <p>Чего рассказывать, пока сам не увидишь - не поймешь, для кого-то «дыра дырой», кому-то родной край.</p>
             <span>пс. мне ближе то, что последее</span>
         </div>
     </div>
@@ -260,39 +261,37 @@ const SectionOneContent = memo(() => (
 
 SectionOneContent.displayName = 'SectionOneContent';
 
-const SectionThreeContent = memo(() => (
-    <>
-        <div className="about-section">
+const SectionThreeContent = memo(() => {
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    return (
+        <div className="about-section about-section--with-progress" ref={contentRef}>
+            {/* Индикатор прогресса */}
+            <ScrollProgressIndicator containerRef={contentRef} headingSelector=".about-section__title" />
+
             <h2 className="about-section__title">Детство</h2>
             <div className="about-section__content">
-                <p>
-                    Привет! Я фронтенд-разработчик, который любит создавать интерактивные сайты с продуманным дизайном и
-                    плавными анимациями.
-                </p>
-                <p>
-                    Работаю на стеке <span>React</span>, <span>TypeScript</span> — превращаю идеи в живые интерфейсы,
-                    которыми приятно пользоваться.
-                </p>
-                <p>
-                    Когда не пишу код, зимой меня можно найти на горке со сноубордом, а летом — на речке. Баланс важен
-                    (˶ˆᗜˆ˵)
-                </p>
+                <span>когда был сильно мелким</span>
+                <p>Не очень хорошо помниться, в основном в памяти, как я с братом что-то все время делил.</p>
+                <span>немного постарше, но еще не школьник</span>
+                <p>Бегали с братом к соседям сверху и снизу, тусили у них пока родители были на работе.</p>
+                <span>
+                    самое запоминающее это было когда я сломал руку, играя на детской площадке, все еще помню как я орал
+                </span>
             </div>
+
             <h2 className="about-section__title">Школьные годы</h2>
             <div className="about-section__content">
-                <p>
-                    Привет! Я фронтенд-разработчик, который любит создавать интерактивные сайты с продуманным дизайном и
-                    плавными анимациями.
-                </p>
-                <p>
-                    Работаю на стеке <span>React</span>, <span>TypeScript</span> — превращаю идеи в живые интерфейсы,
-                    которыми приятно пользоваться.
-                </p>
+                <span>начальная школа</span>
+                <p>Тоже особо ничего примечательного в памяти, помню как училка запулила в меня тряпкой во время урока.</p>
+                <span>немного постарше</span>
+                <p></p>
                 <p>
                     Когда не пишу код, зимой меня можно найти на горке со сноубордом, а летом — на речке. Баланс важен
                     (˶ˆᗜˆ˵)
                 </p>
             </div>
+
             <h2 className="about-section__title">Студенчество</h2>
             <div className="about-section__content">
                 <p>
@@ -309,8 +308,8 @@ const SectionThreeContent = memo(() => (
                 </p>
             </div>
         </div>
-    </>
-));
+    );
+});
 
 SectionThreeContent.displayName = 'SectionThreeContent';
 

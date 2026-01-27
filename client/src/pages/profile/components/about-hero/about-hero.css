@@ -152,7 +152,7 @@
     text-decoration-color: rgba(255, 255, 255, 0.4);
     text-underline-offset: 3px;
     transition: all 0.3s ease;
-    cursor: pointer;
+    cursor: help;
 }
 
 .about-hero__content p b:hover {
@@ -167,6 +167,12 @@
 
 .about-section__content span:last-child {
     color: rgba(255, 255, 255, 1);
+}
+
+/* Модификатор для секции с индикатором прогресса */
+.about-section--with-progress {
+    position: relative;
+    padding-left: 20px; /* место для индикатора */
 }
 
 /* Photo Gallery */
