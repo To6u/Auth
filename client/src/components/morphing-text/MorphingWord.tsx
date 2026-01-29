@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import './morphing-word.css';
 
 interface Line {
@@ -21,7 +21,10 @@ const CANVAS_WIDTH = 2400;
 const CANVAS_HEIGHT = 440;
 const LINE_SPACING = 20;
 const FONT_SIZE = 540;
-const MORPH_DURATION = 5000; // 5 секунд
+const MORPH_DURATION = 5000;
+
+// Thresholds для IntersectionObserver — 7 вместо 101
+const INTERSECTION_THRESHOLDS = [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1];
 
 const createTextCanvas = (text: string, x: number, y: number): HTMLCanvasElement => {
     const canvas = document.createElement('canvas');
@@ -30,7 +33,7 @@ const createTextCanvas = (text: string, x: number, y: number): HTMLCanvasElement
 
     const ctx = canvas.getContext('2d', {
         alpha: true,
-        willReadFrequently: true // Мы читаем imageData
+        willReadFrequently: true,
     });
     if (!ctx) throw new Error('Canvas context not available');
 
@@ -149,18 +152,19 @@ const useLineInitialization = (fontLoaded: boolean) => {
     return linesRef;
 };
 
-const useInitialAnimation = (fontLoaded: boolean, linesRef: React.MutableRefObject<Line[]>) => {
+const useInitialAnimation = (fontLoaded: boolean, linesRef: React.MutableRefObject<Line[]>, isInViewport: boolean) => {
     const [initialAnimationComplete, setInitialAnimationComplete] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const animationProgress = useMotionValue(0);
     const smoothProgress = useSpring(animationProgress, {
         stiffness: 50,
         damping: 20,
-        mass: 1
+        mass: 1,
     });
 
     useEffect(() => {
-        if (!fontLoaded || linesRef.current.length === 0 || initialAnimationComplete) return;
+        // Не запускаем начальную анимацию если не в viewport
+        if (!fontLoaded || linesRef.current.length === 0 || initialAnimationComplete || !isInViewport) return;
 
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -168,7 +172,7 @@ const useInitialAnimation = (fontLoaded: boolean, linesRef: React.MutableRefObje
         const ctx = canvas.getContext('2d', {
             alpha: true,
             desynchronized: true,
-            willReadFrequently: false
+            willReadFrequently: false,
         });
         if (!ctx) return;
 
@@ -178,10 +182,8 @@ const useInitialAnimation = (fontLoaded: boolean, linesRef: React.MutableRefObje
             const linesPath = new Path2D();
             linesRef.current.forEach((line, index) => {
                 const direction = index % 2 === 0 ? 1 : -1;
-
-                // Используем latest напрямую, без дополнительных преобразований
-                const currentX1 = line.originalX1 - (direction * 800 * (1 - latest));
-                const currentX2 = line.originalX2 - (direction * 800 * (1 - latest));
+                const currentX1 = line.originalX1 - direction * 800 * (1 - latest);
+                const currentX2 = line.originalX2 - direction * 800 * (1 - latest);
 
                 linesPath.moveTo(currentX1, line.originalY1);
                 linesPath.lineTo(currentX2, line.originalY2);
@@ -192,9 +194,7 @@ const useInitialAnimation = (fontLoaded: boolean, linesRef: React.MutableRefObje
             ctx.lineCap = 'round';
             ctx.stroke(linesPath);
 
-            // Завершаем анимацию только когда progress достаточно близок к 1
             if (latest >= 0.995) {
-                // Финальный рендер с точными позициями
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 const finalPath = new Path2D();
                 linesRef.current.forEach((line) => {
@@ -210,102 +210,106 @@ const useInitialAnimation = (fontLoaded: boolean, linesRef: React.MutableRefObje
             }
         });
 
-        // Запускаем анимацию
         animationProgress.set(1);
 
         return () => {
             unsubscribe();
         };
-    }, [fontLoaded, initialAnimationComplete, animationProgress, smoothProgress]);
+    }, [fontLoaded, initialAnimationComplete, animationProgress, smoothProgress, isInViewport]);
 
     return { initialAnimationComplete, canvasRef };
 };
 
-const MorphingWord: React.FC = () => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [morphTarget, setMorphTarget] = useState(false);
-    const timerProgressRef = useRef(0); // Прогресс таймера от 0 до 1
-
-    // Проверяем prefers-reduced-motion один раз при инициализации
-    const [prefersReducedMotion] = useState(() =>
-        typeof window !== 'undefined'
-            ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-            : false
-    );
-
-    // Используем Framer Motion для плавного морфинга
-    const morphProgress = useMotionValue(0);
-    const smoothMorphProgress = useSpring(morphProgress, {
-        stiffness: prefersReducedMotion ? 100 : 40,
-        damping: prefersReducedMotion ? 30 : 25,
-        mass: prefersReducedMotion ? 0.5 : 1.2
-    });
-
-    // Прогресс анимации выхода из viewport (0 = полностью виден, 1 = полностью скрыт)
+// Хук для отслеживания viewport visibility
+const useViewportVisibility = (canvasRef: React.RefObject<HTMLCanvasElement | null>) => {
+    const [isInViewport, setIsInViewport] = useState(true);
     const exitProgress = useMotionValue(0);
     const smoothExitProgress = useSpring(exitProgress, {
         stiffness: 60,
         damping: 20,
-        mass: 0.8
+        mass: 0.8,
     });
 
-    const fontLoaded = useFontLoader();
-    const linesRef = useLineInitialization(fontLoaded);
-    const { initialAnimationComplete, canvasRef: initialCanvasRef } = useInitialAnimation(fontLoaded, linesRef);
+    // Opacity на основе exitProgress: 1 при 0, 0 при 1
+    const opacity = useTransform(smoothExitProgress, [0, 0.8, 1], [1, 0.3, 0]);
 
-    // Связываем рефы
-    useEffect(() => {
-        initialCanvasRef.current = canvasRef.current;
-    }, []);
-
-    // Отслеживаем видимость компонента через Intersection Observer
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                // entry.intersectionRatio: 0 = полностью скрыт, 1 = полностью виден
                 const ratio = entry.intersectionRatio;
+                const isVisible = entry.isIntersecting && ratio > 0.05;
 
-                // Обновляем прогресс выхода (инвертируем: 1 = виден, 0 = скрыт)
+                setIsInViewport(isVisible);
                 exitProgress.set(1 - ratio);
             },
             {
-                threshold: Array.from({ length: 101 }, (_, i) => i / 100), // 0, 0.01, 0.02 ... 1.0
-                rootMargin: '-100px 0px 0px 0px' // Начинаем анимацию на 100px раньше
+                threshold: INTERSECTION_THRESHOLDS,
+                rootMargin: '-100px 0px 0px 0px',
             }
         );
 
         observer.observe(canvas);
 
-        return () => {
-            observer.disconnect();
-        };
-    }, [exitProgress]);
+        return () => observer.disconnect();
+    }, [exitProgress, canvasRef]);
 
-    // Автоматическое переключение каждые MORPH_DURATION секунд с отслеживанием прогресса
+    return { isInViewport, exitProgress: smoothExitProgress, opacity };
+};
+
+const MorphingWord: React.FC = () => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [morphTarget, setMorphTarget] = useState(false);
+    const timerProgressRef = useRef(0);
+
+    const [prefersReducedMotion] = useState(() =>
+        typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+    );
+
+    const morphProgress = useMotionValue(0);
+    const smoothMorphProgress = useSpring(morphProgress, {
+        stiffness: prefersReducedMotion ? 100 : 40,
+        damping: prefersReducedMotion ? 30 : 25,
+        mass: prefersReducedMotion ? 0.5 : 1.2,
+    });
+
+    const fontLoaded = useFontLoader();
+    const linesRef = useLineInitialization(fontLoaded);
+
+    // Viewport tracking
+    const { isInViewport, exitProgress, opacity } = useViewportVisibility(canvasRef);
+
+    const { initialAnimationComplete, canvasRef: initialCanvasRef } = useInitialAnimation(
+        fontLoaded,
+        linesRef,
+        isInViewport
+    );
+
+    // Связываем рефы
     useEffect(() => {
-        if (!initialAnimationComplete) return;
+        initialCanvasRef.current = canvasRef.current;
+    }, [initialCanvasRef]);
+
+    // Таймер морфинга — останавливается когда не в viewport
+    useEffect(() => {
+        if (!initialAnimationComplete || !isInViewport) return;
 
         let startTime = Date.now();
         let pausedTime = 0;
         let isPaused = false;
 
-        // Инициализируем таймер с 0, чтобы анимация начиналась сразу
         timerProgressRef.current = 0;
 
-        // Обработчик изменения видимости страницы
         const handleVisibilityChange = () => {
             if (document.hidden) {
-                // Страница скрыта - ставим на паузу
                 isPaused = true;
                 pausedTime = Date.now();
             } else {
-                // Страница видима - возобновляем
                 if (isPaused) {
                     const pauseDuration = Date.now() - pausedTime;
-                    startTime += pauseDuration; // Компенсируем время паузы
+                    startTime += pauseDuration;
                     isPaused = false;
                 }
             }
@@ -314,34 +318,37 @@ const MorphingWord: React.FC = () => {
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         const updateTimer = () => {
-            if (isPaused) return; // Не обновляем таймер если на паузе
+            if (isPaused) return;
 
             const elapsed = Date.now() - startTime;
             timerProgressRef.current = Math.min(elapsed / MORPH_DURATION, 1);
 
             if (elapsed >= MORPH_DURATION) {
-                setMorphTarget(prev => !prev);
+                setMorphTarget((prev) => !prev);
                 startTime = Date.now();
                 timerProgressRef.current = 0;
             }
         };
 
-        const interval = setInterval(updateTimer, 16); // ~60fps
+        const interval = setInterval(updateTimer, 16);
 
         return () => {
             clearInterval(interval);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [initialAnimationComplete, morphTarget]);
+    }, [initialAnimationComplete, morphTarget, isInViewport]);
 
     // Обновляем целевое значение морфинга
     useEffect(() => {
         morphProgress.set(morphTarget ? 1 : 0);
     }, [morphTarget, morphProgress]);
 
-    // Анимация морфинга с волновым эффектом
+    // Основная анимация — полностью останавливается когда не в viewport
     useEffect(() => {
         if (!fontLoaded || linesRef.current.length === 0 || !initialAnimationComplete) return;
+
+        // Критично: не запускаем RAF если не в viewport
+        if (!isInViewport) return;
 
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -349,7 +356,7 @@ const MorphingWord: React.FC = () => {
         const ctx = canvas.getContext('2d', {
             alpha: true,
             desynchronized: true,
-            willReadFrequently: false
+            willReadFrequently: false,
         });
         if (!ctx) return;
 
@@ -358,21 +365,22 @@ const MorphingWord: React.FC = () => {
         let lastExitProgress = 0;
         let isPageVisible = !document.hidden;
 
-        // Создаём lookup table для градиента (предвычисляем все цвета)
-        // Это даёт плавность без пересчёта RGB на каждом кадре
+        // Gradient LUT
         const gradientLUT = new Map<number, string>();
 
         const getGradientColor = (position: number): string => {
-            // position от 0 до 1, где 0 = зелёный, 1 = синий
-            const lutKey = Math.round(position * 1000); // 1000 уникальных цветов в градиенте
+            const lutKey = Math.round(position * 1000);
 
             if (gradientLUT.has(lutKey)) {
                 return gradientLUT.get(lutKey)!;
             }
 
-            // Вычисляем цвет только один раз для каждой позиции
-            const greenR = 229, greenG = 255, greenB = 171;
-            const blueR = 107, blueG = 159, blueB = 255;
+            const greenR = 229,
+                greenG = 255,
+                greenB = 171;
+            const blueR = 107,
+                blueG = 159,
+                blueB = 255;
 
             const r = Math.round(greenR + (blueR - greenR) * position);
             const g = Math.round(greenG + (blueG - greenG) * position);
@@ -384,7 +392,6 @@ const MorphingWord: React.FC = () => {
             return color;
         };
 
-        // Оптимизированная функция получения цвета с использованием LUT
         const getOptimizedLineColor = (lineY: number, currentMorphProgress: number): string => {
             const textStartY = 0;
             const textEndY = CANVAS_HEIGHT;
@@ -431,54 +438,44 @@ const MorphingWord: React.FC = () => {
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Группируем линии по цвету для батчинга
-            const colorGroups = new Map<string, Array<{x1: number, y1: number, x2: number, y2: number, lineWidth: number}>>();
+            const colorGroups = new Map<
+                string,
+                Array<{ x1: number; y1: number; x2: number; y2: number; lineWidth: number }>
+            >();
 
             linesRef.current.forEach((line, index) => {
-                // Базовый морфинг с индивидуальной задержкой для волнового эффекта
                 const lineDelay = (index / linesRef.current.length) * 0.15;
-                const adjustedProgress = Math.max(0, Math.min(1,
-                    (currentMorphProgress - lineDelay) / (1 - lineDelay)
-                ));
+                const adjustedProgress = Math.max(0, Math.min(1, (currentMorphProgress - lineDelay) / (1 - lineDelay)));
 
-                // Применяем easing для более органичного движения
-                const eased = adjustedProgress < 0.5
-                    ? 4 * adjustedProgress * adjustedProgress * adjustedProgress
-                    : 1 - Math.pow(-2 * adjustedProgress + 2, 3) / 2;
+                const eased =
+                    adjustedProgress < 0.5
+                        ? 4 * adjustedProgress * adjustedProgress * adjustedProgress
+                        : 1 - Math.pow(-2 * adjustedProgress + 2, 3) / 2;
 
                 const baseX1 = line.originalX1 + (line.signX1 - line.originalX1) * eased;
                 const baseY1 = line.originalY1 + (line.signY1 - line.originalY1) * eased;
                 const baseX2 = line.originalX2 + (line.signX2 - line.originalX2) * eased;
                 const baseY2 = line.originalY2 + (line.signY2 - line.originalY2) * eased;
 
-                // Добавляем небольшое волнообразное движение во время перехода
                 const waveFactor = Math.sin(adjustedProgress * Math.PI);
                 const waveOffset = waveFactor * 5 * (index % 2 === 0 ? 1 : -1);
 
-                // Применяем анимацию разлёта линий при выходе из viewport
-                // Чётные индексы летят влево, нечётные вправо
                 const spreadDirection = index % 2 === 0 ? -1 : 1;
-                const spreadDistance = currentExitProgress * 800; // Максимум 800px разлёта
-
-                // Добавляем эффект ускорения при разлёте
-                const spreadEasing = currentExitProgress * currentExitProgress; // Quadratic easing
+                const spreadDistance = currentExitProgress * 800;
+                const spreadEasing = currentExitProgress * currentExitProgress;
                 const finalSpreadX = spreadDirection * spreadDistance * (1 + spreadEasing);
 
-                // Обновляем позиции линий
                 line.x1 = baseX1 + finalSpreadX;
                 line.y1 = baseY1 + waveOffset;
                 line.x2 = baseX2 + finalSpreadX;
                 line.y2 = baseY2 + waveOffset;
 
-                // Получаем цвет
                 const color = getOptimizedLineColor(baseY1, currentMorphProgress);
 
-                // Динамическое изменение толщины линий во время морфинга
                 const morphPhase = Math.sin(adjustedProgress * Math.PI);
                 const dynamicLineWidth = 5 + morphPhase * 1.5;
 
-                // Группируем по цвету (округляем lineWidth для лучшего батчинга)
-                const roundedLineWidth = Math.round(dynamicLineWidth * 2) / 2; // 0.5px precision
+                const roundedLineWidth = Math.round(dynamicLineWidth * 2) / 2;
                 const groupKey = `${color}-${roundedLineWidth}`;
 
                 if (!colorGroups.has(groupKey)) {
@@ -490,17 +487,16 @@ const MorphingWord: React.FC = () => {
                     y1: line.y1,
                     x2: line.x2,
                     y2: line.y2,
-                    lineWidth: roundedLineWidth
+                    lineWidth: roundedLineWidth,
                 });
             });
 
-            // Рендерим сгруппированные линии
             colorGroups.forEach((lines, groupKey) => {
                 const [color, lineWidthStr] = groupKey.split('-');
                 const lineWidth = parseFloat(lineWidthStr);
 
                 const path = new Path2D();
-                lines.forEach(({x1, y1, x2, y2}) => {
+                lines.forEach(({ x1, y1, x2, y2 }) => {
                     path.moveTo(x1, y1);
                     path.lineTo(x2, y2);
                 });
@@ -512,17 +508,14 @@ const MorphingWord: React.FC = () => {
             });
         };
 
-        // Обработчик видимости страницы
         const handleVisibilityChange = () => {
             isPageVisible = !document.hidden;
 
             if (isPageVisible) {
-                // Страница стала видимой - возобновляем рендеринг
                 if (!rafId) {
                     rafId = requestAnimationFrame(animate);
                 }
             } else {
-                // Страница скрыта - останавливаем рендеринг
                 if (rafId !== null) {
                     cancelAnimationFrame(rafId);
                     rafId = null;
@@ -536,11 +529,10 @@ const MorphingWord: React.FC = () => {
             lastMorphProgress = currentMorphProgress;
         });
 
-        const unsubscribeExit = smoothExitProgress.on('change', (currentExitProgress) => {
+        const unsubscribeExit = exitProgress.on('change', (currentExitProgress) => {
             lastExitProgress = currentExitProgress;
         });
 
-        // Постоянная перерисовка для обновления цветов таймера и анимации разлёта
         const animate = () => {
             if (isPageVisible) {
                 render(lastMorphProgress, lastExitProgress);
@@ -560,7 +552,7 @@ const MorphingWord: React.FC = () => {
                 cancelAnimationFrame(rafId);
             }
         };
-    }, [fontLoaded, initialAnimationComplete, smoothMorphProgress, smoothExitProgress]);
+    }, [fontLoaded, initialAnimationComplete, smoothMorphProgress, exitProgress, isInViewport]);
 
     return (
         <motion.canvas
@@ -568,7 +560,7 @@ const MorphingWord: React.FC = () => {
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
             className="morphing-word"
-            style={{ touchAction: 'pan-y' }}
+            style={{ touchAction: 'pan-y', opacity }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
