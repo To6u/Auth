@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import '@/pages/profile/components/hero/hero.css';
-import MorphingWord from '@/components/morphing-text/MorphingWord';
-import StaticLetters from '@/components/morphing-text/StaticLetters';
 
 const ANIMATION_DELAY = 100;
 
@@ -16,10 +14,8 @@ const Hero = () => {
     return (
         <section className="hero">
             <div className={`hero__content ${isVisible ? 'visible' : ''}`}>
-                <div className="hero__subtitle">
-                    <StaticLetters />
-                    <MorphingWord />
-                </div>
+                <div>DE</div>
+                <div>ER</div>
             </div>
         </section>
     );

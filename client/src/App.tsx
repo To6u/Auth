@@ -8,6 +8,8 @@ import WavesBackground from 'client/src/components/wave-bg/WavesBackground';
 import ThinWavesBackground from 'client/src/components/wave-bg/ThinWavesBackground.tsx';
 import { AnimatePresence } from 'framer-motion';
 import 'client/src/components/layout/layout.css';
+import WavesBackgroundWebGL from '@/components/wave-bg/WavesBackgroundWebGL.tsx';
+import WavesWithText from '@/components/wave-bg/WavesWithText.tsx';
 
 // Компонент-обёртка для страниц
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -53,6 +55,8 @@ function AnimatedRoutes() {
 
             <ThinWavesBackground />
             <WavesBackground />
+            {/*<WavesBackgroundWebGL />*/}
+            <WavesWithText />
         </>
     );
 }
