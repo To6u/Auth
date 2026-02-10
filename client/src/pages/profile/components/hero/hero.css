@@ -10,6 +10,8 @@
 
 /* Content */
 .hero__content {
+    display: grid;
+    grid-gap: 200px;
     position: relative;
     text-align: center;
     padding: 0 2rem;
@@ -17,11 +19,22 @@
     transform: translateY(30px);
     transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2;
+    font-size: 150px;
+    font-family: 'Inter', serif;
+    font-weight: 900;
+    text-shadow:
+        0 0 40px rgb(255 255 255 / 30%),
+        0 0 3px rgb(255 255 255 / 80%);
 }
 
 .hero__content.visible {
     opacity: 1;
     transform: translateY(0) translateZ(0);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.hero__content:last-child {
+    margin-top: -10px;
 }
 
 /* Subtitle - контейнер с градиентом */

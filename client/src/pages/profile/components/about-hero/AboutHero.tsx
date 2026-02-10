@@ -6,6 +6,16 @@ import { fadeInUp } from './animations';
 import { TYPEWRITER_WORDS, TYPEWRITER_CONFIG } from './constants';
 import './about-hero.css';
 import ScrollProgressIndicator from '@/pages/profile/components/about-hero/ScrollProgressIndicator.tsx';
+import { ExpandableContent } from '@/components/expandable-content/ExpandableContent.tsx';
+import { CardGallery } from '@/components/card-gallery/CardGallery.tsx';
+import FilmStrip, { FilmFrame } from '@/components/film-strip/FilmStrip.tsx';
+const images = import.meta.glob('@/assets/about-images/*.jpg', { eager: true, import: 'default' }) as Record<
+    string,
+    string
+>;
+
+// превратить в массив
+const gallery = Object.values(images);
 
 /** Хелпер для комбинирования MotionValue (enter * exit) */
 const useCombinedOpacity = (enter: MotionValue<number>, exit: MotionValue<number>) => {
@@ -26,7 +36,7 @@ export const AboutHero = memo(() => {
     // Section One: появление (от входа в viewport до полного появления)
     const { scrollYProgress: sectionOneEnterProgress } = useScroll({
         target: sectionOneRef,
-        offset: ['start end', 'start 20%'], // появляется когда верх секции доходит до 60% viewport
+        offset: ['40% end', 'start 20%'], // появляется когда верх секции доходит до 60% viewport
     });
 
     // Section One: выход (когда секция уходит вверх за viewport)
@@ -86,6 +96,19 @@ export const AboutHero = memo(() => {
     const sectionTwoY = useTransform(() => sectionTwoEnterY.get() + sectionTwoExitY.get());
 
     // ═══════════════════════════════════════════════════════════════
+    // GALLERY — scroll-driven (с задержкой относительно heading)
+    // ═══════════════════════════════════════════════════════════════
+
+    const galleryEnterScale = useTransform(sectionOneEnterProgress, [0.4, 1], [0, 1]);
+    const galleryEnterOpacity = useTransform(sectionOneEnterProgress, [0.4, 1], [0, 1]);
+
+    const galleryExitScale = useTransform(sectionOneExitProgress, [0, 1], [1, 0.7]);
+    const galleryExitOpacity = useTransform(sectionOneExitProgress, [0, 0.6], [1, 0]);
+
+    const galleryOpacity = useCombinedOpacity(galleryEnterOpacity, galleryExitOpacity);
+    const galleryScale = useTransform(() => galleryEnterScale.get() * galleryExitScale.get());
+
+    // ═══════════════════════════════════════════════════════════════
     // SECTION THREE — полностью scroll-driven
     // ═══════════════════════════════════════════════════════════════
 
@@ -126,8 +149,19 @@ export const AboutHero = memo(() => {
         onFirstWordComplete: handleFirstWordComplete,
     });
 
+    const frames: FilmFrame[] = gallery.map((src, index) => ({
+        id: index,
+        image: src,
+    }));
+
     return (
         <section id="aboutHero" className="about-hero">
+            <FilmStrip
+                frames={frames}
+                frameSize={80} // размер кадра в px
+                frameGap={8} // расстояние между кадрами (% от path)
+                duration={200}
+            />
             {/* Name Section */}
             <div className="about-name" ref={nameRef}>
                 <motion.span
@@ -184,6 +218,11 @@ export const AboutHero = memo(() => {
                         <h2>Откуда я такой взялся</h2>
                         <span>немного о местности</span>
                     </motion.div>
+                    {/*<CardGallery*/}
+                    {/*    images={gallery}*/}
+                    {/*    enterProgress={sectionOneEnterProgress}*/}
+                    {/*    exitProgress={sectionOneExitProgress}*/}
+                    {/*/>*/}
                 </div>
 
                 {/* Section Title (полностью scroll-driven) */}
@@ -228,33 +267,31 @@ const SectionOneContent = memo(() => (
         <div className="about-section__content">
             <span>Откуда?</span>
             <p>
-                Привет! Меня зовут Нияз. Я из небольшого поселка под названием{' '}
+                Меня зовут Нияз. Я из{' '}
                 <PopoverTrigger id="popover-barda" content="Село в Пермском крае, основано в 1740 году">
-                    Барда
+                    Барды
                 </PopoverTrigger>
-                , который располагается недалеко от города{' '}
+                — села в двух часах от{' '}
                 <PopoverTrigger id="popover-perm" content="Город-миллионник на Урале">
                     Перми
                 </PopoverTrigger>
                 .
             </p>
 
-            <span>и Чё там есть?</span>
+            <span>И чё там есть?</span>
             <p>
-                Да в принципе немного, природа, пруд, речка{' '}
+                Природа, пруд, речка{' '}
                 <PopoverTrigger id="popover-kazmakty" content="Небольшая речка в Бардымском районе">
                     Казмакты
-                </PopoverTrigger>{' '}
-                который втекает в речку побольше{' '}
+                </PopoverTrigger>
+                , которая впадает в{' '}
                 <PopoverTrigger id="popover-tulva" content="Река длиной 118 км, приток Камы">
                     Тулву
                 </PopoverTrigger>
-                , а так отличное место чтобы отдохнуть от городской суеты.
+                . Хорошее место выдохнуть от города.
             </p>
 
-            <span>да, круто, что еще можешь рассказать?</span>
-            <p>Чего рассказывать, пока сам не увидишь - не поймешь, для кого-то «дыра дырой», кому-то родной край.</p>
-            <span>пс. мне ближе то, что последее</span>
+            <span>Для кого-то «дыра дырой». Мне — родной край.</span>
         </div>
     </div>
 ));
@@ -270,16 +307,16 @@ const SectionThreeContent = memo(() => {
             <ScrollProgressIndicator containerRef={contentRef} headingSelector=".about-section__title" />
 
             <h2 className="about-section__title">Детство</h2>
-            <div className="about-section__content">
-                <span>совсем мелкий</span>
+            <ExpandableContent className="about-section__content">
+                <span>Совсем мелкий</span>
                 <p>Помню смутно. В основном — как с братом делили всё подряд.</p>
-                <span>до школы</span>
+                <span>До школы</span>
                 <p>Родители на работе — мы у соседей. То этажом выше, то ниже. Нормальная схема.</p>
-                <span>главное воспоминание: Сломал руку на детской площадке. Орал так, что до сих пор помню.</span>
-            </div>
+                <span>Сломал руку на площадке. Орал так, что до сих пор помню.</span>
+            </ExpandableContent>
 
             <h2 className="about-section__title">Школьные годы</h2>
-            <div className="about-section__content">
+            <ExpandableContent className="about-section__content">
                 <p>
                     <PopoverTrigger
                         id="popover-barda-gimnaziyasi"
@@ -289,66 +326,62 @@ const SectionThreeContent = memo(() => {
                     </PopoverTrigger>
                     . Учился средне. Не ботан, не раздолбай — золотая середина.
                 </p>
-                <span>начальная школа</span>
-                <p>
-                    Ничего особенного. Один раз словил тряпкой от учительницы — сам виноват, нечего ворон считать{' '}
-                    <span>(◕‿◕)</span>
-                </p>
-                <p>Стандартная программа: школа, дом, школа, дом. Повторять до пятого класса.</p>
-                <span>постарше</span>
+                <span>Начальная школа</span>
+                <p>Ничего особенного. Раз словил тряпкой от учительницы — сам виноват, нечего ворон считать.</p>
+                <p>Школа, дом, школа, дом. Повторять до пятого класса.</p>
+                <span>Старшие классы</span>
                 <p>С девятого стало интереснее. Воспоминания — цветные.</p>
-                <span>итерес к web разработке</span>
+                <span>Интерес к вебу</span>
                 <p>
                     В 11 классе на информатике показали{' '}
                     <PopoverTrigger id="popover-html" content="HyperText Markup Language — язык разметки веб-страниц">
-                        html
+                        HTML
                     </PopoverTrigger>
-                    . Всё, пропал. Ночами смотрел видеоуроки по{' '}
-                    <PopoverTrigger
-                        id="popover-css"
-                        content="Cascading Style Sheets — язык стилей для оформления веб-страниц"
-                    >
-                        css
+                    . Всё, пропал. Ночами смотрел уроки по{' '}
+                    <PopoverTrigger id="popover-css" content="Cascading Style Sheets — язык стилей">
+                        CSS
                     </PopoverTrigger>{' '}
                     и{' '}
-                    <PopoverTrigger
-                        id="popover-php"
-                        content="PHP: Hypertext Preprocessor — серверный язык программирования"
-                    >
-                        php
+                    <PopoverTrigger id="popover-php" content="PHP: Hypertext Preprocessor — серверный язык">
+                        PHP
                     </PopoverTrigger>
                     .{' '}
+                    <PopoverTrigger id="popover-js" content="JavaScript — язык для интерактивности на сайтах">
+                        JS
+                    </PopoverTrigger>{' '}
+                    не заходил — мозг отказывался. Зашёл только в универе, когда вышел первый{' '}
                     <PopoverTrigger
-                        id="popover-js"
-                        content="JavaScript + jQuery — язык и библиотека для интерактивности на сайтах"
+                        id="popover-angular"
+                        content="JavaScript-фреймворк от Google, первая версия вышла в 2010 году"
                     >
-                        js
-                    </PopoverTrigger>{' '}
-                    не заходил вообще — мозг отказывался. Зашёл только в универе, когда вышел первый ангуляр.
-                </p>
-                <span>
-                    Яркие моменты — не код. Летом катались на скейтах по убитому асфальту. Зимой — на{' '}
-                    <PopoverTrigger id="popover-utar" content="Небольшая гора в Барде, где в основном катаются лыжники">
-                        «Утар»
-                    </PopoverTrigger>{' '}
-                    со сноубордом. Вечерами —{' '}
-                    <PopoverTrigger id="popover-la2" content="Lineage 2 — популярная MMORPG от NCsoft">
-                        la2
+                        Angular
                     </PopoverTrigger>
-                    . Между делом сделал первый сайт — про{' '}
+                    .
+                </p>
+
+                <span>
+                    Летом — скейт по убитому асфальту. Зимой — сноуборд на{' '}
+                    <PopoverTrigger id="popover-utar" content="Небольшая гора в Барде">
+                        «Утаре»
+                    </PopoverTrigger>
+                    . Вечерами —{' '}
+                    <PopoverTrigger id="popover-la2" content="Lineage 2 — популярная MMORPG">
+                        LA2
+                    </PopoverTrigger>
+                    . Первый сайт — про{' '}
                     <PopoverTrigger
                         id="popover-tmnt"
-                        content="Teenage Mutant Ninja Turtles — культовая франшиза о мутантах-черепахах. Сайт благополучно сдох — гита я тогда не знал"
+                        content="Teenage Mutant Ninja Turtles — культовая франшиза о черепахах-мутантах"
                     >
                         черепашек-ниндзя
                     </PopoverTrigger>
-                    . Гита не знал, сайт сдох. Бывает.
+                    . Гита не знал — сайт сдох.
                 </span>
-            </div>
+            </ExpandableContent>
 
             <h2 className="about-section__title">Студенчество</h2>
-            <div className="about-section__content">
-                <span>бакалавриат</span>
+            <ExpandableContent className="about-section__content">
+                <span>Бакалавриат</span>
                 <p>
                     <PopoverTrigger
                         id="popover-pnipu"
@@ -364,9 +397,10 @@ const SectionThreeContent = memo(() => {
                     <PopoverTrigger id="popover-ivt" content="Информатика и вычислительная техника">
                         ИВТ
                     </PopoverTrigger>
-                    . Четыре года в общаге с братом. Пролетело мгновенно. Есть что вспомнить.
+                    . Четыре года в общаге с братом. Пролетело мгновенно.
                 </p>
-                <span>магистратура</span>
+
+                <span>Магистратура</span>
                 <p>
                     Та же кафедра, специальность{' '}
                     <PopoverTrigger id="popover-ris" content="Разработка информационных систем">
@@ -374,12 +408,69 @@ const SectionThreeContent = memo(() => {
                     </PopoverTrigger>
                     . Ещё два года. Повезло с общагой, повезло с людьми.
                 </p>
+
+                <span>Первая работа за деньги</span>
+                <p>
+                    Четвёртый курс. Устроился в какую-то веб-студию — название уже не вспомню. Неделя. Там был{' '}
+                    <PopoverTrigger
+                        id="popover-1c"
+                        content="1С:Предприятие — платформа для автоматизации бизнеса, со своим языком программирования"
+                    >
+                        1С
+                    </PopoverTrigger>
+                    . Я в нём ни черта. Ушёл (выгнали).
+                </p>
+
+                <span>Ещё попытки</span>
+                <p>Пара мест не по специальности: техподдержка и веб-дизайнер. В каждом — около полугода.</p>
+
+                <span>Подтянулся</span>
+                <p>
+                    Немного прокачал оформление страниц — ну, не бомба, но и не стыдно. Год фриланса. Устал от
+                    нестабильных денег — пошёл искать найм.
+                </p>
+
+                <span>Собесы</span>
+                <p>
+                    Ходил, не особо успешно. Однажды сами нашли: «Будешь делать личный кабинет Ростелекома» (ага, прям
+                    так и сказали). Взяли, чему я был очень рад.{' '}
+                    <PopoverTrigger
+                        id="popover-react"
+                        content="JavaScript-библиотека от Meta* для создания пользовательских интерфейсов"
+                    >
+                        React
+                    </PopoverTrigger>
+                    ,{' '}
+                    <PopoverTrigger
+                        id="popover-ts"
+                        content="TypeScript — надстройка над JavaScript с типизацией от Microsoft"
+                    >
+                        TypeScript
+                    </PopoverTrigger>{' '}
+                    — то, что искал.
+                </p>
+
                 <span>
-                    Веб не бросал. В бакалавриате был курс по С++ — не зашёл, мозг буксовал. Программирования толком не
-                    было, но диплом всё равно сделал на вебе. Специальность не та, ну и ладно. В магистратуре кода было
-                    больше, язык — на выбор. Диплом писал на C#, что-то с 3D-моделями. Детали уже не помню.
+                    Веб не бросал. В бакалавриате был{' '}
+                    <PopoverTrigger id="popover-cpp" content="Язык программирования общего назначения, расширение C">
+                        C++
+                    </PopoverTrigger>{' '}
+                    — не зашёл. Диплом сделал на вебе. В магистратуре — больше кода, язык на выбор. Диплом писал на{' '}
+                    <PopoverTrigger
+                        id="popover-csharp"
+                        content="Объектно-ориентированный язык от Microsoft, часть платформы .NET"
+                    >
+                        C#
+                    </PopoverTrigger>
+                    , что-то с 3D-моделями.
                 </span>
-            </div>
+            </ExpandableContent>
+
+            <h2 className="about-section__title">Реальность</h2>
+            <ExpandableContent className="about-section__content">
+                <span>Работа</span>
+                <p></p>
+            </ExpandableContent>
         </div>
     );
 });

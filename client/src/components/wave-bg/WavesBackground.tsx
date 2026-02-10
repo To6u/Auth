@@ -185,6 +185,11 @@ const WavesBackground = () => {
     ) => {
         ctx.save();
 
+        // НОВОЕ: Применяем blur если указан в конфиге
+        if (wave.blur && wave.blur > 0) {
+            ctx.filter = `blur(${wave.blur}px)`;
+        }
+
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate(Math.PI / 4);
         ctx.translate(-canvas.width / 2, -canvas.height / 2);
