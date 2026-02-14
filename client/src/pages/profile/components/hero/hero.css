@@ -49,6 +49,35 @@
     contain: layout style;
 }
 
+.hero__letters {
+    display: flex;
+    justify-content: center;
+}
+
+.letter {
+    display: inline-block;
+    will-change: transform, opacity;
+}
+
+/* Пульсация text-shadow */
+.letter--pulse {
+    animation: shadow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes shadow-pulse {
+    0%,
+    100% {
+        text-shadow:
+            0 0 40px rgb(255 255 255 / 30%),
+            0 0 3px rgb(255 255 255 / 10%);
+    }
+    50% {
+        text-shadow:
+            0 0 40px rgb(255 255 255 / 30%),
+            0 0 3px rgb(255 255 255 / 80%);
+    }
+}
+
 @media (max-width: 480px) {
     .hero__content {
         padding: 0 1rem;

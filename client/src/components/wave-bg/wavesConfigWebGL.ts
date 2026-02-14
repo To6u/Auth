@@ -43,12 +43,12 @@ const parseRGBA = (rgba: string): [number, number, number, number] => {
 export const wavesConfig: WaveConfig[] = [
     // Дальняя волна (тонкая, прозрачная)
     {
-        amplitude: 80,
+        amplitude: 180,
         frequency: 0.003,
         phase: 0,
         speed: 0.003,
         verticalSpeed: 50, // Исправлено: теперь даёт заметное вертикальное движение
-        gradientColors: ['rgba(255,9,206,0.8)', 'rgba(0,162,255,0.84)'],
+        gradientColors: ['rgba(255,9,206,0.9)', 'rgba(0,162,255,0.9)'],
         lineWidth: 440,
         widthModulation: {
             frequency: 0.002,
@@ -74,8 +74,8 @@ export const wavesConfig: WaveConfig[] = [
         phase: Math.PI * 0.5,
         speed: 0.002,
         verticalSpeed: 60,
-        gradientColors: ['rgba(14,69,248,0.9)', 'rgba(255,165,2,0.83)'],
-        lineWidth: 160,
+        gradientColors: ['rgba(14,69,248,0.9)', 'rgba(255,165,2,0.9)'],
+        lineWidth: 560,
         widthModulation: {
             frequency: 0.0015,
             amplitude: 0.5,
@@ -100,8 +100,8 @@ export const wavesConfig: WaveConfig[] = [
         phase: Math.PI,
         speed: 0.002,
         verticalSpeed: 80,
-        gradientColors: ['rgba(17,255,112,0.8)', 'rgba(140,24,248,0.76)'],
-        lineWidth: 380,
+        gradientColors: ['rgba(17,255,112,0.9)', 'rgba(140,24,248,0.9)'],
+        lineWidth: 580,
         widthModulation: {
             frequency: 0.003,
             amplitude: 0.6,

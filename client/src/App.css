@@ -1,19 +1,12 @@
 :root {
-    --noise-bg: none;
-
-    background:
-        var(--noise-bg),
-        linear-gradient(
+    background: linear-gradient(
             57deg,
             hsl(246, 73%, 10%) 0%,
             hsl(223, 76%, 21%) 36%,
             hsl(213, 85%, 11%) 75%,
             hsl(264, 80%, 12%) 100%
-        );
-    background-attachment: fixed;
-    background-size:
-        100px 100px,
-        cover;
+        )
+        fixed;
     background-blend-mode: overlay;
 }
 

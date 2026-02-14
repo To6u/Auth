@@ -82,6 +82,19 @@ const TEXT_COLORS = {
     fill: [107 / 255, 159 / 255, 255 / 255, 1.0] as [number, number, number, number], // #6B9FFF
 };
 
+// Конфигурация скролл-анимации волн
+const WAVE_SCROLL_CONFIG = {
+    // Позиция волн: от центра (0.5) к верху (0.08)
+    startVerticalPosition: 0.5,
+    endVerticalPosition: 0.02,
+    // Целевая ширина линии при полном скролле
+    targetLineWidth: 50,
+    // Скорость сглаживания
+    smoothing: 0.08,
+    // Диапазон скролла (в долях viewport height)
+    scrollRange: 0.9,
+};
+
 // ==================== SHADERS ====================
 
 const WAVE_VERTEX_SHADER = `
@@ -330,20 +343,34 @@ const calculateWaveY = (
     time: number,
     height: number,
     mouse: MouseState,
-    dpr: number
+    dpr: number,
+    scrollProgress: number = 0
 ): number => {
     const phase = wave.phase + time * wave.speed * WAVE_SPEED_MULTIPLIER;
-    const baseY = height * 0.5 + wave.verticalSpeed * Math.sin(time * 0.001);
 
-    let y = baseY + Math.sin(x * wave.frequency + phase) * wave.amplitude;
+    // Смещение от центра к верху при скролле
+    const { startVerticalPosition, endVerticalPosition } = WAVE_SCROLL_CONFIG;
+    const verticalPosition = startVerticalPosition - scrollProgress * (startVerticalPosition - endVerticalPosition);
 
+    // Затухание вертикального движения при скролле
+    const verticalMovement = wave.verticalSpeed * Math.sin(time * 0.001) * (1 - scrollProgress);
+    const baseY = height * verticalPosition + verticalMovement;
+
+    // Затухание амплитуды при скролле
+    const amplitudeFactor = 1 - scrollProgress * 0.7;
+    let y = baseY + Math.sin(x * wave.frequency + phase) * wave.amplitude * amplitudeFactor;
+
+    // Затухание tilt при скролле
     if (wave.tilt) {
+        const tiltFactor = 1 - scrollProgress;
         const tiltPhase = time * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
-        const tiltOffset = Math.sin(x * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * height;
+        const tiltOffset = Math.sin(x * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * height * tiltFactor;
         y += tiltOffset;
     }
 
-    if (mouse.smoothActive > 0.01) {
+    // Уменьшаем влияние мыши при скролле
+    if (mouse.smoothActive > 0.01 && scrollProgress < 0.8) {
+        const mouseInfluence = 1 - scrollProgress;
         const mouseX = mouse.smoothX * dpr;
         const mouseY = mouse.smoothY * dpr;
         const radius = MOUSE_CONFIG.radius * dpr;
@@ -353,7 +380,7 @@ const calculateWaveY = (
         const distanceX = Math.abs(dx);
 
         const gaussian = Math.exp(-(distanceX * distanceX) / (2 * sigma * sigma));
-        const strength = MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive;
+        const strength = MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive * mouseInfluence;
 
         y += (mouseY - y) * strength * 0.01;
     }
@@ -361,15 +388,21 @@ const calculateWaveY = (
     return y;
 };
 
-const calculateWaveWidth = (x: number, wave: WaveConfig, time: number): number => {
-    const baseWidth = wave.lineWidth * WAVE_WIDTH_MULTIPLIER;
+const calculateWaveWidth = (x: number, wave: WaveConfig, time: number, scrollProgress: number = 0): number => {
+    // Интерполяция от оригинальной ширины до целевой (50px)
+    const { targetLineWidth } = WAVE_SCROLL_CONFIG;
+    const interpolatedWidth = wave.lineWidth + (targetLineWidth - wave.lineWidth) * scrollProgress;
+    const baseWidth = interpolatedWidth * WAVE_WIDTH_MULTIPLIER;
 
     if (!wave.widthModulation) {
         return baseWidth;
     }
 
+    // Уменьшаем модуляцию при скролле
+    const modulationStrength = 1 - scrollProgress * 0.8;
     const phase = time * wave.widthModulation.speed * WAVE_SPEED_MULTIPLIER;
-    const modulation = Math.sin(x * wave.widthModulation.frequency + phase) * wave.widthModulation.amplitude;
+    const modulation =
+        Math.sin(x * wave.widthModulation.frequency + phase) * wave.widthModulation.amplitude * modulationStrength;
 
     return baseWidth * (1 + modulation);
 };
@@ -382,13 +415,14 @@ const fillWaveVertices = (
     time: number,
     step: number,
     mouse: MouseState,
-    dpr: number
+    dpr: number,
+    scrollProgress: number = 0
 ): number => {
     let idx = 0;
 
     for (let x = 0; x <= width; x += step) {
-        const y = calculateWaveY(x, wave, time, height, mouse, dpr);
-        const halfWidth = calculateWaveWidth(x, wave, time) / 2;
+        const y = calculateWaveY(x, wave, time, height, mouse, dpr, scrollProgress);
+        const halfWidth = calculateWaveWidth(x, wave, time, scrollProgress) / 2;
 
         buffer[idx++] = x;
         buffer[idx++] = y - halfWidth;
@@ -538,6 +572,7 @@ const WavesWithText = memo(() => {
         exitProgress: 0,
         scrollY: 0,
         mouseInfluence: 1, // 1 = полное влияние мыши, 0 = нет влияния
+        waveScrollProgress: 0, // Прогресс анимации волн при скролле
     });
 
     // Рендер одной волны
@@ -1000,9 +1035,20 @@ const WavesWithText = memo(() => {
             const step = calculateAdaptiveStep(width);
             const mouse = mouseRef.current;
             const dpr = dprRef.current;
+            const anim = textAnimationRef.current;
+
+            // Вычисляем scroll progress для волн
+            const viewportHeight = height / dpr;
+            const targetWaveProgress = Math.max(
+                0,
+                Math.min(1, anim.scrollY / (viewportHeight * WAVE_SCROLL_CONFIG.scrollRange))
+            );
+            anim.waveScrollProgress = lerp(anim.waveScrollProgress, targetWaveProgress, WAVE_SCROLL_CONFIG.smoothing);
+
+            const waveScrollProgress = anim.waveScrollProgress;
 
             // Получаем влияние мыши с учётом скролла
-            const mouseInfluence = textAnimationRef.current.mouseInfluence;
+            const mouseInfluence = anim.mouseInfluence;
 
             // Создаём эффективное состояние мыши с учётом влияния
             const effectiveMouse: MouseState = {
@@ -1023,7 +1069,8 @@ const WavesWithText = memo(() => {
                     time,
                     step,
                     effectiveMouse,
-                    dpr
+                    dpr,
+                    waveScrollProgress
                 );
                 renderWave(
                     gl,
@@ -1053,7 +1100,8 @@ const WavesWithText = memo(() => {
                         time,
                         step,
                         effectiveMouse,
-                        dpr
+                        dpr,
+                        waveScrollProgress
                     );
                     renderWave(
                         gl,
