@@ -29,7 +29,8 @@
       "@/utils/*": ["./src/utils/*"],
       "@/types/*": ["./src/types/*"],
       "@/constants/*": ["./src/constants/*"]
-    }
+    },
+    "types": ["vite/client"]
   },
   "include": [
     "src"
