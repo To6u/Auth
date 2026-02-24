@@ -87,10 +87,10 @@
     gap: 15px;
     align-items: flex-start;
     padding: 15px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 244, 234, 0.05);
     border-radius: 10px;
     color: #667eea;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 244, 234, 0.1);
 }
 
 .profile-field div {

@@ -19,7 +19,8 @@
 body,
 html {
     overflow-x: clip;
-    color: white;
+    color: rgba(255, 244, 234, 1);
+    overscroll-behavior-y: none;
 }
 
 p {
