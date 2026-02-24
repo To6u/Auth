@@ -2,7 +2,7 @@ import { parsedWaveColors, wavesConfig } from '@/components/wave-bg/wave-with-te
 import type { WaveShaderProgram, LineShaderProgram, TextLine, TextAnimState } from './wave-bg.types';
 import { fillLineBuffer } from './wave-bg.anim';
 
-const FLOATS_PER_VERTEX = 6;
+const FLOATS_PER_VERTEX = 8; // x, y, r, g, b, a, u, v
 
 export const renderWave = (
     gl: WebGLRenderingContext,
@@ -64,11 +64,15 @@ export const renderTextLines = (
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, lineDataBuf.subarray(0, idx), gl.DYNAMIC_DRAW);
 
-    const stride = FLOATS_PER_VERTEX * 4;
+    const stride = FLOATS_PER_VERTEX * 4; // 32 bytes
     gl.enableVertexAttribArray(program.locations.position);
     gl.vertexAttribPointer(program.locations.position, 2, gl.FLOAT, false, stride, 0);
     gl.enableVertexAttribArray(program.locations.color);
     gl.vertexAttribPointer(program.locations.color, 4, gl.FLOAT, false, stride, 2 * 4);
+    gl.enableVertexAttribArray(program.locations.u);
+    gl.vertexAttribPointer(program.locations.u, 1, gl.FLOAT, false, stride, 6 * 4);
+    gl.enableVertexAttribArray(program.locations.v);
+    gl.vertexAttribPointer(program.locations.v, 1, gl.FLOAT, false, stride, 7 * 4);
 
     gl.uniform2f(program.locations.resolution, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, idx / FLOATS_PER_VERTEX);

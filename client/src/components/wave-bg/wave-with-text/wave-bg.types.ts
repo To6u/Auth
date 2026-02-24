@@ -17,6 +17,8 @@ export interface LineShaderProgram {
     locations: {
         position: number;
         color: number;
+        u: number;
+        v: number;
         resolution: WebGLUniformLocation | null;
     };
 }
