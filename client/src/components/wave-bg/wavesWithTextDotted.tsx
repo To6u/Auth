@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, memo } from 'react';
-import { wavesConfig, parsedWaveColors, WAVE_SPEED_MULTIPLIER, WAVE_WIDTH_MULTIPLIER } from './wavesConfigWebGL';
-import type { WaveConfig } from './wavesConfigWebGL';
-import './waves-canvas.css';
+import { wavesConfig, parsedWaveColors, WAVE_SPEED_MULTIPLIER, WAVE_WIDTH_MULTIPLIER } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
+import type { WaveConfig } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
+import '@/components/wave-bg/wave-with-text/waves-canvas.css';
 
 // ==================== TYPES ====================
 

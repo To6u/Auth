@@ -5,11 +5,11 @@ import { LoginPage } from 'client/src/pages/LoginPage';
 import { ProtectedRoute } from 'client/src/components/route/ProtectedRoute.tsx';
 import { ProfilePage } from 'client/src/pages/profile/ProfilePage.tsx';
 import WavesBackground from 'client/src/components/wave-bg/WavesBackground';
-import ThinWavesBackground from 'client/src/components/wave-bg/ThinWavesBackground.tsx';
+import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground.tsx';
 import { AnimatePresence } from 'framer-motion';
 import 'client/src/components/layout/layout.css';
-import WavesBackgroundWebGL from '@/components/wave-bg/WavesBackgroundWebGL.tsx';
-import WavesWithText from '@/components/wave-bg/WavesWithText.tsx';
+import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
+import * as React from 'react';
 
 // Компонент-обёртка для страниц
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -55,7 +55,6 @@ function AnimatedRoutes() {
 
             <ThinWavesBackground />
             <WavesBackground />
-            {/*<WavesBackgroundWebGL />*/}
             <WavesWithText />
         </>
     );
