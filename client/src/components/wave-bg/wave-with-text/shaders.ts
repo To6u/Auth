@@ -94,21 +94,44 @@ export const LINE_VERTEX_SHADER = `
     precision mediump float;
     attribute vec2 a_position;
     attribute vec4 a_color;
+    attribute float a_u;
+    attribute float a_v;
     uniform vec2 u_resolution;
     varying vec4 v_color;
+    varying float v_u;
+    varying float v_v;
 
     void main() {
         vec2 clipSpace = (a_position / u_resolution) * 2.0 - 1.0;
         gl_Position = vec4(clipSpace.x, -clipSpace.y, 0.0, 1.0);
         v_color = a_color;
+        v_u = a_u;
+        v_v = a_v;
     }
 `;
 
 export const LINE_FRAGMENT_SHADER = `
     precision mediump float;
     varying vec4 v_color;
+    varying float v_u;
+    varying float v_v;
+
+    // Зона fadeout с каждого конца — 15% длины линии
+    const float FADE_ZONE = 0.01;
 
     void main() {
-        gl_FragColor = v_color;
+        float alpha = v_color.a;
+
+        // Fadeout на концах по U
+        if (v_u < FADE_ZONE) {
+            alpha *= v_u / FADE_ZONE;
+        } else if (v_u > 1.0 - FADE_ZONE) {
+            alpha *= (1.0 - v_u) / FADE_ZONE;
+        }
+
+        // Свечение по V: яркий центр, прозрачные края
+        alpha *= 1.0 - v_v * v_v;
+
+        gl_FragColor = vec4(v_color.rgb, alpha);
     }
 `;
