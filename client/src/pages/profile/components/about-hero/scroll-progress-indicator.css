@@ -1,77 +1,58 @@
 .scroll-progress-indicator {
     position: absolute;
     left: -30px;
-    top: 0;
+    top: 20px;
     bottom: 0;
     width: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
-/* Фоновая линия (трек) */
-.scroll-progress-indicator__track {
+.scroll-progress-indicator__svg {
     position: absolute;
     top: 0;
-    bottom: 0;
-    width: 2px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 1px;
+    left: 0;
+    overflow: visible;
 }
 
-/* Заполненная линия (прогресс) */
-.scroll-progress-indicator__progress {
-    position: absolute;
-    top: 0;
-    width: 2px;
-    background: rgba(255, 255, 255, 0.4);
-    border-radius: 1px;
-    will-change: height;
+/* Трек — едва заметная волна (незаполненная часть) */
+.scroll-progress-indicator__track-path {
+    fill: none;
+    stroke: rgba(255, 244, 234, 0.1);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-/* Точка */
-.scroll-progress-indicator__dot {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    transform: translateY(-50%);
-    will-change: transform;
+/* Прогресс — яркая волна с свечением (заполненная часть) */
+.scroll-progress-indicator__progress-path {
+    fill: none;
+    stroke: rgba(255, 244, 234, 0.85);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 2px rgba(255, 244, 234, 0.5));
 }
 
-/* Внешний круг (кольцо) */
-.scroll-progress-indicator__dot-ring {
-    position: absolute;
-    inset: 0;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    background: rgba(9, 21, 79, 0.9);
-    transition: border-color 0.3s ease;
+/* Кольцо точки */
+.scroll-progress-indicator__dot-ring-svg {
+    fill: rgba(9, 21, 79, 0.1);
+    stroke: rgba(255, 244, 234, 0.4);
+    stroke-width: 1.5;
+    transition: stroke 0.3s ease;
 }
 
-/* Внутренний круг (заполнение) */
-.scroll-progress-indicator__dot-fill {
-    position: absolute;
-    inset: 2px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    will-change: opacity;
+.scroll-progress-indicator__dot-ring-svg:hover {
+    stroke: rgba(255, 244, 234, 0.7);
 }
 
-/* Hover эффект на точку */
-.scroll-progress-indicator__dot:hover .scroll-progress-indicator__dot-ring {
-    border-color: rgba(255, 255, 255, 0.7);
+/* Заполнение точки */
+.scroll-progress-indicator__dot-fill-svg {
+    fill: rgba(255, 244, 234, 0.9);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .scroll-progress-indicator {
         left: -20px;
         width: 10px;
-    }
-
-    .scroll-progress-indicator__dot {
-        width: 10px;
-        height: 10px;
     }
 }
 
