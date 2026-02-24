@@ -40,8 +40,8 @@ export const MODE_CONFIGS: Record<ViewMode, ModeConfig> = {
         fieldsToValidate: ['email', 'password', 'confirmPassword'],
     },
     reset: {
-        title: 'Восстановление пароля',
-        buttonText: 'Восстановить',
+        title: 'Вспомнить пароль',
+        buttonText: 'Вспомнить',
         fieldsToValidate: ['email'],
     },
 };
@@ -86,7 +86,7 @@ export const INITIAL_ERRORS: FormErrors = {
     password: '',
     confirmPassword: '',
     newPassword: '',
-    confirmNewPassword: ''
+    confirmNewPassword: '',
 };
 
 export const INITIAL_TOUCHED: TouchedFields = {
