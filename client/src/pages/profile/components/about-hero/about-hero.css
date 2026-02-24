@@ -9,12 +9,13 @@
 
 /* Name Section */
 .about-name {
-    color: rgba(255, 255, 255, 0.7);
     display: flex;
+    flex-direction: column;
     align-items: baseline;
     flex-wrap: wrap;
-    gap: 0.1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 5rem;
+    line-height: 8rem;
+    font-family: 'Ganxy', 'Montserrat Alternates', serif;
 }
 
 .about-name .name {
@@ -31,13 +32,15 @@
     display: inline-block;
     min-width: 0;
     font-size: 2rem;
-    font-weight: 200;
+    font-weight: 900;
+    margin-top: -20px;
+    padding-left: 20px;
 }
 
 .typewriter__cursor {
     animation: blink 0.7s infinite;
     font-weight: 300;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 244, 234, .9);
 }
 
 @keyframes blink {
@@ -53,18 +56,30 @@
 
 /* Sections Grid */
 .about-hero-sections {
+}
+
+.about-hero-my-place,
+.about-hero-my-way {
     display: grid;
     grid-template-columns: 40% auto;
+    grid-template-rows: 80vh;
     grid-auto-flow: row;
     grid-column-gap: 6rem;
-    grid-row-gap: 8rem;
+    /*grid-row-gap: 8rem;*/
     padding: 3rem;
     align-items: start;
+}
+
+.about-hero-my-place {
+    border-radius: 0 0 0 80%;
 }
 
 .about-hero-right,
 .about-hero-left {
     position: relative;
+}
+
+.about-hero-left {
     height: 100%;
 }
 
@@ -81,14 +96,14 @@
     font-size: 5rem;
     line-height: 5rem;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.9);
     margin: 0;
 }
 
 .about-hero-section-heading span {
     font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 244, 234, 0.7);
     font-style: italic;
+    font-weight: 100;
 }
 
 /* Модификатор для выравнивания справа */
@@ -107,17 +122,22 @@
     width: 100%;
     max-width: 900px;
     padding: 3rem;
-    background: rgba(1, 9, 33, 0.7);
-    box-shadow:
-        0px 0px 0px 20px rgba(0, 0, 0, 0.1),
-        0px 0px 0px 10px rgba(0, 0, 0, 0.2);
     border-radius: 80px;
     corner-shape: squircle;
     position: relative;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 3rem;
+    z-index: 10;
+    backdrop-filter: blur(100px);
+    -webkit-backdrop-filter: blur(100px);
+}
+
+.glass-card-blur-back {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: red;
 }
 
 /* About Section */
@@ -129,8 +149,7 @@
 
 .about-section__title {
     font-size: 2rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.95);
+    font-weight: 900;
     margin: 0;
 }
 
@@ -144,30 +163,34 @@
 .about-section__content p {
     font-size: 1.5rem;
     line-height: 2rem;
-    color: rgba(255, 255, 255, 0.8);
     margin-bottom: 1rem;
 }
 
-.about-section__content p b, .about-section__content span b {
+.about-section__content p b,
+.about-section__content span b {
     text-decoration: underline;
-    text-decoration-color: rgba(255, 255, 255, 0.4);
+    text-decoration-color: rgba(255, 244, 234, 0.4);
     text-underline-offset: 3px;
     transition: all 0.3s ease;
     cursor: help;
+    font-weight: 800;
 }
 
-.about-section__content p b:hover, .about-section__content span b:hover {
+.about-section__content p b:hover,
+.about-section__content span b:hover {
     text-decoration-color: rgba(157, 232, 97, 0.7);
-    color: rgba(255, 255, 255, 1);
+    color:rgba(255, 244, 234, 1);
 }
 
 .about-section__content span {
     font-style: italic;
-    color: rgba(255, 255, 255, 0.7);
+    font-weight: 100;
+    letter-spacing: 0.05rem;
+    color: rgba(255, 244, 234, 1);
 }
 
 .about-section__content span:last-child {
-    color: rgba(255, 255, 255, 1);
+    color: rgba(255, 244, 234, 1);
 }
 
 /* Модификатор для секции с индикатором прогресса */
