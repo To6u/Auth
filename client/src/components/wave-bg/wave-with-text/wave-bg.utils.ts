@@ -5,7 +5,7 @@ import type {
     LineShaderProgram,
     MouseState,
     TextLine,
-} from 'src/components/wave-bg/wave-with-text/wave-bg.types.ts';
+} from '@/components/wave-bg/wave-with-text/wave-bg.types';
 import { WAVE_VERTEX_SHADER, WAVE_FRAGMENT_SHADER, LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER } from './shaders';
 
 // ==================== CONSTANTS ====================
@@ -16,22 +16,25 @@ export const MOUSE_CONFIG = {
     falloff: 2.5,
     smoothing: 0.1,
     fadeSpeed: 0.08,
-};
+    /** Порог scroll, выше которого mouse effect отключается */
+    scrollCutoff: 0.8,
+    strengthScale: 0.01,
+} as const;
 
 export const TEXT_CONFIG = {
     canvasWidth: 2400,
     canvasHeight: 440,
-    lineSpacing: 15,
+    lineSpacing: 13,
     fontSize: 540,
     morphDuration: 5000,
-    lineWidth: 4,
+    lineWidth: 10,
     verticalPosition: 0.5,
     scale: 1,
-};
+} as const;
 
 export const TEXT_COLORS = {
-    base: [229 / 255, 255 / 255, 171 / 255, 1.0] as [number, number, number, number],
-    fill: [107 / 255, 159 / 255, 255 / 255, 1.0] as [number, number, number, number],
+    base: [255 / 255, 244 / 150, 234 / 255, 1.0] as [number, number, number, number],
+    fill: [0 / 150, 114 / 255, 209 / 255, 1.0] as [number, number, number, number],
 };
 
 export const WAVE_SCROLL_CONFIG = {
@@ -40,7 +43,15 @@ export const WAVE_SCROLL_CONFIG = {
     targetLineWidth: 50,
     smoothing: 0.08,
     scrollRange: 0.9,
-};
+} as const;
+
+/** Границы сканирования пикселей при растеризации текста */
+const SCAN_X_MIN = 300;
+const SCAN_X_MAX = 2500;
+const ALPHA_THRESHOLD = 128;
+
+/** Порог активности мыши */
+const MOUSE_ACTIVE_THRESHOLD = 0.01;
 
 // ==================== MATH ====================
 
@@ -115,6 +126,8 @@ export const createLineProgram = (gl: WebGLRenderingContext): LineShaderProgram 
         locations: {
             position: gl.getAttribLocation(program, 'a_position'),
             color: gl.getAttribLocation(program, 'a_color'),
+            u: gl.getAttribLocation(program, 'a_u'),
+            v: gl.getAttribLocation(program, 'a_v'),
             resolution: gl.getUniformLocation(program, 'u_resolution'),
         },
     };
@@ -145,7 +158,7 @@ export const fillWaveVertices = (
     const mouseX = mouse.smoothX * dpr;
     const mouseY = mouse.smoothY * dpr;
     const sigma = (MOUSE_CONFIG.radius * dpr) / MOUSE_CONFIG.falloff;
-    const hasMouseEffect = mouse.smoothActive > 0.01 && scrollProgress < 0.8;
+    const hasMouseEffect = mouse.smoothActive > MOUSE_ACTIVE_THRESHOLD && scrollProgress < MOUSE_CONFIG.scrollCutoff;
     const mouseInfluenceFactor = 1 - scrollProgress;
 
     let idx = 0;
@@ -162,7 +175,7 @@ export const fillWaveVertices = (
             const dx = x - mouseX;
             const gaussian = Math.exp(-(dx * dx) / (2 * sigma * sigma));
             const strength = MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive * mouseInfluenceFactor;
-            y += (mouseY - y) * strength * 0.01;
+            y += (mouseY - y) * strength * MOUSE_CONFIG.strengthScale;
         }
 
         const interpolatedWidth = wave.lineWidth + (targetLineWidth - wave.lineWidth) * scrollProgress;
@@ -197,7 +210,11 @@ export const updateMouseState = (mouse: MouseState): void => {
 
 // ==================== VERTEX BUFFER HELPERS ====================
 
-// Пишет quad (2 треугольника) в data начиная с idx, возвращает новый idx
+/**
+ * Пишет quad (2 треугольника) в data начиная с idx, возвращает новый idx.
+ * u1/u2 — позиция вдоль линии [0..1], v — поперёк [-1..1].
+ * Формат вершины: x, y, r, g, b, a, u, v  (8 floats)
+ */
 export const pushQuad = (
     data: Float32Array,
     idx: number,
@@ -206,28 +223,37 @@ export const pushQuad = (
     x2: number,
     y2: number,
     halfW: number,
-    color: [number, number, number, number]
+    color: [number, number, number, number],
+    u1: number,
+    u2: number
 ): number => {
     const [r, g, b, a] = color;
 
+    // v = -1 верхний край, v = +1 нижний край
     data[idx++] = x1;
     data[idx++] = y1 - halfW;
     data[idx++] = r;
     data[idx++] = g;
     data[idx++] = b;
     data[idx++] = a;
+    data[idx++] = u1;
+    data[idx++] = -1;
     data[idx++] = x2;
     data[idx++] = y2 - halfW;
     data[idx++] = r;
     data[idx++] = g;
     data[idx++] = b;
     data[idx++] = a;
+    data[idx++] = u2;
+    data[idx++] = -1;
     data[idx++] = x1;
     data[idx++] = y1 + halfW;
     data[idx++] = r;
     data[idx++] = g;
     data[idx++] = b;
     data[idx++] = a;
+    data[idx++] = u1;
+    data[idx++] = 1;
 
     data[idx++] = x1;
     data[idx++] = y1 + halfW;
@@ -235,18 +261,24 @@ export const pushQuad = (
     data[idx++] = g;
     data[idx++] = b;
     data[idx++] = a;
+    data[idx++] = u1;
+    data[idx++] = 1;
     data[idx++] = x2;
     data[idx++] = y2 - halfW;
     data[idx++] = r;
     data[idx++] = g;
     data[idx++] = b;
     data[idx++] = a;
+    data[idx++] = u2;
+    data[idx++] = -1;
     data[idx++] = x2;
     data[idx++] = y2 + halfW;
     data[idx++] = r;
     data[idx++] = g;
     data[idx++] = b;
     data[idx++] = a;
+    data[idx++] = u2;
+    data[idx++] = 1;
 
     return idx;
 };
@@ -261,10 +293,10 @@ const createTextCanvas = (text: string, x: number, y: number): HTMLCanvasElement
     const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
     if (!ctx) throw new Error('Canvas context not available');
 
-    ctx.font = `italic 900 ${TEXT_CONFIG.fontSize}px Inter, sans-serif`;
+    ctx.font = `${TEXT_CONFIG.fontSize}px Ganxy`;
     ctx.fillStyle = '#FFFFFF';
     ctx.textBaseline = 'middle';
-    ctx.letterSpacing = '-40px';
+    ctx.letterSpacing = '-30px';
     ctx.fillText(text, x, y);
 
     return canvas;
@@ -280,10 +312,10 @@ const extractHorizontalLines = (
     for (let y = 0; y < height; y += TEXT_CONFIG.lineSpacing) {
         let lineStart = -1;
 
-        for (let x = 300; x < 2500; x++) {
+        for (let x = SCAN_X_MIN; x < SCAN_X_MAX; x++) {
             const alpha = imageData[(y * width + x) * 4 + 3];
 
-            if (alpha > 128) {
+            if (alpha > ALPHA_THRESHOLD) {
                 if (lineStart === -1) lineStart = x;
             } else if (lineStart !== -1) {
                 lines.push({ y, x1: lineStart, x2: x - 1 });
@@ -291,7 +323,7 @@ const extractHorizontalLines = (
             }
         }
 
-        if (lineStart !== -1) lines.push({ y, x1: lineStart, x2: 2499 });
+        if (lineStart !== -1) lines.push({ y, x1: lineStart, x2: SCAN_X_MAX - 1 });
     }
 
     return lines;
@@ -300,17 +332,20 @@ const extractHorizontalLines = (
 export const generateTextLines = async (): Promise<TextLine[]> => {
     if (document.fonts) {
         try {
-            await document.fonts.load(`italic 900 ${TEXT_CONFIG.fontSize}px Inter`);
+            await document.fonts.load(`${TEXT_CONFIG.fontSize}px Ganxy`);
         } catch {
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
     }
 
-    const velopCanvas = createTextCanvas('VELOP', 360, 250);
-    const signCanvas = createTextCanvas('SIGN', 580, 250);
+    const velopCanvas = createTextCanvas('VELOP', 460, 250);
+    const signCanvas = createTextCanvas('SIGN', 680, 250);
 
-    const velopCtx = velopCanvas.getContext('2d')!;
-    const signCtx = signCanvas.getContext('2d')!;
+    const velopCtx = velopCanvas.getContext('2d', { willReadFrequently: true });
+    const signCtx = signCanvas.getContext('2d', { willReadFrequently: true });
+
+    if (!velopCtx) throw new Error('Canvas context not available for VELOP');
+    if (!signCtx) throw new Error('Canvas context not available for SIGN');
 
     const velopLines = extractHorizontalLines(
         velopCtx.getImageData(0, 0, velopCanvas.width, velopCanvas.height).data,
@@ -325,6 +360,7 @@ export const generateTextLines = async (): Promise<TextLine[]> => {
 
     const maxLines = Math.max(velopLines.length, signLines.length);
 
+    // Если длины сильно отличаются, строки повторяются через модуль — намеренно
     return Array.from({ length: maxLines }, (_, i) => {
         const v = velopLines[i % velopLines.length];
         const s = signLines[i % signLines.length];
