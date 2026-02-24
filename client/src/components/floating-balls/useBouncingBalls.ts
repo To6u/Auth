@@ -26,7 +26,7 @@ interface UseBouncingBallsOptions {
 
 const MIN_SPEED = 0.5;
 const MAX_SPEED = 1;
-const MIN_RADIUS = 100;
+const MIN_RADIUS = 55;
 const MAX_RADIUS = 180;
 const SCALE_LERP = 0.08;
 const NUDGE_INTERVAL = 180;
@@ -34,6 +34,8 @@ const NUDGE_FORCE = 0.5;
 const BREATHE_AMPLITUDE = 0.08;
 const FPS_CAP = 30;
 const FRAME_MS = 1000 / FPS_CAP;
+const OVERLAP_THRESHOLD = 0.85;
+const REPULSION_FORCE = 0.3;
 
 function randomBetween(min: number, max: number) {
     return min + Math.random() * (max - min);
@@ -120,6 +122,39 @@ function initBalls(count: number, width: number, height: number): Ball[] {
     });
 }
 
+function applyRepulsion(balls: Ball[]) {
+    for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) {
+            const a = balls[i];
+            const b = balls[j];
+
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const dist = Math.hypot(dx, dy);
+            const minDist = (a.radius + b.radius) * OVERLAP_THRESHOLD;
+
+            if (dist < minDist && dist > 0) {
+                const overlap = (minDist - dist) / minDist;
+                const force = overlap * REPULSION_FORCE;
+
+                const nx = dx / dist;
+                const ny = dy / dist;
+
+                a.vx -= nx * force;
+                a.vy -= ny * force;
+                b.vx += nx * force;
+                b.vy += ny * force;
+
+                const clamp = (v: number) => Math.sign(v) * Math.min(Math.abs(v), MAX_SPEED * 2);
+                a.vx = clamp(a.vx);
+                a.vy = clamp(a.vy);
+                b.vx = clamp(b.vx);
+                b.vy = clamp(b.vy);
+            }
+        }
+    }
+}
+
 const isActive = () => !document.hidden;
 
 export function useBouncingBalls({ count, containerRef, canvasRef, images, hoveredIdRef }: UseBouncingBallsOptions) {
@@ -178,12 +213,10 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, hover
 
             ctx.clearRect(0, 0, w, h);
 
-            // Обновляем состояние всех шаров
             for (const ball of balls) {
                 ball.x += ball.vx;
                 ball.y += ball.vy;
 
-                // Границы с учётом текущего scale и пульсации — шар не выйдет за край при увеличении
                 const effectiveR = ball.radius * ball.scale * (1 + BREATHE_AMPLITUDE);
 
                 if (ball.x - effectiveR <= 0) {
@@ -232,13 +265,13 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, hover
                     ball.scale = ball.targetScale;
                 }
 
-                // zIndex плавно растёт до 1 при hover, падает до 0 без него
                 ball.zIndex = lerp(ball.zIndex, isHovered ? 1 : 0, 0.06);
 
                 ball.breathePhase += ball.breatheSpeed;
             }
 
-            // Сортируем по zIndex — hovered плавно всплывает наверх
+            applyRepulsion(balls);
+
             const sorted = [...balls].sort((a, b) => a.zIndex - b.zIndex);
 
             for (const ball of sorted) {
@@ -285,7 +318,6 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, hover
     return ballsRef;
 }
 
-// containerRef вместо canvasRef — координаты мыши всегда в системе контейнера
 export function useHitTest(
     ballsRef: React.RefObject<Ball[]>,
     containerRef: React.RefObject<HTMLDivElement | null>,
@@ -303,7 +335,6 @@ export function useHitTest(
             const balls = ballsRef.current;
             let found: number | null = null;
 
-            // Обратный порядок по zIndex — приоритет у верхнего
             const sorted = [...balls].sort((a, b) => b.zIndex - a.zIndex);
 
             for (const ball of sorted) {
