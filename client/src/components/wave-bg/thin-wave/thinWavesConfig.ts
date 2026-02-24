@@ -21,7 +21,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: 0.5,
         speed: 0.0038,
         verticalSpeed: 0.35,
-        gradientColors: ['rgba(255, 255, 255, 0.15)', 'rgba(240, 240, 255, 0.1)'],
+        gradientColors: ['rgba(255, 244, 234, 0.15)', 'rgba(240, 240, 255, 0.1)'],
         lineWidth: 4,
     },
     {
@@ -30,7 +30,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI / 1.3,
         speed: 0.0032,
         verticalSpeed: 0.22,
-        gradientColors: ['rgba(255, 255, 255, 0.14)', 'rgba(235, 240, 255, 0.09)'],
+        gradientColors: ['rgba(255, 244, 234, 0.14)', 'rgba(235, 240, 255, 0.09)'],
         lineWidth: 4,
     },
     {
@@ -39,7 +39,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 1.55,
         speed: 0.0049,
         verticalSpeed: 0.39,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(235, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(235, 245, 255, 0.07)'],
         lineWidth: 3,
     },
     {
@@ -48,7 +48,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 1.88,
         speed: 0.0045,
         verticalSpeed: 0.43,
-        gradientColors: ['rgba(255, 255, 255, 0.11)', 'rgba(240, 240, 255, 0.06)'],
+        gradientColors: ['rgba(255, 244, 234, 0.11)', 'rgba(240, 240, 255, 0.06)'],
         lineWidth: 3,
     },
 
@@ -59,7 +59,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 2.25,
         speed: 0.004,
         verticalSpeed: 0.36,
-        gradientColors: ['rgba(255, 255, 255, 0.14)', 'rgba(235, 245, 255, 0.09)'],
+        gradientColors: ['rgba(255, 244, 234, 0.14)', 'rgba(235, 245, 255, 0.09)'],
         lineWidth: 4,
     },
     {
@@ -68,7 +68,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 3.05,
         speed: 0.0033,
         verticalSpeed: 0.26,
-        gradientColors: ['rgba(255, 255, 255, 0.15)', 'rgba(235, 240, 255, 0.1)'],
+        gradientColors: ['rgba(255, 244, 234, 0.15)', 'rgba(235, 240, 255, 0.1)'],
         lineWidth: 4,
     },
     {
@@ -77,7 +77,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 3.85,
         speed: 0.0053,
         verticalSpeed: 0.38,
-        gradientColors: ['rgba(255, 255, 255, 0.11)', 'rgba(240, 240, 255, 0.06)'],
+        gradientColors: ['rgba(255, 244, 234, 0.11)', 'rgba(240, 240, 255, 0.06)'],
         lineWidth: 3,
     },
     {
@@ -86,7 +86,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 4.25,
         speed: 0.0044,
         verticalSpeed: 0.41,
-        gradientColors: ['rgba(255, 255, 255, 0.13)', 'rgba(245, 250, 255, 0.08)'],
+        gradientColors: ['rgba(255, 244, 234, 0.13)', 'rgba(245, 250, 255, 0.08)'],
         lineWidth: 3,
     },
 
@@ -97,7 +97,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 4.65,
         speed: 0.0037,
         verticalSpeed: 0.3,
-        gradientColors: ['rgba(255, 255, 255, 0.13)', 'rgba(240, 245, 255, 0.08)'],
+        gradientColors: ['rgba(255, 244, 234, 0.13)', 'rgba(240, 245, 255, 0.08)'],
         lineWidth: 3,
     },
     {
@@ -106,7 +106,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 5.45,
         speed: 0.0042,
         verticalSpeed: 0.34,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(250, 250, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(250, 250, 255, 0.07)'],
         lineWidth: 4,
     },
     {
@@ -115,7 +115,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 6.25,
         speed: 0.0038,
         verticalSpeed: 0.35,
-        gradientColors: ['rgba(255, 255, 255, 0.13)', 'rgba(240, 245, 255, 0.08)'],
+        gradientColors: ['rgba(255, 244, 234, 0.13)', 'rgba(240, 245, 255, 0.08)'],
         lineWidth: 4,
     },
     {
@@ -124,7 +124,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 6.65,
         speed: 0.0049,
         verticalSpeed: 0.43,
-        gradientColors: ['rgba(255, 255, 255, 0.11)', 'rgba(235, 250, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.11)', 'rgba(235, 250, 255, 0.07)'],
         lineWidth: 3,
     },
 
@@ -135,7 +135,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 7.05,
         speed: 0.0036,
         verticalSpeed: 0.32,
-        gradientColors: ['rgba(255, 255, 255, 0.14)', 'rgba(240, 250, 255, 0.09)'],
+        gradientColors: ['rgba(255, 244, 234, 0.14)', 'rgba(240, 250, 255, 0.09)'],
         lineWidth: 4,
     },
     {
@@ -144,7 +144,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 7.85,
         speed: 0.0051,
         verticalSpeed: 0.39,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(245, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(245, 245, 255, 0.07)'],
         lineWidth: 3,
     },
     {
@@ -153,7 +153,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 8.65,
         speed: 0.0045,
         verticalSpeed: 0.41,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(240, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(240, 245, 255, 0.07)'],
         lineWidth: 3,
     },
     {
@@ -162,7 +162,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 9.05,
         speed: 0.0053,
         verticalSpeed: -0.51,
-        gradientColors: ['rgba(255, 255, 255, 0.11)', 'rgba(245, 250, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.11)', 'rgba(245, 250, 255, 0.07)'],
         lineWidth: 3,
     },
 
@@ -173,7 +173,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 9.45,
         speed: 0.0034,
         verticalSpeed: 0.31,
-        gradientColors: ['rgba(255, 255, 255, 0.14)', 'rgba(235, 245, 255, 0.09)'],
+        gradientColors: ['rgba(255, 244, 234, 0.14)', 'rgba(235, 245, 255, 0.09)'],
         lineWidth: 4,
     },
     {
@@ -182,7 +182,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 10.25,
         speed: 0.0041,
         verticalSpeed: 0.36,
-        gradientColors: ['rgba(255, 255, 255, 0.13)', 'rgba(240, 245, 255, 0.08)'],
+        gradientColors: ['rgba(255, 244, 234, 0.13)', 'rgba(240, 245, 255, 0.08)'],
         lineWidth: 4,
     },
     {
@@ -191,7 +191,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 11.05,
         speed: 0.0052,
         verticalSpeed: 0.44,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(245, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(245, 245, 255, 0.07)'],
         lineWidth: 3,
     },
     {
@@ -200,7 +200,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 11.45,
         speed: 0.0035,
         verticalSpeed: 0.25,
-        gradientColors: ['rgba(255, 255, 255, 0.15)', 'rgba(240, 250, 255, 0.1)'],
+        gradientColors: ['rgba(255, 244, 234, 0.15)', 'rgba(240, 250, 255, 0.1)'],
         lineWidth: 4,
     },
 
@@ -211,7 +211,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 11.85,
         speed: 0.0039,
         verticalSpeed: 0.33,
-        gradientColors: ['rgba(255, 255, 255, 0.14)', 'rgba(235, 240, 255, 0.09)'],
+        gradientColors: ['rgba(255, 244, 234, 0.14)', 'rgba(235, 240, 255, 0.09)'],
         lineWidth: 4,
     },
     {
@@ -220,7 +220,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 12.65,
         speed: 0.0029,
         verticalSpeed: 0.32,
-        gradientColors: ['rgba(255, 255, 255, 0.16)', 'rgba(250, 250, 255, 0.11)'],
+        gradientColors: ['rgba(255, 244, 234, 0.16)', 'rgba(250, 250, 255, 0.11)'],
         lineWidth: 5,
     },
     {
@@ -229,7 +229,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 13.45,
         speed: 0.0045,
         verticalSpeed: 0.42,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(245, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(245, 245, 255, 0.07)'],
         lineWidth: 3,
     },
     {
@@ -238,7 +238,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 13.85,
         speed: 0.005,
         verticalSpeed: -0.49,
-        gradientColors: ['rgba(255, 255, 255, 0.1)', 'rgba(250, 250, 255, 0.06)'],
+        gradientColors: ['rgba(255, 244, 234, 0.1)', 'rgba(250, 250, 255, 0.06)'],
         lineWidth: 3,
     },
 
@@ -249,7 +249,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 14.25,
         speed: 0.0039,
         verticalSpeed: 0.34,
-        gradientColors: ['rgba(255, 255, 255, 0.14)', 'rgba(240, 245, 255, 0.09)'],
+        gradientColors: ['rgba(255, 244, 234, 0.14)', 'rgba(240, 245, 255, 0.09)'],
         lineWidth: 4,
     },
     {
@@ -258,7 +258,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 15.05,
         speed: 0.0033,
         verticalSpeed: 0.26,
-        gradientColors: ['rgba(255, 255, 255, 0.15)', 'rgba(240, 250, 255, 0.1)'],
+        gradientColors: ['rgba(255, 244, 234, 0.15)', 'rgba(240, 250, 255, 0.1)'],
         lineWidth: 4,
     },
     {
@@ -267,7 +267,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 15.85,
         speed: 0.0053,
         verticalSpeed: 0.41,
-        gradientColors: ['rgba(255, 255, 255, 0.11)', 'rgba(240, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.11)', 'rgba(240, 245, 255, 0.07)'],
         lineWidth: 3,
     },
     {
@@ -276,7 +276,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 16.25,
         speed: 0.0044,
         verticalSpeed: 0.4,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(245, 250, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(245, 250, 255, 0.07)'],
         lineWidth: 3,
     },
 
@@ -287,7 +287,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 16.65,
         speed: 0.0037,
         verticalSpeed: 0.35,
-        gradientColors: ['rgba(255, 255, 255, 0.14)', 'rgba(235, 245, 255, 0.09)'],
+        gradientColors: ['rgba(255, 244, 234, 0.14)', 'rgba(235, 245, 255, 0.09)'],
         lineWidth: 4,
     },
     {
@@ -296,7 +296,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 17.45,
         speed: 0.0034,
         verticalSpeed: 0.24,
-        gradientColors: ['rgba(255, 255, 255, 0.15)', 'rgba(235, 240, 255, 0.1)'],
+        gradientColors: ['rgba(255, 244, 234, 0.15)', 'rgba(235, 240, 255, 0.1)'],
         lineWidth: 4,
     },
     {
@@ -305,7 +305,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 18.25,
         speed: 0.0054,
         verticalSpeed: 0.38,
-        gradientColors: ['rgba(255, 255, 255, 0.11)', 'rgba(235, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.11)', 'rgba(235, 245, 255, 0.07)'],
         lineWidth: 3,
     },
     {
@@ -314,7 +314,7 @@ export const thinWavesConfig: ThinWaveConfig[] = [
         phase: Math.PI * 18.65,
         speed: 0.0045,
         verticalSpeed: 0.44,
-        gradientColors: ['rgba(255, 255, 255, 0.12)', 'rgba(240, 245, 255, 0.07)'],
+        gradientColors: ['rgba(255, 244, 234, 0.12)', 'rgba(240, 245, 255, 0.07)'],
         lineWidth: 3,
     },
 ];

@@ -3,7 +3,7 @@ import {
     thinWavesConfig,
     type ThinWaveConfig,
     THIN_WAVE_SPEED_MULTIPLIER,
-} from 'client/src/components/wave-bg/thinWavesConfig.ts';
+} from '@/components/wave-bg/thin-wave/thinWavesConfig.ts';
 
 const ThinWavesBackground = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
