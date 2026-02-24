@@ -19,8 +19,8 @@
     transform: translateY(30px);
     transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2;
-    font-size: 150px;
-    font-family: 'Inter', serif;
+    font-size: 200px;
+    font-family: 'Ganxy', 'Montserrat Alternates', serif;
     font-weight: 900;
     text-shadow:
         0 0 40px rgb(255 255 255 / 30%),
@@ -30,11 +30,11 @@
 .hero__content.visible {
     opacity: 1;
     transform: translateY(0) translateZ(0);
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 244, 234, 0.5);
 }
 
 .hero__content:last-child {
-    margin-top: -10px;
+    margin-top: 25px;
 }
 
 /* Subtitle - контейнер с градиентом */
@@ -57,6 +57,7 @@
 .letter {
     display: inline-block;
     will-change: transform, opacity;
+    color: rgba(255, 244, 234, 0.8);
 }
 
 /* Пульсация text-shadow */
@@ -68,13 +69,13 @@
     0%,
     100% {
         text-shadow:
-            0 0 40px rgb(255 255 255 / 30%),
-            0 0 3px rgb(255 255 255 / 10%);
+            0 0 40px rgb(255 244 234 / 30%),
+            0 0 3px rgb(255 244 234 / 80%);
     }
     50% {
         text-shadow:
-            0 0 40px rgb(255 255 255 / 30%),
-            0 0 3px rgb(255 255 255 / 80%);
+            0 0 40px rgb(255 244 234 / 30%),
+            0 0 3px rgb(255 244 234 / 100%);
     }
 }
 
