@@ -7,6 +7,11 @@ interface UseWaveEffectOptions {
     frequencyY?: number;
     threshold?: number;
     hoverTransitionSpeed?: number;
+    /**
+     * Если true — фильтр всегда активен, scroll progress игнорируется.
+     * Убирается только при hover. Автоматически снимается когда контейнер вне вьюпорта.
+     */
+    alwaysOn?: boolean;
 }
 
 export const useWaveEffect = (scaleProgress: MotionValue<number>, options: UseWaveEffectOptions = {}) => {
@@ -15,7 +20,8 @@ export const useWaveEffect = (scaleProgress: MotionValue<number>, options: UseWa
         frequencyX = 0.015,
         frequencyY = 0.08,
         threshold = 0.02,
-        hoverTransitionSpeed = 0.15,
+        hoverTransitionSpeed = 0.08,
+        alwaysOn = false,
     } = options;
 
     const filterId = useId();
@@ -51,14 +57,14 @@ export const useWaveEffect = (scaleProgress: MotionValue<number>, options: UseWa
         return () => observer.disconnect();
     }, []);
 
-    // Запуск анимации (только когда нужно)
     const startAnimation = useCallback(() => {
         if (isAnimatingRef.current) return;
         isAnimatingRef.current = true;
 
         const animate = () => {
             const displacement = displacementRef.current;
-            if (!displacement) {
+            const container = containerRef.current;
+            if (!displacement || !container) {
                 animationRef.current = requestAnimationFrame(animate);
                 return;
             }
@@ -70,25 +76,52 @@ export const useWaveEffect = (scaleProgress: MotionValue<number>, options: UseWa
             if (Math.abs(diff) > 0.1) {
                 currentScaleRef.current = current + diff * hoverTransitionSpeed;
                 displacement.setAttribute('scale', String(currentScaleRef.current));
+                if (container.style.filter === 'none' || container.style.filter === '') {
+                    container.style.filter = `url(#${filterId})`;
+                }
                 animationRef.current = requestAnimationFrame(animate);
             } else {
-                // Стабилизировалось — останавливаем loop
                 currentScaleRef.current = targetScale;
                 displacement.setAttribute('scale', String(targetScale));
+                if (targetScale < 0.5) {
+                    container.style.filter = 'none';
+                } else {
+                    container.style.filter = `url(#${filterId})`;
+                }
                 isAnimatingRef.current = false;
             }
         };
 
         animationRef.current = requestAnimationFrame(animate);
-    }, [hoverTransitionSpeed]);
+    }, [hoverTransitionSpeed, filterId]);
 
-    // Cleanup при выходе из viewport или скрытии вкладки
+    // alwaysOn: включаем/выключаем фильтр при изменении видимости
     useEffect(() => {
+        if (!alwaysOn) return;
+
+        if (isVisible && isPageVisible) {
+            scrollScaleRef.current = maxScale;
+            startAnimation();
+        } else {
+            cancelAnimationFrame(animationRef.current);
+            isAnimatingRef.current = false;
+            currentScaleRef.current = 0;
+            scrollScaleRef.current = maxScale;
+            const container = containerRef.current;
+            const displacement = displacementRef.current;
+            if (container) container.style.filter = 'none';
+            if (displacement) displacement.setAttribute('scale', '0');
+        }
+    }, [alwaysOn, isVisible, isPageVisible, maxScale, startAnimation]);
+
+    // Cleanup при выходе из viewport или скрытии вкладки (для scroll-режима)
+    useEffect(() => {
+        if (alwaysOn) return;
         if (!isVisible || !isPageVisible) {
             cancelAnimationFrame(animationRef.current);
             isAnimatingRef.current = false;
         }
-    }, [isVisible, isPageVisible]);
+    }, [alwaysOn, isVisible, isPageVisible]);
 
     // Hover tracking
     useEffect(() => {
@@ -114,23 +147,14 @@ export const useWaveEffect = (scaleProgress: MotionValue<number>, options: UseWa
         };
     }, [isVisible, isPageVisible, startAnimation]);
 
-    // Применяем фильтр при маунте
-    useEffect(() => {
-        const container = containerRef.current;
-        if (container) {
-            container.style.filter = `url(#${filterId})`;
-        }
-    }, [filterId]);
-
-    // Scroll listener
+    // Scroll listener — игнорируем в alwaysOn режиме
     useMotionValueEvent(scaleProgress, 'change', (latest) => {
-        if (!isVisible || !isPageVisible) return;
+        if (alwaysOn || !isVisible || !isPageVisible) return;
 
         const scale = latest > threshold ? latest * maxScale : 0;
         const prevScale = scrollScaleRef.current;
         scrollScaleRef.current = scale;
 
-        // Запускаем анимацию только если значение изменилось
         if (Math.abs(scale - prevScale) > 0.1) {
             startAnimation();
         }
