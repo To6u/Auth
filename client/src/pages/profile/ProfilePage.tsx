@@ -5,6 +5,7 @@ import '@/pages/profile/profile-page.css';
 import { SubmitButton } from '@/components/auth-form/components';
 import Hero from '@/pages/profile/components/hero/Hero.tsx';
 import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
+import Header from '@/components/header/Header.tsx';
 
 export const ProfilePage = () => {
     const { user, logout, isLoading } = useAuthInfo();
@@ -52,6 +53,7 @@ export const ProfilePage = () => {
                         }}
                         type="button"
                     />
+                    <Header />
                     <Hero />
                     <AboutHero />
                 </div>

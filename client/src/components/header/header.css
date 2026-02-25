@@ -1,0 +1,15 @@
+.header {
+    position: fixed;
+    top: 70px;
+    right: 70px;
+    z-index: 10;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 40px;
+    font-weight: 100;
+    letter-spacing: 0.02rem;
+}
+
+.header__link--active {
+    font-weight: 900;
+}
