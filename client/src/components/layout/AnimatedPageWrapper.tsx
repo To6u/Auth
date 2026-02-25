@@ -72,7 +72,7 @@ export const AnimatedPageWrapper = ({
                       }
                     : {
                           opacity: 1,
-                          filter: 'blur(0px)',
+                          filter: '',
                           x: 0,
                       }
             }
