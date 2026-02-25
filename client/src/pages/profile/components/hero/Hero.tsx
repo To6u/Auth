@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import '@/pages/profile/components/hero/hero.css';
 
-const ANIMATION_DELAY = 100;
+const ANIMATION_DELAY = 200;
 
 const Hero = () => {
     const [isVisible, setIsVisible] = useState(false);
@@ -29,7 +29,7 @@ const Hero = () => {
     }, []);
 
     return (
-        <section className="hero" ref={containerRef}>
+        <section id="deer" className="hero" ref={containerRef}>
             <div className={`hero__content ${isVisible ? 'visible' : ''}`}>
                 <div className="hero__letters">
                     <motion.span
