@@ -46,22 +46,17 @@ export const AboutHero = memo(() => {
     // WAVE EFFECTS
     // ═══════════════════════════════════════════════════════════════
 
-    const waveScale = useTransform([sectionOneEnterProgress, sectionOneExitProgress], ([enter, exit]) =>
-        Math.max(1 - (enter as number), exit as number)
-    );
-
     // Инвертированный прогресс: максимум до входа во вьюпорт, спадает при появлении
     const sectionThreeInvertedProgress = useTransform(sectionThreeEnterProgress, (v) => 1 - v);
 
-    const { WaveFilter, containerRef } = useWaveEffect(waveScale, { maxScale: 90 });
-
-    const { WaveFilter: WaveFilterBalls, containerRef: containerRefBalls } = useWaveEffect(
+    const { WaveFilter: WaveFilterBallsPlace, containerRef: containerRefBallsPlace } = useWaveEffect(
         sectionThreeInvertedProgress,
         { maxScale: 90, alwaysOn: true }
     );
-    const { WaveFilter: WaveFilterLeft, containerRef: containerRefLeft } = useWaveEffect(sectionThreeInvertedProgress, {
-        maxScale: 90,
-    });
+    const { WaveFilter: WaveFilterBallsWay, containerRef: containerRefBallsWay } = useWaveEffect(
+        sectionThreeInvertedProgress,
+        { maxScale: 90, alwaysOn: true }
+    );
 
     // ═══════════════════════════════════════════════════════════════
     // SECTION ANIMATIONS
@@ -125,9 +120,9 @@ export const AboutHero = memo(() => {
             <NameSection />
 
             <div className="about-hero-sections">
-                <div className="about-hero-my-place" ref={containerRef}>
+                <div id="place" className="about-hero-my-place">
                     {/* Section One — Glass Card */}
-                    <WaveFilter />
+                    {/*<WaveFilter />*/}
                     <motion.div
                         ref={sectionOneRef}
                         className="glass-card about-hero-section-one"
@@ -147,19 +142,18 @@ export const AboutHero = memo(() => {
                         </motion.div>
 
                         <motion.div style={{ opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]) }}>
-                            <WaveFilterBalls />
-                            <FloatingBalls images={PHOTOS} containerRef={containerRefBalls} />
+                            <WaveFilterBallsPlace />
+                            <FloatingBalls images={PHOTOS} className="floating-balls-my-place" containerRef={containerRefBallsPlace} />
                         </motion.div>
                     </div>
                 </div>
 
                 {/* Section Title — about-hero-left */}
 
-                <div className="about-hero-my-way" ref={containerRefLeft}>
-                    <WaveFilterLeft />
+                <div id="way" className="about-hero-my-way">
+                    {/*<WaveFilterLeft />*/}
                     <div className="about-hero-left">
                         <motion.div
-                            ref={containerRefLeft}
                             className="about-hero-section-heading about-hero-section-heading--right"
                             style={{ transformOrigin: 'left bottom', ...sectionTitle.style }}
                         >
@@ -167,7 +161,12 @@ export const AboutHero = memo(() => {
                             <span>некоторые моменты</span>
 
                             <motion.div style={{ opacity: useTransform(sectionThreeEnterProgress, [0, 1], [0, 1]) }}>
-                                <FloatingBalls images={PHOTOS} className="floating-balls-my-way" />
+                                <WaveFilterBallsWay />
+                                <FloatingBalls
+                                    images={PHOTOS}
+                                    className="floating-balls-my-way"
+                                    containerRef={containerRefBallsWay}
+                                />
                             </motion.div>
                         </motion.div>
                     </div>

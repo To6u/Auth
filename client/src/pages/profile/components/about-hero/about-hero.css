@@ -40,7 +40,7 @@
 .typewriter__cursor {
     animation: blink 0.7s infinite;
     font-weight: 300;
-    color: rgba(255, 244, 234, .9);
+    color: rgba(255, 244, 234, 0.9);
 }
 
 @keyframes blink {
@@ -71,15 +71,17 @@
 }
 
 .about-hero-my-place {
+    padding-top: 140px;
     border-radius: 0 0 0 80%;
+}
+
+.about-hero-my-way {
+    padding-top: 250px;
 }
 
 .about-hero-right,
 .about-hero-left {
     position: relative;
-}
-
-.about-hero-left {
     height: 100%;
 }
 
@@ -129,8 +131,9 @@
     flex-direction: column;
     gap: 3rem;
     z-index: 10;
-    backdrop-filter: blur(100px);
-    -webkit-backdrop-filter: blur(100px);
+    backdrop-filter: blur(20px);
+    background: transparent;
+    -webkit-backdrop-filter: blur(20px);
 }
 
 .glass-card-blur-back {
@@ -179,7 +182,7 @@
 .about-section__content p b:hover,
 .about-section__content span b:hover {
     text-decoration-color: rgba(157, 232, 97, 0.7);
-    color:rgba(255, 244, 234, 1);
+    color: rgba(255, 244, 234, 1);
 }
 
 .about-section__content span {
