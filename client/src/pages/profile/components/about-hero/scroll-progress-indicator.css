@@ -32,18 +32,6 @@
     filter: drop-shadow(0 0 2px rgba(255, 244, 234, 0.5));
 }
 
-/* Кольцо точки */
-.scroll-progress-indicator__dot-ring-svg {
-    fill: rgba(9, 21, 79, 0.1);
-    stroke: rgba(255, 244, 234, 0.4);
-    stroke-width: 1.5;
-    transition: stroke 0.3s ease;
-}
-
-.scroll-progress-indicator__dot-ring-svg:hover {
-    stroke: rgba(255, 244, 234, 0.7);
-}
-
 /* Заполнение точки */
 .scroll-progress-indicator__dot-fill-svg {
     fill: rgba(255, 244, 234, 0.9);
