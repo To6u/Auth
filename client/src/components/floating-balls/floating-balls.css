@@ -1,10 +1,10 @@
 .floating-balls {
     position: absolute;
     left: 25%;
-    top: 127%;
+    top: 0;
     transform: translateX(-50%);
     width: 80vw;
-    height: 500px;
+    height: 800px;
     border-radius: 330px 0 0 0;
 }
 
@@ -15,6 +15,9 @@
     top: 70%;
 }
 
+.floating-balls-my-place {
+    top: 20%;
+}
 
 .floating-balls__canvas {
     position: absolute;
