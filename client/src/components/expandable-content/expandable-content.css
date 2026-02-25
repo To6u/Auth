@@ -16,7 +16,7 @@
     align-self: flex-start;
     background: rgba(150, 228, 251, 0.05);
     border: none;
-    color: rgba(229, 201, 121, 0.6);
+    color: rgb(236 189 56);
     font-size: 0.875rem;
     cursor: pointer;
     padding: 0.5rem 0.5rem;
@@ -26,6 +26,5 @@
 }
 
 .expandable-content__toggle:hover {
-    color: rgba(229, 201, 121, 0.9);
     background: rgba(150, 228, 251, 0.2);
 }

@@ -1,13 +1,14 @@
-import { useState, Children, isValidElement, useMemo, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { Children, isValidElement, memo, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import './expandable-content.css';
+import { BezierDefinition } from 'motion-utils';
 
 interface ExpandableContentProps {
     children: React.ReactNode;
     className?: string;
 }
 
-const ANIMATION_EASE = [0.215, 0.61, 0.355, 1];
+const ANIMATION_EASE = [0.215, 0.61, 0.355, 1] as BezierDefinition;
 
 export const ExpandableContent = memo(({ children, className = '' }: ExpandableContentProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -16,9 +17,7 @@ export const ExpandableContent = memo(({ children, className = '' }: ExpandableC
         const childArray = Children.toArray(children).filter(isValidElement);
 
         // Находим первый <p> и все элементы до него (включая <span> перед ним)
-        let firstPIndex = childArray.findIndex(
-            (child) => typeof child.type === 'string' && child.type === 'p'
-        );
+        let firstPIndex = childArray.findIndex((child) => typeof child.type === 'string' && child.type === 'p');
 
         if (firstPIndex === -1) firstPIndex = childArray.length;
 
@@ -36,9 +35,7 @@ export const ExpandableContent = memo(({ children, className = '' }: ExpandableC
     return (
         <div className={`expandable-content ${className}`}>
             {/* Всегда видимая часть */}
-            <div className="expandable-content__visible">
-                {visibleContent}
-            </div>
+            <div className="expandable-content__visible">{visibleContent}</div>
 
             {/* Скрываемая часть */}
             <AnimatePresence initial={false}>
