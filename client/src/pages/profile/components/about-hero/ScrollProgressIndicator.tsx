@@ -1,5 +1,6 @@
-import { memo, useRef, useState, useEffect, useCallback, useId } from 'react';
-import { motion, useScroll, useTransform, useMotionValueEvent, type MotionValue } from 'framer-motion';
+import { memo, useRef, useState, useEffect, useCallback, useId, useMemo } from 'react';
+import { flushSync } from 'react-dom';
+import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent, type MotionValue } from 'framer-motion';
 import './scroll-progress-indicator.css';
 
 interface ScrollProgressIndicatorProps {
@@ -12,6 +13,7 @@ const AMPLITUDE = 3;
 const FREQUENCY = 24;
 const CENTER_X = 6;
 const PATH_WIDTH = 12;
+const SCROLL_CHECK_THROTTLE_MS = 200;
 
 function generateWavePath(height: number): string {
     if (height <= 0) return '';
@@ -34,77 +36,100 @@ export const ScrollProgressIndicator = memo(
 
         const [dotPositions, setDotPositions] = useState<number[]>([]);
         const [svgHeight, setSvgHeight] = useState(0);
-        const indicatorRef = useRef<HTMLDivElement>(null);
-        const scrollAtGateRef = useRef<number | null>(null);
+        const prevHeightRef = useRef(0);
+        const initializedRef = useRef(false);
+        const lastScrollCheckRef = useRef(0);
 
         const { scrollYProgress } = useScroll({
             target: containerRef,
             offset: ['start 40%', 'end 60%'],
         });
 
-        // Запоминаем значение scrollYProgress в момент когда gate достиг 1
         const gateSource = gateProgress ?? scrollYProgress;
-        useMotionValueEvent(gateSource, 'change', (gate) => {
-            if (gate >= 1 && scrollAtGateRef.current === null) {
-                scrollAtGateRef.current = scrollYProgress.get();
-            }
-            if (gate < 1) {
-                // Сброс если анимация повторяется (скролл вверх)
-                scrollAtGateRef.current = null;
+        const indicatorOpacity = useTransform(gateSource, [0.85, 1], [0, 1]);
+
+        // MotionValue для высоты — clipY обновляется синхронно без зависимости от React state
+        const svgHeightMV = useMotionValue(0);
+
+        const clipY = useTransform([scrollYProgress, svgHeightMV], ([scroll, height]: number[]) => scroll * height);
+
+        const wavePath = useMemo(() => generateWavePath(svgHeight), [svgHeight]);
+
+        const measureAndUpdate = useCallback(
+            (sync: boolean) => {
+                const container = containerRef.current;
+                if (!container) return;
+
+                const h = container.getBoundingClientRect().height;
+                if (h === 0) return;
+
+                const heightChanged = Math.abs(prevHeightRef.current - h) >= 1;
+                if (!heightChanged && initializedRef.current) return;
+
+                prevHeightRef.current = h;
+                initializedRef.current = true;
+
+                // Мгновенно — clipY подхватит на следующем кадре без React рендера
+                svgHeightMV.set(h);
+
+                const headings = container.querySelectorAll(headingSelector);
+                const positions = Array.from(headings).map((heading) => {
+                    const el = heading as HTMLElement;
+                    const containerRect = container.getBoundingClientRect();
+                    const headingRect = el.getBoundingClientRect();
+                    return ((headingRect.top - containerRect.top) / h) * 100;
+                });
+
+                const applyState = () => {
+                    setSvgHeight(h);
+                    setDotPositions(positions);
+                };
+
+                if (sync) {
+                    flushSync(applyState);
+                } else {
+                    applyState();
+                }
+            },
+            [containerRef, headingSelector, svgHeightMV]
+        );
+
+        // Throttled fallback — ловит рассинхрон после AnimatePresence exit
+        useMotionValueEvent(scrollYProgress, 'change', () => {
+            const now = performance.now();
+            if (now - lastScrollCheckRef.current < SCROLL_CHECK_THROTTLE_MS) return;
+            lastScrollCheckRef.current = now;
+
+            const container = containerRef.current;
+            if (!container) return;
+            const h = container.getBoundingClientRect().height;
+            if (Math.abs(prevHeightRef.current - h) > 2) {
+                measureAndUpdate(false);
             }
         });
 
-        // Нормализуем прогресс относительно момента разблокировки
-        const effectiveProgress = useTransform(
-            [scrollYProgress, gateSource] as MotionValue<number>[],
-            ([scroll, gate]: number[]) => {
-                if (gate < 1) return 0;
-                const startScroll = scrollAtGateRef.current ?? scroll;
-                const range = 1 - startScroll;
-                if (range <= 0) return 1;
-                return Math.min(Math.max((scroll - startScroll) / range, 0), 1);
-            }
-        );
+        useEffect(() => {
+            measureAndUpdate(false);
 
-        const clipY = useTransform(effectiveProgress, [0, 1], [svgHeight, 0]);
-
-        const updateLayout = useCallback(() => {
             const container = containerRef.current;
             if (!container) return;
 
-            const containerHeight = container.scrollHeight;
-            setSvgHeight(containerHeight);
-
-            const headings = container.querySelectorAll(headingSelector);
-            const positions = Array.from(headings).map((heading) => {
-                const headingElement = heading as HTMLElement;
-                const containerRect = container.getBoundingClientRect();
-                const headingRect = headingElement.getBoundingClientRect();
-                const relativeTop = headingRect.top - containerRect.top + container.scrollTop;
-                return (relativeTop / containerHeight) * 100;
-            });
-
-            setDotPositions(positions);
-        }, [containerRef, headingSelector]);
-
-        useEffect(() => {
-            const timeoutId = setTimeout(updateLayout, 100);
-            const container = containerRef.current;
-            const resizeObserver = new ResizeObserver(updateLayout);
-            if (container) resizeObserver.observe(container);
-
-            return () => {
-                clearTimeout(timeoutId);
-                resizeObserver.disconnect();
+            const onResize = () => {
+                measureAndUpdate(true);
+                // Заставляем Framer Motion пересчитать scrollYProgress с новой геометрией
+                window.dispatchEvent(new Event('scroll'));
             };
-        }, [containerRef, updateLayout]);
+
+            const resizeObserver = new ResizeObserver(onResize);
+            resizeObserver.observe(container);
+
+            return () => resizeObserver.disconnect();
+        }, [containerRef, measureAndUpdate]);
 
         if (dotPositions.length === 0 || svgHeight === 0) return null;
 
-        const wavePath = generateWavePath(svgHeight);
-
         return (
-            <div ref={indicatorRef} className="scroll-progress-indicator">
+            <motion.div className="scroll-progress-indicator" style={{ opacity: indicatorOpacity }}>
                 <svg
                     className="scroll-progress-indicator__svg"
                     width={PATH_WIDTH}
@@ -113,7 +138,6 @@ export const ScrollProgressIndicator = memo(
                     overflow="visible"
                 >
                     <defs>
-                        {/* Прямоугольник поднимается — трек виден только в незаполненной части */}
                         <clipPath id={clipId}>
                             <motion.rect
                                 x={-AMPLITUDE}
@@ -124,14 +148,12 @@ export const ScrollProgressIndicator = memo(
                         </clipPath>
                     </defs>
 
-                    {/* Трек — бледная волна, только незаполненная часть */}
                     <path d={wavePath} clipPath={`url(#${clipId})`} className="scroll-progress-indicator__track-path" />
 
-                    {/* Прогресс — яркая волна, начинается с 0 после gate */}
                     <motion.path
                         d={wavePath}
                         className="scroll-progress-indicator__progress-path"
-                        style={{ pathLength: effectiveProgress }}
+                        style={{ pathLength: scrollYProgress }}
                     />
 
                     {dotPositions.map((position, index) => {
@@ -145,12 +167,12 @@ export const ScrollProgressIndicator = memo(
                                 cx={xPx}
                                 cy={yPx}
                                 threshold={threshold}
-                                scrollYProgress={effectiveProgress}
+                                scrollYProgress={scrollYProgress}
                             />
                         );
                     })}
                 </svg>
-            </div>
+            </motion.div>
         );
     }
 );
@@ -165,17 +187,18 @@ interface WaveDotProps {
 }
 
 const WaveDot = memo(({ cx, cy, threshold, scrollYProgress }: WaveDotProps) => {
-    const fillOpacity = useTransform(scrollYProgress, [threshold - 0.05, threshold + 0.05], [0, 1]);
+    const dotOpacity = useTransform(scrollYProgress, [threshold - 0.02, threshold], [0, 1]);
 
-    const scale = useTransform(scrollYProgress, [threshold - 0.05, threshold, threshold + 0.05], [1, 1.3, 1]);
+    const fillOpacity = useTransform(scrollYProgress, [threshold - 0.02, threshold + 0.03], [0, 1]);
+
+    const scale = useTransform(scrollYProgress, [threshold - 0.02, threshold, threshold + 0.03], [0.5, 1.3, 1]);
 
     return (
-        <motion.g style={{ scale, transformOrigin: `${cx}px ${cy}px` }}>
-            <circle cx={cx} cy={cy} r={5} className="scroll-progress-indicator__dot-ring-svg" />
+        <motion.g style={{ scale, opacity: dotOpacity, transformOrigin: `${cx}px ${cy}px` }}>
             <motion.circle
                 cx={cx}
                 cy={cy}
-                r={3}
+                r={6}
                 className="scroll-progress-indicator__dot-fill-svg"
                 style={{ opacity: fillOpacity }}
             />
