@@ -3,17 +3,23 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { AuthInfoProvider } from 'client/src/context/AuthInfoContext';
 import { LoginPage } from 'client/src/pages/LoginPage';
 import { ProtectedRoute } from 'client/src/components/route/ProtectedRoute.tsx';
-import { ProfilePage } from 'client/src/pages/profile/ProfilePage.tsx';
 import WavesBackground from 'client/src/components/wave-bg/WavesBackground';
 import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground.tsx';
 import { AnimatePresence } from 'framer-motion';
 import 'client/src/components/layout/layout.css';
 import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
 import * as React from 'react';
+import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
 import { PageErrorFallback } from '@/components/error-boundary/PageErrorFallback.tsx';
+import { PageLoadingFallback } from '@/components/error-boundary/PageLoadingFallback.tsx';
 import { StaticBackground } from '@/components/wave-bg/StaticBackground.tsx';
 import { useMotionPreference } from '@/hooks/useMotionPreference.ts';
+
+// ProfilePage загружается лениво — не попадает в initial bundle страницы логина
+const ProfilePage = lazy(() =>
+    import('@/pages/profile/ProfilePage.tsx').then((m) => ({ default: m.ProfilePage }))
+);
 
 // Компонент-обёртка для страниц
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -47,11 +53,13 @@ function AnimatedRoutes() {
                                 path="/profile"
                                 element={
                                     <ErrorBoundary fallback={<PageErrorFallback />} name="ProfilePage">
-                                        <PageWrapper>
-                                            <ProtectedRoute>
-                                                <ProfilePage />
-                                            </ProtectedRoute>
-                                        </PageWrapper>
+                                        <Suspense fallback={<PageLoadingFallback />}>
+                                            <PageWrapper>
+                                                <ProtectedRoute>
+                                                    <ProfilePage />
+                                                </ProtectedRoute>
+                                            </PageWrapper>
+                                        </Suspense>
                                     </ErrorBoundary>
                                 }
                             />
