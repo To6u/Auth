@@ -6,9 +6,28 @@ import { SubmitButton } from '@/components/auth-form/components';
 import Hero from '@/pages/profile/components/hero/Hero.tsx';
 import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
 import Header from '@/components/header/Header.tsx';
+import { useRef, useEffect, useCallback } from 'react';
 
 export const ProfilePage = () => {
     const { user, logout, isLoading } = useAuthInfo();
+
+    // Ref для таймера логаута — отменяется при размонтировании
+    const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (logoutTimerRef.current !== null) {
+                clearTimeout(logoutTimerRef.current);
+            }
+        };
+    }, []);
+
+    const handleLogout = useCallback((triggerExit: () => void) => {
+        triggerExit();
+        logoutTimerRef.current = setTimeout(() => {
+            logout();
+        }, 600);
+    }, [logout]);
 
     if (isLoading) {
         return (
@@ -45,12 +64,7 @@ export const ProfilePage = () => {
                         icon={<LogoutIcon />}
                         iconPosition="left"
                         animationDirection="right"
-                        onClick={() => {
-                            triggerExit();
-                            setTimeout(() => {
-                                logout();
-                            }, 600);
-                        }}
+                        onClick={() => handleLogout(triggerExit)}
                         type="button"
                     />
                     <Header />
