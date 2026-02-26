@@ -1,3 +1,14 @@
+import {
+    LoginResponseSchema,
+    RegisterResponseSchema,
+    CheckEmailResponseSchema,
+    UserSchema,
+    type User,
+    type LoginResponse,
+    type RegisterResponse,
+    type CheckEmailResponse,
+} from './api.schemas';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 interface RegisterData {
@@ -8,21 +19,6 @@ interface RegisterData {
 interface LoginData {
     email: string;
     password: string;
-}
-
-interface User {
-    id: number;
-    email: string;
-    createdAt?: string;
-}
-
-interface LoginResponse {
-    user: User;
-}
-
-interface RegisterResponse {
-    message: string;
-    userId: number;
 }
 
 /**
@@ -42,7 +38,7 @@ export const registerUser = async (data: RegisterData): Promise<RegisterResponse
         throw new Error(responseData.error || 'Ошибка регистрации');
     }
 
-    return responseData;
+    return RegisterResponseSchema.parse(responseData);
 };
 
 /**
@@ -62,7 +58,7 @@ export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
         throw new Error(responseData.error || 'Ошибка входа');
     }
 
-    return responseData;
+    return LoginResponseSchema.parse(responseData);
 };
 
 /**
@@ -81,7 +77,7 @@ export const getUserProfile = async (): Promise<User> => {
         throw new Error(responseData.error || 'Ошибка получения профиля');
     }
 
-    return responseData;
+    return UserSchema.parse(responseData);
 };
 
 /**
@@ -97,7 +93,7 @@ export const logoutUser = async (): Promise<void> => {
 /**
  * Check if email exists
  */
-export const checkEmail = async (email: string): Promise<{ emailExists: boolean }> => {
+export const checkEmail = async (email: string): Promise<CheckEmailResponse> => {
     const res = await fetch(`${API_URL}/auth/check-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,7 +107,7 @@ export const checkEmail = async (email: string): Promise<{ emailExists: boolean 
         throw new Error(responseData.error || 'Ошибка проверки email');
     }
 
-    return responseData;
+    return CheckEmailResponseSchema.parse(responseData);
 };
 
 /**
