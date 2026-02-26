@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type {
     ViewMode,
@@ -39,6 +39,17 @@ export const useAuthForm = (initialMode: ViewMode = 'login') => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showPasswordFields, setShowPasswordFields] = useState<boolean>(false);
     const [isExiting, setIsExiting] = useState<boolean>(false); // <- новое состояние для анимации выхода
+
+    // Ref для таймера навигации — позволяет отменить при размонтировании компонента
+    const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (navigationTimerRef.current !== null) {
+                clearTimeout(navigationTimerRef.current);
+            }
+        };
+    }, []);
 
     const handleModeChange = useCallback((mode: ViewMode) => {
         setViewMode(mode);
@@ -204,7 +215,8 @@ export const useAuthForm = (initialMode: ViewMode = 'login') => {
                     setIsExiting(true);
 
                     // Ждём завершения анимации перед переходом (600ms)
-                    setTimeout(() => {
+                    // ID сохраняется в ref — таймер отменяется если компонент размонтируется
+                    navigationTimerRef.current = setTimeout(() => {
                         navigate('/profile');
                     }, 600);
                 } else if (viewMode === 'reset') {
