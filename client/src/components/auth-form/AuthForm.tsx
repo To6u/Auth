@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
 import { useAuthForm } from 'client/src/hooks/useAuthForm.ts';
 import { MODE_CONFIGS } from 'client/src/constants/auth.constants.ts';
@@ -23,8 +23,8 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
         showPasswordFields,
     } = useAuthForm('login');
 
-    // Уведомляем родителя об изменении состояния
-    useMemo(() => {
+    // Уведомляем родителя об изменении состояния — side effect, не вычисление
+    useEffect(() => {
         onExitingChange?.(isExiting);
     }, [isExiting, onExitingChange]);
 
