@@ -89,7 +89,7 @@ function AnimatedRoutes() {
                                 <WavesBackground />
                             </ErrorBoundary>
                             <ErrorBoundary fallback={null} name="WavesWithText">
-                                <WavesWithText />
+                                <WavesWithText showText={location.pathname !== '/login'} />
                             </ErrorBoundary>
                         </>
                     )}

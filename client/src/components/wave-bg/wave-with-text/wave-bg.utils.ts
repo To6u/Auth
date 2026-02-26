@@ -129,6 +129,7 @@ export const createLineProgram = (gl: WebGLRenderingContext): LineShaderProgram 
             u: gl.getAttribLocation(program, 'a_u'),
             v: gl.getAttribLocation(program, 'a_v'),
             resolution: gl.getUniformLocation(program, 'u_resolution'),
+            opacity: gl.getUniformLocation(program, 'u_opacity'),
         },
     };
 };

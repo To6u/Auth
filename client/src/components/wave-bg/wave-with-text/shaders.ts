@@ -112,6 +112,7 @@ export const LINE_VERTEX_SHADER = `
 
 export const LINE_FRAGMENT_SHADER = `
     precision mediump float;
+    uniform float u_opacity;
     varying vec4 v_color;
     varying float v_u;
     varying float v_v;
@@ -132,6 +133,7 @@ export const LINE_FRAGMENT_SHADER = `
         // Свечение по V: яркий центр, прозрачные края
         alpha *= 1.0 - v_v * v_v;
 
-        gl_FragColor = vec4(v_color.rgb, alpha);
+        // Fade при route-переходе (1.0 = полная видимость, 0.0 = невидим)
+        gl_FragColor = vec4(v_color.rgb, alpha * u_opacity);
     }
 `;

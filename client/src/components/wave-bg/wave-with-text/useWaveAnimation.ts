@@ -14,7 +14,10 @@ import { createTextAnimState, updateTextAnimState, ANIM_BUFFER_MULTIPLIER } from
 import { wavesConfig } from '@/components/wave-bg/wave-with-text/wavesConfigWebGL';
 import type { MouseState, TextLine } from './wave-bg.types';
 
-export const useWaveAnimation = (canvasRef: RefObject<HTMLCanvasElement | null>): void => {
+export const useWaveAnimation = (
+    canvasRef: RefObject<HTMLCanvasElement | null>,
+    showTextRef: RefObject<boolean>
+): void => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -52,8 +55,13 @@ export const useWaveAnimation = (canvasRef: RefObject<HTMLCanvasElement | null>)
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+        // Скорость slide: ~0.8с при 60fps — симметрично entry (initialSpeed=0.02 ≈ 50 кадров)
+        const ROUTE_EXIT_SPEED = 0.05;
+
         let vertexBuffers: Float32Array[] = [];
         let lineDataBuf: Float32Array = new Float32Array(0);
+        // 0 = текст на месте, 1 = линии полностью ушли за экран
+        let routeExitProgress = showTextRef.current ? 0 : 1;
         let dpr = 1;
 
         const resize = () => {
@@ -100,6 +108,8 @@ export const useWaveAnimation = (canvasRef: RefObject<HTMLCanvasElement | null>)
         const anim = createTextAnimState();
         const textLines: TextLine[] = [];
 
+        // Растеризация текста запускается всегда — текст готов к показу
+        // в момент перехода на ProfilePage, даже если стартовали с LoginPage
         generateTextLines().then((lines) => {
             if (cancelled) return;
             textLines.push(...lines);
@@ -131,7 +141,31 @@ export const useWaveAnimation = (canvasRef: RefObject<HTMLCanvasElement | null>)
             );
             anim.waveScrollProgress = lerp(anim.waveScrollProgress, targetWaveProgress, WAVE_SCROLL_CONFIG.smoothing);
 
-            const mouseInfluenceFactor = anim.exitProgress > 0.3 ? Math.max(0, 1 - (anim.exitProgress - 0.3) / 0.4) : 1;
+            // Route exit/enter: slide линий по той же оси что entry-анимация
+            const showText = showTextRef.current;
+            if (showText) {
+                if (!anim.initialDone) {
+                    // Первый визит: snap в 0 — entry-анимация (initialProgress) берёт управление
+                    routeExitProgress = 0;
+                } else {
+                    // Возврат на страницу: линии плавно возвращаются с боков
+                    routeExitProgress = lerp(routeExitProgress, 0, ROUTE_EXIT_SPEED);
+                }
+            } else {
+                // Уход со страницы: линии уезжают по бокам
+                routeExitProgress = lerp(routeExitProgress, 1, ROUTE_EXIT_SPEED);
+            }
+            const isTextVisible = showText || routeExitProgress < 0.999;
+
+            // Обновляем anim state один раз за кадр перед рендером
+            if (isTextVisible) {
+                updateTextAnimState(anim, time);
+            }
+
+            const mouseInfluenceFactor =
+                isTextVisible && anim.exitProgress > 0.3
+                    ? Math.max(0, 1 - (anim.exitProgress - 0.3) / 0.4)
+                    : 1;
 
             const effectiveMouse: MouseState = {
                 ...mouse,
@@ -139,9 +173,6 @@ export const useWaveAnimation = (canvasRef: RefObject<HTMLCanvasElement | null>)
             };
 
             gl.clear(gl.COLOR_BUFFER_BIT);
-
-            // Обновляем anim state один раз за кадр перед рендером
-            updateTextAnimState(anim, time);
 
             const buf0 = vertexBuffers[0];
             if (buf0) {
@@ -159,7 +190,9 @@ export const useWaveAnimation = (canvasRef: RefObject<HTMLCanvasElement | null>)
                 renderWave(gl, waveProgram, waveBuffer, buf0, count, 0, time, width, height);
             }
 
-            renderTextLines(gl, lineProgram, lineBuffer, lineDataBuf, textLines, anim, width, height, dpr);
+            if (isTextVisible) {
+                renderTextLines(gl, lineProgram, lineBuffer, lineDataBuf, textLines, anim, width, height, dpr, routeExitProgress);
+            }
 
             for (let i = 1; i < wavesConfig.length; i++) {
                 const buf = vertexBuffers[i];
@@ -197,7 +230,6 @@ export const useWaveAnimation = (canvasRef: RefObject<HTMLCanvasElement | null>)
             gl.deleteBuffer(waveBuffer);
             gl.deleteBuffer(lineBuffer);
         };
-        // canvasRef — стабильный ref, eslint-plugin-react-hooks не требует его в deps,
-        // но добавляем явно чтобы не было warning
+        // canvasRef и showTextRef — стабильные рефы, не нужны в deps
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 };
