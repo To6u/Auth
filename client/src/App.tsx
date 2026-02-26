@@ -12,6 +12,8 @@ import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx
 import * as React from 'react';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
 import { PageErrorFallback } from '@/components/error-boundary/PageErrorFallback.tsx';
+import { StaticBackground } from '@/components/wave-bg/StaticBackground.tsx';
+import { useMotionPreference } from '@/hooks/useMotionPreference.ts';
 
 // Компонент-обёртка для страниц
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -23,6 +25,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 
 function AnimatedRoutes() {
     const location = useLocation();
+    const { prefersReducedMotion, isMobile } = useMotionPreference();
 
     return (
         <>
@@ -59,16 +62,31 @@ function AnimatedRoutes() {
                 </div>
             </div>
 
-            {/* Canvas-компоненты — fallback null: WebGL падает тихо, UI выживает */}
-            <ErrorBoundary fallback={null} name="ThinWavesBackground">
-                <ThinWavesBackground />
-            </ErrorBoundary>
-            <ErrorBoundary fallback={null} name="WavesBackground">
-                <WavesBackground />
-            </ErrorBoundary>
-            <ErrorBoundary fallback={null} name="WavesWithText">
-                <WavesWithText />
-            </ErrorBoundary>
+            {/*
+              * prefers-reduced-motion: reduce → статичный CSS-градиент, 0 canvas (a11y)
+              * mobile (< 768px)             → только ThinWavesBackground (фон + лёгкие волны)
+              * desktop                      → все три canvas (текущее поведение)
+              */}
+            {prefersReducedMotion ? (
+                <StaticBackground />
+            ) : (
+                <>
+                    <ErrorBoundary fallback={null} name="ThinWavesBackground">
+                        <ThinWavesBackground />
+                    </ErrorBoundary>
+
+                    {!isMobile && (
+                        <>
+                            <ErrorBoundary fallback={null} name="WavesBackground">
+                                <WavesBackground />
+                            </ErrorBoundary>
+                            <ErrorBoundary fallback={null} name="WavesWithText">
+                                <WavesWithText />
+                            </ErrorBoundary>
+                        </>
+                    )}
+                </>
+            )}
         </>
     );
 }
