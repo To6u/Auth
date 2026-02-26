@@ -1,8 +1,9 @@
 import type { ViewMode, ModeConfig, FormData, FormErrors, TouchedFields } from 'client/src/types/auth.types';
 
-// Test credentials
-export const TEST_USER_EMAIL = 'user@user.com';
-export const TEST_USER_PASS = 'fsdafasfad12C';
+// Test credentials — читаются из .env.local (не коммитится)
+// Заполни client/.env.local: VITE_TEST_EMAIL=... VITE_TEST_PASS=...
+const TEST_USER_EMAIL = import.meta.env.VITE_TEST_EMAIL ?? '';
+const TEST_USER_PASS = import.meta.env.VITE_TEST_PASS ?? '';
 
 // Validation constants
 export const MIN_PASSWORD_LENGTH = 6;
