@@ -20,6 +20,7 @@ export interface LineShaderProgram {
         u: number;
         v: number;
         resolution: WebGLUniformLocation | null;
+        opacity: WebGLUniformLocation | null;
     };
 }
 

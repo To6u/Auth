@@ -55,9 +55,10 @@ export const renderTextLines = (
     anim: TextAnimState,
     width: number,
     height: number,
-    dpr: number
+    dpr: number,
+    routeExitProgress: number
 ): void => {
-    const idx = fillLineBuffer(lineDataBuf, lines, anim, width, height, dpr);
+    const idx = fillLineBuffer(lineDataBuf, lines, anim, width, height, dpr, 0, routeExitProgress);
     if (idx === 0) return;
 
     gl.useProgram(program.program);
@@ -75,5 +76,6 @@ export const renderTextLines = (
     gl.vertexAttribPointer(program.locations.v, 1, gl.FLOAT, false, stride, 7 * 4);
 
     gl.uniform2f(program.locations.resolution, width, height);
+    gl.uniform1f(program.locations.opacity, 1 - routeExitProgress);
     gl.drawArrays(gl.TRIANGLES, 0, idx / FLOATS_PER_VERTEX);
 };

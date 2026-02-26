@@ -131,7 +131,8 @@ export const fillLineBuffer = (
     width: number,
     height: number,
     dpr: number,
-    time: number = 0
+    time: number = 0,
+    routeExitProgress: number = 0
 ): number => {
     if (lines.length === 0 || !anim.initialized) return 0;
 
@@ -180,6 +181,14 @@ export const fillLineBuffer = (
         x2 = x2 * scale + offsetX;
         y1 = y1 * scale + offsetY;
         y2 = y2 * scale + offsetY;
+
+        // Route exit: зеркально entry — чётные уходят влево, нечётные вправо
+        if (routeExitProgress > 0.001) {
+            const direction = index % 2 === 0 ? 1 : -1;
+            const slideOffset = direction * ANIM_CONFIG.entrySpread * scale * easeInOutCubic(routeExitProgress);
+            x1 -= slideOffset;
+            x2 -= slideOffset;
+        }
 
         if (anim.exitProgress > 0.01) {
             const spreadDir = index % 2 === 0 ? -1 : 1;
