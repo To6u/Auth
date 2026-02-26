@@ -1,5 +1,5 @@
 import {ReactNode, useEffect, useState} from 'react';
-import {getUserProfile, isAuthenticated, logoutUser} from 'client/src/services/api.service';
+import {getUserProfile, logoutUser} from 'client/src/services/api.service';
 import {User} from "@/types/auth-info-context.types.ts";
 import { AuthInfoContext } from '@/context/createAuthInfoContext.ts';
 
@@ -17,11 +17,16 @@ export const AuthInfoProvider = ({ children }: { children: ReactNode }) => {
     };
 
     useEffect(() => {
+        // Всегда проверяем сессию через сервер — cookie прикладывается браузером автоматически
         const checkAuth = async () => {
-            if (isAuthenticated()) {
-                await refreshUser();
+            try {
+                const profile = await getUserProfile();
+                setUser(profile as User);
+            } catch {
+                setUser(null); // cookie нет или истёк — не авторизован
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
 
         checkAuth();
@@ -31,8 +36,8 @@ export const AuthInfoProvider = ({ children }: { children: ReactNode }) => {
         setUser(userData);
     };
 
-    const logout = () => {
-        logoutUser();
+    const logout = async () => {
+        await logoutUser();
         setUser(null);
     };
 

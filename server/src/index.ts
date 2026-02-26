@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { registerDevRoutes } from './dev-routes';
 import { apiLimiter } from './config/rate-limit.config';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
@@ -19,12 +20,13 @@ app.use(helmet());
 
 // 📦 Parsing
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // 🌐 CORS
 const corsOptions = {
     origin: NODE_ENV === 'production'
         ? ['https://yourdomain.com']
-        : '*',
+        : 'http://localhost:5173',   // Vite dev server — wildcard несовместим с credentials: true
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

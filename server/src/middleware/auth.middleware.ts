@@ -20,15 +20,8 @@ export const authenticate = (
     next: NextFunction
 ) => {
     try {
-        // Получаем токен из заголовка Authorization
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            return res.status(401).json({ error: 'Токен не предоставлен' });
-        }
-
-        // Формат: "Bearer TOKEN"
-        const token = authHeader.replace('Bearer ', '');
+        // Читаем токен из httpOnly cookie (недоступна для JS)
+        const token: string | undefined = req.cookies?.token;
 
         if (!token) {
             return res.status(401).json({ error: 'Токен не предоставлен' });
@@ -69,10 +62,9 @@ export const optionalAuth = (
     next: NextFunction
 ) => {
     try {
-        const authHeader = req.headers.authorization;
+        const token: string | undefined = req.cookies?.token;
 
-        if (authHeader) {
-            const token = authHeader.replace('Bearer ', '');
+        if (token) {
             const decoded = jwt.verify(token, JWT_SECRET) as {
                 userId: number;
                 email: string;

@@ -8,6 +8,7 @@ import { logger } from '../utils/logger';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 /**
  * POST /api/auth/register
@@ -89,8 +90,17 @@ router.post(
 
             logger.info(`Успешный вход: ${email}`);
 
+            // Устанавливаем httpOnly cookie — токен недоступен для JS
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000,   // 24h — совпадает с JWT expiresIn
+                path: '/',
+            });
+
+            // Токен НЕ возвращается в теле ответа
             res.json({
-                token,
                 user: {
                     id: user.id,
                     email: user.email,
@@ -184,5 +194,14 @@ router.post(
         }
     }
 );
+
+/**
+ * POST /api/auth/logout
+ * Выход пользователя — очищает httpOnly cookie
+ */
+router.post('/logout', (req, res) => {
+    res.clearCookie('token', { httpOnly: true, path: '/' });
+    res.json({ message: 'Logged out successfully' });
+});
 
 export default router;

@@ -10,12 +10,14 @@ interface LoginData {
     password: string;
 }
 
-interface AuthResponse {
-    token: string;
-    user: {
-        id: number;
-        email: string;
-    };
+interface User {
+    id: number;
+    email: string;
+    createdAt?: string;
+}
+
+interface LoginResponse {
+    user: User;
 }
 
 interface RegisterResponse {
@@ -27,9 +29,10 @@ interface RegisterResponse {
  * Register new user
  */
 export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
-    const res = await fetch(`${API_URL}/auth/register`, {  // <- /auth/register
+    const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
     });
 
@@ -43,12 +46,13 @@ export const registerUser = async (data: RegisterData): Promise<RegisterResponse
 };
 
 /**
- * Login user
+ * Login user — сервер устанавливает httpOnly cookie, токен не возвращается в теле
  */
-export const loginUser = async (data: LoginData): Promise<AuthResponse> => {
-    const res = await fetch(`${API_URL}/auth/login`, {  // <- /auth/login
+export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
+    const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data),
     });
 
@@ -58,29 +62,17 @@ export const loginUser = async (data: LoginData): Promise<AuthResponse> => {
         throw new Error(responseData.error || 'Ошибка входа');
     }
 
-    // Сохраняем токен и пользователя
-    localStorage.setItem('token', responseData.token);
-    localStorage.setItem('user', JSON.stringify(responseData.user));
-
     return responseData;
 };
 
 /**
- * Get user profile (protected route)
+ * Get user profile (protected route) — cookie прикладывается браузером автоматически
  */
-export const getUserProfile = async (): Promise<AuthResponse['user']> => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        throw new Error('Токен не найден');
-    }
-
-    const res = await fetch(`${API_URL}/user/profile`, {  // <- /user/profile
+export const getUserProfile = async (): Promise<User> => {
+    const res = await fetch(`${API_URL}/user/profile`, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
     });
 
     const responseData = await res.json();
@@ -93,32 +85,13 @@ export const getUserProfile = async (): Promise<AuthResponse['user']> => {
 };
 
 /**
- * Logout user
+ * Logout user — сервер очищает httpOnly cookie
  */
-export const logoutUser = (): void => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-};
-
-/**
- * Get current user from localStorage
- */
-export const getCurrentUser = (): AuthResponse['user'] | null => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-
-    try {
-        return JSON.parse(userStr);
-    } catch {
-        return null;
-    }
-};
-
-/**
- * Check if user is authenticated
- */
-export const isAuthenticated = (): boolean => {
-    return !!localStorage.getItem('token');
+export const logoutUser = async (): Promise<void> => {
+    await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+    });
 };
 
 /**
@@ -128,6 +101,7 @@ export const checkEmail = async (email: string): Promise<{ emailExists: boolean 
     const res = await fetch(`${API_URL}/auth/check-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email }),
     });
 
@@ -147,6 +121,7 @@ export const resetPassword = async (email: string, newPassword: string): Promise
     const res = await fetch(`${API_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, newPassword }),
     });
 
