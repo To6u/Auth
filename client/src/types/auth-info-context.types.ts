@@ -8,7 +8,7 @@ export interface AuthInfoContextType {
     user: User | null;
     isAuthenticated: boolean;
     login: (user: User) => void;
-    logout: () => void;
+    logout: () => Promise<void>;
     isLoading: boolean;
     refreshUser: () => Promise<void>;
 }
