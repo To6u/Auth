@@ -10,6 +10,8 @@ import { AnimatePresence } from 'framer-motion';
 import 'client/src/components/layout/layout.css';
 import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
 import * as React from 'react';
+import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
+import { PageErrorFallback } from '@/components/error-boundary/PageErrorFallback.tsx';
 
 // Компонент-обёртка для страниц
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -31,19 +33,23 @@ function AnimatedRoutes() {
                             <Route
                                 path="/login"
                                 element={
-                                    <PageWrapper>
-                                        <LoginPage />
-                                    </PageWrapper>
+                                    <ErrorBoundary fallback={<PageErrorFallback />} name="LoginPage">
+                                        <PageWrapper>
+                                            <LoginPage />
+                                        </PageWrapper>
+                                    </ErrorBoundary>
                                 }
                             />
                             <Route
                                 path="/profile"
                                 element={
-                                    <PageWrapper>
-                                        <ProtectedRoute>
-                                            <ProfilePage />
-                                        </ProtectedRoute>
-                                    </PageWrapper>
+                                    <ErrorBoundary fallback={<PageErrorFallback />} name="ProfilePage">
+                                        <PageWrapper>
+                                            <ProtectedRoute>
+                                                <ProfilePage />
+                                            </ProtectedRoute>
+                                        </PageWrapper>
+                                    </ErrorBoundary>
                                 }
                             />
                             <Route path="/" element={<Navigate to="/login" replace />} />
@@ -53,9 +59,16 @@ function AnimatedRoutes() {
                 </div>
             </div>
 
-            <ThinWavesBackground />
-            <WavesBackground />
-            <WavesWithText />
+            {/* Canvas-компоненты — fallback null: WebGL падает тихо, UI выживает */}
+            <ErrorBoundary fallback={null} name="ThinWavesBackground">
+                <ThinWavesBackground />
+            </ErrorBoundary>
+            <ErrorBoundary fallback={null} name="WavesBackground">
+                <WavesBackground />
+            </ErrorBoundary>
+            <ErrorBoundary fallback={null} name="WavesWithText">
+                <WavesWithText />
+            </ErrorBoundary>
         </>
     );
 }
