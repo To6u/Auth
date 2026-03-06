@@ -7,32 +7,27 @@ server/node_modules/
 dist/
 client/dist/
 server/dist/
-
 # Env
 .env
 .env.local
 .env.production
-
 # Database
 *.db
 *.db-shm
 *.db-wal
-
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
 # Logs
 *.log
 logs/
-
 # OS
 .DS_Store
 Thumbs.db
-
 # Backup
 backup_*/
-
-.claude_system_prompt.tmp
+.claude_system_prompt.tmpCLIENT.md
+SERVER.md
+CLIENT.md
