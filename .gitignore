@@ -28,6 +28,6 @@ logs/
 Thumbs.db
 # Backup
 backup_*/
-.claude_system_prompt.tmpCLIENT.md
+.claude_system_prompt.tmp
 SERVER.md
 CLIENT.md
