@@ -41,6 +41,9 @@ export const renderWave = (
         gl.uniform1f(program.locations.chromaticAberration, 0);
     }
 
+    const isVertical = wave.anchor === 'left' || wave.anchor === 'right' || wave.anchor === 'top-center';
+    gl.uniform1f(program.locations.vertical, isVertical ? 1.0 : 0.0);
+
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
 };
 

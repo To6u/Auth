@@ -1,4 +1,5 @@
 export interface WaveConfig {
+    anchor: 'top' | 'left' | 'right' | 'bottom' | 'top-center';
     amplitude: number;
     frequency: number;
     phase: number;
@@ -41,15 +42,16 @@ const parseRGBA = (rgba: string): [number, number, number, number] => {
 };
 
 export const wavesConfig: WaveConfig[] = [
-    // Дальняя волна (тонкая, прозрачная)
+    // Wave 0 — left anchor
     {
-        amplitude: 180,
-        frequency: 0.003,
+        anchor: 'left',
+        amplitude: 120,
+        frequency: 0.004,
         phase: 0,
         speed: 0.003,
-        verticalSpeed: 50, // Исправлено: теперь даёт заметное вертикальное движение
+        verticalSpeed: 40,
         gradientColors: ['rgba(255,9,206,0.9)', 'rgba(0,162,255,0.9)'],
-        lineWidth: 440,
+        lineWidth: 380,
         widthModulation: {
             frequency: 0.002,
             amplitude: 0.4,
@@ -63,19 +65,20 @@ export const wavesConfig: WaveConfig[] = [
         glassEffect: {
             refractionStrength: 8,
             chromaticAberration: 0.3,
-            tint: 'rgba(88, 135, 255, 0.1)',
+            tint: 'rgba(88,135,255,0.1)',
         },
     },
 
-    // Средняя волна
+    // Wave 1 — right anchor
     {
+        anchor: 'right',
         amplitude: 100,
-        frequency: 0.004,
+        frequency: 0.005,
         phase: Math.PI * 0.5,
         speed: 0.002,
-        verticalSpeed: 60,
+        verticalSpeed: 50,
         gradientColors: ['rgba(14,69,248,0.9)', 'rgba(255,165,2,0.9)'],
-        lineWidth: 560,
+        lineWidth: 480,
         widthModulation: {
             frequency: 0.0015,
             amplitude: 0.5,
@@ -89,22 +92,23 @@ export const wavesConfig: WaveConfig[] = [
         glassEffect: {
             refractionStrength: 12,
             chromaticAberration: 0.4,
-            tint: 'rgba(113, 90, 255, 0.15)',
+            tint: 'rgba(113,90,255,0.15)',
         },
     },
 
-    // Ближняя волна (толстая, яркая)
+    // Wave 2 — bottom anchor
     {
-        amplitude: 120,
-        frequency: 0.005,
+        anchor: 'top-center',
+        amplitude: 80,
+        frequency: 0.004,
         phase: Math.PI,
         speed: 0.002,
-        verticalSpeed: 80,
+        verticalSpeed: 60,
         gradientColors: ['rgba(17,255,112,0.9)', 'rgba(140,24,248,0.9)'],
-        lineWidth: 580,
+        lineWidth: 900,
         widthModulation: {
             frequency: 0.003,
-            amplitude: 0.6,
+            amplitude: 0.15,
             speed: 0.0012,
         },
         tilt: {
@@ -115,7 +119,7 @@ export const wavesConfig: WaveConfig[] = [
         glassEffect: {
             refractionStrength: 15,
             chromaticAberration: 0.5,
-            tint: 'rgba(166, 130, 255, 0.2)',
+            tint: 'rgba(166,130,255,0.2)',
         },
     },
 ];

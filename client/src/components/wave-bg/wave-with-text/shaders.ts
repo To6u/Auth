@@ -2,6 +2,7 @@ export const WAVE_VERTEX_SHADER = `
     precision mediump float;
     attribute vec2 a_position;
     uniform vec2 u_resolution;
+    uniform float u_vertical;
     varying vec2 v_position;
     varying float v_gradientPos;
 
@@ -9,7 +10,9 @@ export const WAVE_VERTEX_SHADER = `
         vec2 clipSpace = (a_position / u_resolution) * 2.0 - 1.0;
         gl_Position = vec4(clipSpace.x, -clipSpace.y, 0.0, 1.0);
         v_position = a_position;
-        v_gradientPos = a_position.x / u_resolution.x;
+        v_gradientPos = u_vertical > 0.5
+            ? a_position.y / u_resolution.y
+            : a_position.x / u_resolution.x;
     }
 `;
 

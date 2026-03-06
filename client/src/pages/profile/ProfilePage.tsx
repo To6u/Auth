@@ -5,6 +5,7 @@ import '@/pages/profile/profile-page.css';
 import { SubmitButton } from '@/components/auth-form/components';
 import Hero from '@/pages/profile/components/hero/Hero.tsx';
 import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
+import { Projects } from '@/pages/profile/components/projects';
 import Header from '@/components/header/Header.tsx';
 import { useRef, useEffect, useCallback } from 'react';
 
@@ -70,6 +71,7 @@ export const ProfilePage = () => {
                     <Header />
                     <Hero />
                     <AboutHero />
+                    <Projects />
                 </div>
             )}
         </AnimatedPageWrapper>
