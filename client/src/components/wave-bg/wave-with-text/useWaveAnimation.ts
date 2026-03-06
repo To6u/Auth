@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
+import { projectsState } from '@/lib/projectsState';
 import type { RefObject } from 'react';
 import {
     createWaveProgram,
     createLineProgram,
     fillWaveVertices,
+    fillWaveVerticesVertical,
     generateTextLines,
     updateMouseState,
     lerp,
@@ -62,6 +64,8 @@ export const useWaveAnimation = (
         let lineDataBuf: Float32Array = new Float32Array(0);
         // 0 = текст на месте, 1 = линии полностью ушли за экран
         let routeExitProgress = showTextRef.current ? 0 : 1;
+        let prevTime = 0;
+        let phaseAccumulator = 0;
         let dpr = 1;
 
         const resize = () => {
@@ -129,6 +133,15 @@ export const useWaveAnimation = (
         const animate = (time: number) => {
             if (cancelled) return;
 
+            const delta = prevTime === 0 ? 16 : Math.min(time - prevTime, 50);
+            prevTime = time;
+            const targetSpeedFactor = projectsState.isScrolling
+                ? 1 + projectsState.camProgress * 0.6
+                : 1;
+            projectsState.smoothedSpeedFactor += (targetSpeedFactor - projectsState.smoothedSpeedFactor) * 0.06;
+            phaseAccumulator += delta * projectsState.smoothedSpeedFactor;
+            if (phaseAccumulator > 1_000_000) phaseAccumulator -= 1_000_000;
+
             updateMouseState(mouse);
 
             const { width, height } = canvas;
@@ -174,41 +187,61 @@ export const useWaveAnimation = (
 
             gl.clear(gl.COLOR_BUFFER_BIT);
 
-            const buf0 = vertexBuffers[0];
-            if (buf0) {
-                const count = fillWaveVertices(
-                    buf0,
-                    width,
-                    height,
-                    wavesConfig[0],
-                    time,
-                    step,
-                    effectiveMouse,
-                    dpr,
-                    anim.waveScrollProgress
-                );
-                renderWave(gl, waveProgram, waveBuffer, buf0, count, 0, time, width, height);
+            const wavesCanvas = canvasRef.current;
+            if (wavesCanvas) {
+                if (projectsState.active) {
+                    const px = Math.round(-projectsState.camX * 0.08 * 10) / 10;
+                    const py = Math.round(-projectsState.camY * 0.08 * 10) / 10;
+                    const newTransform = `translateZ(0) translateX(${px}px) translateY(${py}px)`;
+                    if (wavesCanvas.style.transform !== newTransform) {
+                        wavesCanvas.style.transform = newTransform;
+                    }
+                } else if (wavesCanvas.style.transform !== 'translateZ(0)') {
+                    wavesCanvas.style.transform = 'translateZ(0)';
+                }
             }
 
+            // Compute all waves
+            const counts = new Array<number>(wavesConfig.length).fill(0);
+            for (let i = 0; i < wavesConfig.length; i++) {
+                const buf = vertexBuffers[i];
+                if (!buf) continue;
+                const waveConf = wavesConfig[i];
+
+                if (waveConf.anchor === 'left' || waveConf.anchor === 'right' || waveConf.anchor === 'top-center') {
+                    counts[i] = fillWaveVerticesVertical(
+                        buf, width, height, waveConf, time, step,
+                        effectiveMouse, dpr,
+                        anim.waveScrollProgress, projectsState.camProgress,
+                        waveConf.anchor as 'left' | 'right' | 'top-center',
+                        phaseAccumulator
+                    );
+                } else {
+                    counts[i] = fillWaveVertices(
+                        buf, width, height, waveConf, time, step,
+                        effectiveMouse, dpr,
+                        anim.waveScrollProgress, projectsState.camProgress,
+                        phaseAccumulator
+                    );
+                }
+            }
+
+            // Render wave 0
+            const buf0 = vertexBuffers[0];
+            if (buf0 && counts[0]) {
+                renderWave(gl, waveProgram, waveBuffer, buf0, counts[0], 0, time, width, height);
+            }
+
+            // Render text between wave 0 and waves 1-2
             if (isTextVisible) {
                 renderTextLines(gl, lineProgram, lineBuffer, lineDataBuf, textLines, anim, width, height, dpr, routeExitProgress);
             }
 
+            // Render waves 1-2
             for (let i = 1; i < wavesConfig.length; i++) {
                 const buf = vertexBuffers[i];
-                if (!buf) continue;
-                const count = fillWaveVertices(
-                    buf,
-                    width,
-                    height,
-                    wavesConfig[i],
-                    time,
-                    step,
-                    effectiveMouse,
-                    dpr,
-                    anim.waveScrollProgress
-                );
-                renderWave(gl, waveProgram, waveBuffer, buf, count, i, time, width, height);
+                if (!buf || !counts[i]) continue;
+                renderWave(gl, waveProgram, waveBuffer, buf, counts[i], i, time, width, height);
             }
 
             animFrame = requestAnimationFrame(animate);
@@ -229,6 +262,10 @@ export const useWaveAnimation = (
             gl.deleteProgram(lineProgram.program);
             gl.deleteBuffer(waveBuffer);
             gl.deleteBuffer(lineBuffer);
+
+            if (canvasRef.current) {
+                canvasRef.current.style.transform = 'translateZ(0)';
+            }
         };
         // canvasRef и showTextRef — стабильные рефы, не нужны в deps
     }, []); // eslint-disable-line react-hooks/exhaustive-deps

@@ -7,14 +7,15 @@ import type {
     TextLine,
 } from '@/components/wave-bg/wave-with-text/wave-bg.types';
 import { WAVE_VERTEX_SHADER, WAVE_FRAGMENT_SHADER, LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER } from './shaders';
+import { projectsState } from '@/lib/projectsState';
 
 // ==================== CONSTANTS ====================
 
 export const MOUSE_CONFIG = {
-    radius: 400,
-    strength: 100,
-    falloff: 2.5,
-    smoothing: 0.1,
+    radius: 800,
+    strength: 30,
+    falloff: 2,
+    smoothing: 0.2,
     fadeSpeed: 0.08,
     /** Порог scroll, выше которого mouse effect отключается */
     scrollCutoff: 0.8,
@@ -113,6 +114,7 @@ export const createWaveProgram = (gl: WebGLRenderingContext): WaveShaderProgram 
             time: gl.getUniformLocation(program, 'u_time'),
             refractionStrength: gl.getUniformLocation(program, 'u_refractionStrength'),
             chromaticAberration: gl.getUniformLocation(program, 'u_chromaticAberration'),
+            vertical: gl.getUniformLocation(program, 'u_vertical'),
         },
     };
 };
@@ -145,16 +147,32 @@ export const fillWaveVertices = (
     step: number,
     mouse: MouseState,
     dpr: number,
-    scrollProgress = 0
+    scrollProgress = 0,
+    camProgress = 0,
+    phaseTime = 0
 ): number => {
     const { startVerticalPosition, endVerticalPosition, targetLineWidth } = WAVE_SCROLL_CONFIG;
 
-    const phase = wave.phase + time * wave.speed * WAVE_SPEED_MULTIPLIER;
-    const verticalPosition = startVerticalPosition - scrollProgress * (startVerticalPosition - endVerticalPosition);
-    const verticalMovement = wave.verticalSpeed * Math.sin(time * 0.001) * (1 - scrollProgress);
-    const baseY = height * verticalPosition + verticalMovement;
-    const amplitudeFactor = 1 - scrollProgress * 0.7;
-    const tiltFactor = 1 - scrollProgress;
+    const zProgress = Math.min(1, scrollProgress * 0.3 + camProgress * 0.6);
+    const effectiveTime = phaseTime > 0 ? phaseTime : time;
+    const phase = wave.phase + effectiveTime * wave.speed * WAVE_SPEED_MULTIPLIER;
+    const zAmplitudeFactor = 1 + Math.sin(camProgress * Math.PI) * 0.8;
+    const amplitudeFactor = wave.anchor === 'bottom'
+        ? (0.2 + zProgress * 1.4) * zAmplitudeFactor
+        : (1 - scrollProgress * 0.7) * zAmplitudeFactor;
+    const tiltFactor = wave.anchor === 'bottom'
+        ? zProgress * 1.2
+        : 1 - scrollProgress;
+
+    let baseY: number;
+    if (wave.anchor === 'bottom') {
+        const edgeOffset = zProgress * height * 0.5;
+        baseY = height - edgeOffset + wave.verticalSpeed * Math.sin(time * 0.001) * (1 - scrollProgress);
+    } else {
+        const verticalPosition = startVerticalPosition - scrollProgress * (startVerticalPosition - endVerticalPosition);
+        const verticalMovement = wave.verticalSpeed * Math.sin(time * 0.001) * (1 - scrollProgress);
+        baseY = height * verticalPosition + verticalMovement;
+    }
 
     const mouseX = mouse.smoothX * dpr;
     const mouseY = mouse.smoothY * dpr;
@@ -179,7 +197,9 @@ export const fillWaveVertices = (
             y += (mouseY - y) * strength * MOUSE_CONFIG.strengthScale;
         }
 
-        const interpolatedWidth = wave.lineWidth + (targetLineWidth - wave.lineWidth) * scrollProgress;
+        const interpolatedWidth = wave.anchor === 'top'
+            ? wave.lineWidth + (targetLineWidth - wave.lineWidth) * scrollProgress
+            : wave.lineWidth;
         let halfWidth = interpolatedWidth * WAVE_WIDTH_MULTIPLIER;
 
         if (wave.widthModulation) {
@@ -198,6 +218,85 @@ export const fillWaveVertices = (
         buffer[idx++] = y - halfWidth;
         buffer[idx++] = x;
         buffer[idx++] = y + halfWidth;
+    }
+
+    return idx / 2;
+};
+
+export const fillWaveVerticesVertical = (
+    buffer: Float32Array,
+    width: number,
+    height: number,
+    wave: WaveConfig,
+    time: number,
+    step: number,
+    mouse: MouseState,
+    dpr: number,
+    scrollProgress: number,
+    camProgress: number,
+    side: 'left' | 'right' | 'top-center',
+    phaseTime = 0
+): number => {
+    const zProgress = Math.min(1, scrollProgress * 0.3 + camProgress * 0.6);
+    const effectiveTime = phaseTime > 0 ? phaseTime : time;
+    const phase = wave.phase + effectiveTime * wave.speed * WAVE_SPEED_MULTIPLIER;
+    const edgeOffset = zProgress * width * 0.55;
+    const baseX = side === 'left'
+        ? edgeOffset
+        : side === 'right'
+            ? width - edgeOffset
+            : width * 0.5;
+    const zAmplitudeFactor = 1 + Math.sin(camProgress * Math.PI) * 0.8;
+    const amplitudeFactor = (1 - scrollProgress * 0.7) * zAmplitudeFactor;
+    const tiltFactor = 1 - scrollProgress;
+
+    const mouseX = mouse.smoothX * dpr;
+    const mouseY = mouse.smoothY * dpr;
+    const sigma = (MOUSE_CONFIG.radius * dpr) / MOUSE_CONFIG.falloff;
+    const hasMouseEffect =
+        mouse.smoothActive > MOUSE_ACTIVE_THRESHOLD &&
+        scrollProgress < MOUSE_CONFIG.scrollCutoff;
+
+    let idx = 0;
+
+    for (let y = 0; y <= height; y += step) {
+        let x = baseX + Math.sin(y * wave.frequency + phase) * wave.amplitude * amplitudeFactor;
+
+        if (wave.tilt) {
+            const tiltPhase = time * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
+            x += Math.sin(y * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * width * tiltFactor;
+        }
+
+        if (hasMouseEffect) {
+            const dy = y - mouseY;
+            const gaussian = Math.exp(-(dy * dy) / (2 * sigma * sigma));
+            const strength =
+                MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive;
+            x += (mouseX - x) * strength * MOUSE_CONFIG.strengthScale;
+        }
+
+        let halfWidth = (wave.lineWidth * WAVE_WIDTH_MULTIPLIER) / 2;
+
+        if (wave.widthModulation) {
+            const wPhase = time * wave.widthModulation.speed * WAVE_SPEED_MULTIPLIER;
+            const mod =
+                Math.sin(y * wave.widthModulation.frequency + wPhase) *
+                wave.widthModulation.amplitude;
+            halfWidth *= 1 + mod;
+        }
+
+        const topBoost = (side === 'left' || side === 'right')
+            ? 1 + scrollProgress * 2.8
+            : 1 + scrollProgress * 1.2;
+        const verticalFade = (side === 'left' || side === 'right')
+            ? (1 - (y / height) * 0.85) * topBoost
+            : (1 - (y / height) * 0.4) * topBoost;
+        halfWidth *= (1 - zProgress * 0.4) * verticalFade;
+
+        buffer[idx++] = x - halfWidth;
+        buffer[idx++] = y;
+        buffer[idx++] = x + halfWidth;
+        buffer[idx++] = y;
     }
 
     return idx / 2;

@@ -34,3 +34,5 @@ Thumbs.db
 
 # Backup
 backup_*/
+
+.claude_system_prompt.tmp

@@ -9,6 +9,7 @@ export interface WaveShaderProgram {
         time: WebGLUniformLocation | null;
         refractionStrength: WebGLUniformLocation | null;
         chromaticAberration: WebGLUniformLocation | null;
+        vertical: WebGLUniformLocation | null;
     };
 }
 

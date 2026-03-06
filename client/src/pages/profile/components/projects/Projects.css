@@ -1,0 +1,385 @@
+/* ================================================================
+   Projects — 3D scroll-driven scene
+   Dark theme · pure CSS 3D · no Framer Motion
+   ================================================================ */
+
+/* ── Scene container (scroll driver) ──────────────────────────── */
+.projects-scene {
+    position: relative;
+    height: 500vh;
+}
+
+/* ── Sticky viewport ───────────────────────────────────────────── */
+.projects-scene__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    perspective: 1500px;
+    perspective-origin: 50% 50%;
+}
+
+/* ── 3D world — camera inverse is applied here via JS ──────────── */
+.projects-scene__world {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+    /* NO transition — smoothing is handled by JS lerp */
+}
+
+/* ── Perspective floor grid ────────────────────────────────────── */
+.projects-scene__grid {
+    position: absolute;
+    width: 4000px;
+    height: 4000px;
+    left: 50%;
+    top: 50%;
+    margin-left: -2000px;
+    margin-top: -2000px;
+    transform: rotateX(85deg) translateZ(-180px);
+    background-image:
+        linear-gradient(rgba(99, 102, 241, 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.18) 1px, transparent 1px);
+    background-size: 140px 140px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 0%, transparent 100%);
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 0%, transparent 100%);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ── Card wrapper — 3D positioned, opacity/filter via JS ───────── */
+.projects-scene__card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 400px;
+    transform-style: preserve-3d;
+    will-change: transform, opacity, filter;
+    /* NO transition — smoothing via JS lerp */
+}
+
+/* ── Card body — glass surface (backdrop-filter intentionally here,
+      NOT on .projects-scene__card which has preserve-3d,
+      to avoid the WebKit preserve-3d + backdrop-filter compositor bug) ── */
+.projects-scene__card-body {
+    position: relative;
+    background: rgba(22, 22, 26, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 28px 32px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+}
+
+/* Glass highlight */
+.projects-scene__card-body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.045) 0%,
+        transparent 55%
+    );
+    pointer-events: none;
+}
+
+/* ── Card header (badge + year) ────────────────────────────────── */
+.projects-scene__card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ── Status badge ──────────────────────────────────────────────── */
+.projects-scene__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+}
+
+.projects-scene__badge--live {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.08);
+}
+
+.projects-scene__badge--wip {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+}
+
+.projects-scene__badge--archived {
+    color: #6b7280;
+    background: rgba(107, 114, 128, 0.08);
+}
+
+/* ── Year ──────────────────────────────────────────────────────── */
+.projects-scene__year {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+}
+
+/* ── Card title ────────────────────────────────────────────────── */
+.projects-scene__card-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: rgba(255, 244, 234, 0.92);
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+}
+
+/* ── Card description ──────────────────────────────────────────── */
+.projects-scene__card-desc {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.48);
+}
+
+/* ── Tag list ──────────────────────────────────────────────────── */
+.projects-scene__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.projects-scene__tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.1);
+    color: rgba(165, 167, 255, 0.85);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    letter-spacing: 0.03em;
+}
+
+/* ── Links ─────────────────────────────────────────────────────── */
+.projects-scene__links {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.projects-scene__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.projects-scene__link:hover {
+    color: #a5b4fc;
+}
+
+/* ── Atmospheric fog overlays ──────────────────────────────────── */
+.projects-scene__fog-top,
+.projects-scene__fog-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 200px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.projects-scene__fog-top {
+    top: 0;
+}
+
+.projects-scene__fog-bottom {
+    bottom: 0;
+}
+
+/* ── Radial vignette ───────────────────────────────────────────── */
+.projects-scene__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9;
+}
+
+/* ── Section label ─────────────────────────────────────────────── */
+.projects-scene__label {
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.25);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.projects-scene__label.visible {
+    opacity: 1;
+}
+
+/* ── Counter ───────────────────────────────────────────────────── */
+.projects-scene__counter {
+    position: absolute;
+    bottom: 48px;
+    left: 48px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.3);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.projects-scene__counter.visible {
+    opacity: 1;
+}
+
+/* ── Scroll hint ───────────────────────────────────────────────── */
+.projects-scene__scroll-hint {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.25);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.projects-scene__scroll-hint.visible {
+    opacity: 1;
+}
+
+.projects-scene__scroll-hint svg {
+    animation: projects-bounce 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes projects-bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+/* ── Fixed navigation dots ─────────────────────────────────────── */
+.projects-scene__nav {
+    position: fixed;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.projects-scene__nav.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.projects-scene__nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: background 0.3s ease, transform 0.3s ease;
+    cursor: default;
+}
+
+.projects-scene__nav-dot.active {
+    background: #6366f1;
+    transform: scale(1.5);
+}
+
+/* ================================================================
+   Mobile — performance concessions
+   ================================================================ */
+@media (max-width: 768px) {
+    .projects-scene__card {
+        width: 320px;
+    }
+
+    .projects-scene__card-body {
+        padding: 20px 22px;
+        gap: 12px;
+        /* Reduced blur cost on low-end devices */
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .projects-scene__card-title {
+        font-size: 18px;
+    }
+
+    .projects-scene__card-desc {
+        font-size: 13px;
+    }
+
+    .projects-scene__nav {
+        right: 16px;
+    }
+
+    .projects-scene__counter {
+        left: 20px;
+        bottom: 32px;
+    }
+
+    .projects-scene__scroll-hint {
+        bottom: 32px;
+    }
+}
+
+/* ── Reduce motion — disable bounce, keep opacity transitions ──── */
+@media (prefers-reduced-motion: reduce) {
+    .projects-scene__scroll-hint svg {
+        animation: none;
+    }
+
+    .projects-scene__nav-dot {
+        transition: background 0.15s ease;
+    }
+}
