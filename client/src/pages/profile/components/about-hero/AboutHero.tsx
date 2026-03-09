@@ -39,7 +39,7 @@ export const AboutHero = memo(() => {
 
     const { scrollYProgress: sectionThreeExitProgress } = useScroll({
         target: sectionThreeRef,
-        offset: ['20% start', 'end start'],
+        offset: ['40% start', 'end start'],
     });
 
     // ═══════════════════════════════════════════════════════════════

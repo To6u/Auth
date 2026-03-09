@@ -62,7 +62,7 @@
 .about-hero-my-way {
     display: grid;
     grid-template-columns: 40% auto;
-    grid-template-rows: 80vh;
+    grid-template-rows: minmax(80vh, auto);
     grid-auto-flow: row;
     grid-column-gap: 6rem;
     /*grid-row-gap: 8rem;*/
@@ -91,7 +91,7 @@
     top: 60px;
     align-self: start;
     z-index: 10;
-    margin-bottom: 2rem;
+    margin-bottom: 12rem;
 }
 
 .about-hero-section-heading h2 {

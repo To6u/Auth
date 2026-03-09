@@ -7,7 +7,6 @@ import type {
     TextLine,
 } from '@/components/wave-bg/wave-with-text/wave-bg.types';
 import { WAVE_VERTEX_SHADER, WAVE_FRAGMENT_SHADER, LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER } from './shaders';
-import { projectsState } from '@/lib/projectsState';
 
 // ==================== CONSTANTS ====================
 
