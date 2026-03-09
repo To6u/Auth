@@ -67,6 +67,10 @@ export const useWaveAnimation = (
         let prevTime = 0;
         let phaseAccumulator = 0;
         let dpr = 1;
+        let isPageVisible = !document.hidden;
+        let lastActivityTime = performance.now();
+        let isIdlePaused = false;
+        const IDLE_TIMEOUT = 5000; // pause after 5s of no activity
 
         const resize = () => {
             if (cancelled) return;
@@ -99,7 +103,7 @@ export const useWaveAnimation = (
             smoothActive: 0,
         };
 
-        const onMouseMove = (e: MouseEvent) => {
+        const onMouseMoveCoords = (e: MouseEvent) => {
             mouse.x = e.clientX;
             mouse.y = e.clientY;
             mouse.active = true;
@@ -122,7 +126,7 @@ export const useWaveAnimation = (
             lineDataBuf = new Float32Array(lines.length * ANIM_BUFFER_MULTIPLIER);
         });
 
-        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mousemove', onMouseMoveCoords);
         document.addEventListener('mouseleave', onMouseLeave);
 
         const onScroll = () => {
@@ -132,6 +136,13 @@ export const useWaveAnimation = (
 
         const animate = (time: number) => {
             if (cancelled) return;
+
+            // Idle check — pause if no activity for IDLE_TIMEOUT ms
+            if (time - lastActivityTime > IDLE_TIMEOUT) {
+                isIdlePaused = true;
+                return;
+            }
+            isIdlePaused = false;
 
             const delta = prevTime === 0 ? 16 : Math.min(time - prevTime, 50);
             prevTime = time;
@@ -189,10 +200,12 @@ export const useWaveAnimation = (
 
             const wavesCanvas = canvasRef.current;
             if (wavesCanvas) {
-                if (projectsState.active) {
+                const hasSignificantMovement =
+                    projectsState.active && Math.abs(projectsState.camX) > 1;
+
+                if (hasSignificantMovement) {
                     const px = Math.round(-projectsState.camX * 0.08 * 10) / 10;
-                    const py = Math.round(-projectsState.camY * 0.08 * 10) / 10;
-                    const newTransform = `translateZ(0) translateX(${px}px) translateY(${py}px)`;
+                    const newTransform = `translateZ(0) translateX(${px}px)`;
                     if (wavesCanvas.style.transform !== newTransform) {
                         wavesCanvas.style.transform = newTransform;
                     }
@@ -249,13 +262,44 @@ export const useWaveAnimation = (
 
         animFrame = requestAnimationFrame(animate);
 
+        const resumeFromIdle = () => {
+            lastActivityTime = performance.now();
+            if (isIdlePaused && !cancelled && isPageVisible) {
+                isIdlePaused = false;
+                prevTime = 0;
+                animFrame = requestAnimationFrame(animate);
+            }
+        };
+
+        const onVisibilityChange = () => {
+            if (document.hidden) {
+                isPageVisible = false;
+                cancelAnimationFrame(animFrame);
+            } else {
+                isPageVisible = true;
+                lastActivityTime = performance.now();
+                prevTime = 0;
+                animFrame = requestAnimationFrame(animate);
+            }
+        };
+
+        const onMouseMove = () => resumeFromIdle();
+        const onScrollActivity = () => resumeFromIdle();
+
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        window.addEventListener('mousemove', onMouseMove, { passive: true });
+        window.addEventListener('scroll', onScrollActivity, { passive: true });
+
         return () => {
             cancelled = true;
             cancelAnimationFrame(animFrame);
 
-            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mousemove', onMouseMoveCoords);
             document.removeEventListener('mouseleave', onMouseLeave);
             window.removeEventListener('scroll', onScroll);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('scroll', onScrollActivity);
             resizeObserver.disconnect();
 
             gl.deleteProgram(waveProgram.program);

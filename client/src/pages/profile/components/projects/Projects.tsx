@@ -121,11 +121,12 @@ function splinePoint(path: Vec3[], t: number): Vec3 {
     const i = Math.min(Math.floor(raw), n - 1);
     const localT = raw - i;
 
-    // Duplicate boundary points to satisfy Catmull-Rom requirements
-    const p0 = path[i === 0 ? 0 : i - 1];
-    const p1 = path[i];
-    const p2 = path[i + 1];
-    const p3 = path[i >= n - 1 ? n : i + 2];
+    // Duplicate boundary points to satisfy Catmull-Rom requirements.
+    // Non-null assertions are safe: indices are clamped to [0, n] above.
+    const p0 = path[i === 0 ? 0 : i - 1]!;
+    const p1 = path[i]!;
+    const p2 = path[i + 1]!;
+    const p3 = path[i >= n - 1 ? n : i + 2]!;
 
     return {
         x: catmullRom(p0.x, p1.x, p2.x, p3.x, localT),
@@ -229,6 +230,10 @@ export const Projects = () => {
         const world = worldRef.current;
         if (!section || !world) return;
 
+        // Narrow types for inner functions — refs are stable after guard
+        const sectionEl: HTMLElement = section;
+        const worldEl: HTMLDivElement = world;
+
         let sectionTop = section.getBoundingClientRect().top + window.scrollY;
         let sectionScrollable = section.offsetHeight - window.innerHeight;
 
@@ -238,6 +243,11 @@ export const Projects = () => {
         };
 
         window.addEventListener('resize', recalcLayout, { passive: true });
+
+        const bodyResizeObserver = new ResizeObserver(() => {
+            recalcLayout();
+        });
+        bodyResizeObserver.observe(document.body);
 
         const reducedMotion = window.matchMedia(
             '(prefers-reduced-motion: reduce)',
@@ -252,6 +262,7 @@ export const Projects = () => {
         let tCamZ = 0;
         let rafId = 0;
         let lastActiveIndex = -1;
+        let scrollTimer: ReturnType<typeof setTimeout> | undefined;
 
         const LERP = 0.09;
         const THRESHOLD = 0.1;
@@ -268,7 +279,7 @@ export const Projects = () => {
             const scrollY = window.scrollY;
             const inView =
                 scrollY + window.innerHeight > sectionTop &&
-                scrollY < sectionTop + section.offsetHeight;
+                scrollY < sectionTop + sectionEl.offsetHeight;
 
             if (inView === lastInView) return;
             lastInView = inView;
@@ -296,10 +307,15 @@ export const Projects = () => {
                 let opacity: number;
                 let blurPx: number;
 
-                if (effectiveZ > 300) {
-                    // Flew past — hide
+                if (effectiveZ > 600) {
+                    // Fully gone
                     opacity = 0;
                     blurPx = 0;
+                } else if (effectiveZ > 300) {
+                    // Fading out — flew past
+                    const t = (effectiveZ - 300) / 300; // 0 → 1
+                    opacity = 1 - t;
+                    blurPx = t * 2;
                 } else if (effectiveZ > -300) {
                     // Focus zone
                     opacity = 1;
@@ -365,7 +381,7 @@ export const Projects = () => {
             projectsState.camY = camY;
 
             // Inverted camera → move world in opposite direction
-            world.style.transform = `translateX(${-camX}px) translateY(${-camY}px) translateZ(${camZ}px)`;
+            worldEl.style.transform = `translateX(${-camX}px) translateY(${-camY}px) translateZ(${camZ}px)`;
 
             updateCards();
             syncVisibility();
@@ -389,15 +405,23 @@ export const Projects = () => {
             projectsState.camProgress = progress;
             projectsState.active = progress > 0.01 && progress < 0.999;
             projectsState.isScrolling = true;
-            clearTimeout((window as any).__projectsScrollTimer);
-            (window as any).__projectsScrollTimer = setTimeout(() => {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
                 projectsState.isScrolling = false;
             }, 150);
             cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(tick);
+
         }
 
         window.addEventListener('scroll', onScroll, { passive: true });
+
+        const onVisibilityChange = () => {
+            if (document.hidden) {
+                cancelAnimationFrame(rafId);
+            }
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
 
         // Bootstrap: run once to set initial state without waiting for scroll
         rafId = requestAnimationFrame(tick);
@@ -405,32 +429,31 @@ export const Projects = () => {
         return () => {
             window.removeEventListener('scroll', onScroll);
             window.removeEventListener('resize', recalcLayout);
+            bodyResizeObserver.disconnect();
             cancelAnimationFrame(rafId);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
             projectsState.camProgress = 0;
             projectsState.active = false;
             projectsState.isScrolling = false;
-            clearTimeout((window as any).__projectsScrollTimer);
+            clearTimeout(scrollTimer);
         };
     }, []);
 
     return (
         <>
-            <section ref={sectionRef} className="projects-scene">
+            <section ref={sectionRef} id="projects" className="projects-scene">
+                <div className="projects-scene__label" ref={labelRef}>
+                    Проекты
+                </div>
+
                 <div className="projects-scene__sticky">
                     {/* Atmospheric overlays */}
                     <div className="projects-scene__fog-top" />
                     <div className="projects-scene__fog-bottom" />
                     <div className="projects-scene__vignette" />
 
-                    {/* Section label */}
-                    <div className="projects-scene__label" ref={labelRef}>
-                        Projects
-                    </div>
-
                     {/* 3D world */}
                     <div className="projects-scene__world" ref={worldRef}>
-                        <div className="projects-scene__grid" />
-
                         {PROJECTS.map((p, i) => (
                             <div
                                 key={p.id}

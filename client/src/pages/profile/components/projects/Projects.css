@@ -7,6 +7,7 @@
 .projects-scene {
     position: relative;
     height: 500vh;
+    margin-top: 30rem;
 }
 
 /* ── Sticky viewport ───────────────────────────────────────────── */
@@ -26,26 +27,6 @@
     transform-style: preserve-3d;
     will-change: transform;
     /* NO transition — smoothing is handled by JS lerp */
-}
-
-/* ── Perspective floor grid ────────────────────────────────────── */
-.projects-scene__grid {
-    position: absolute;
-    width: 4000px;
-    height: 4000px;
-    left: 50%;
-    top: 50%;
-    margin-left: -2000px;
-    margin-top: -2000px;
-    transform: rotateX(85deg) translateZ(-180px);
-    background-image:
-        linear-gradient(rgba(99, 102, 241, 0.18) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(99, 102, 241, 0.18) 1px, transparent 1px);
-    background-size: 140px 140px;
-    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 0%, transparent 100%);
-    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 0%, transparent 100%);
-    opacity: 0.5;
-    pointer-events: none;
 }
 
 /* ── Card wrapper — 3D positioned, opacity/filter via JS ───────── */
@@ -82,11 +63,7 @@
     position: absolute;
     inset: 0;
     border-radius: 20px;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.045) 0%,
-        transparent 55%
-    );
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0%, transparent 55%);
     pointer-events: none;
 }
 
@@ -221,20 +198,17 @@
 
 /* ── Section label ─────────────────────────────────────────────── */
 .projects-scene__label {
-    position: absolute;
-    top: 48px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.25);
+    margin: auto;
+    top: 2rem;
+    left: 2rem;
+    width: fit-content;
     z-index: 20;
+    font-size: 5rem;
+    font-weight: 900;
+    text-transform: uppercase;
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
-    white-space: nowrap;
 }
 
 .projects-scene__label.visible {
@@ -326,7 +300,9 @@
     height: 6px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
-    transition: background 0.3s ease, transform 0.3s ease;
+    transition:
+        background 0.3s ease,
+        transform 0.3s ease;
     cursor: default;
 }
 
