@@ -1,0 +1,138 @@
+/* ================================================================
+   DashboardPage — BEM, dark theme
+   ================================================================ */
+
+.dashboard {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
+
+.dashboard__card {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(22, 22, 26, 0.75);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+
+.dashboard__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dashboard__title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: rgba(255, 244, 234, 0.92);
+}
+
+/* ── User info ───────────────────────────────────────────────── */
+
+.dashboard__user {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.dashboard__email {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 244, 234, 0.85);
+    word-break: break-all;
+}
+
+.dashboard__created {
+    margin: 0;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.03em;
+}
+
+/* ── Actions ─────────────────────────────────────────────────── */
+
+.dashboard__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dashboard__btn {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.dashboard__btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.dashboard__btn--primary {
+    background: rgba(99, 102, 241, 0.18);
+    border-color: rgba(99, 102, 241, 0.35);
+    color: #a5b4fc;
+}
+
+.dashboard__btn--primary:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.28);
+    border-color: rgba(99, 102, 241, 0.55);
+}
+
+.dashboard__btn--danger {
+    background: rgba(248, 113, 113, 0.1);
+    border-color: rgba(248, 113, 113, 0.25);
+    color: #fca5a5;
+}
+
+.dashboard__btn--danger:hover:not(:disabled) {
+    background: rgba(248, 113, 113, 0.2);
+    border-color: rgba(248, 113, 113, 0.45);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+
+@media (max-width: 540px) {
+    .dashboard__card {
+        padding: 28px 24px;
+        border-radius: 18px;
+        gap: 24px;
+    }
+
+    .dashboard__title {
+        font-size: 22px;
+    }
+}
