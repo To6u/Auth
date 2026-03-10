@@ -1,27 +1,30 @@
 import React, { useRef } from 'react';
 import { useBouncingBalls, useHitTest } from './useBouncingBalls';
-import { useImages } from './useImages';
+import { useImages, useImageSets } from './useImages';
 import './floating-balls.css';
 
 interface FloatingBallsProps {
     images: string[];
+    altImages?: string[][];
     className?: string;
     containerRef?: React.RefObject<HTMLDivElement | null> | React.RefObject<HTMLDivElement>;
 }
 
-export const FloatingBalls = ({ images: imageSrcs, className, containerRef: externalRef }: FloatingBallsProps) => {
+export const FloatingBalls = ({ images: imageSrcs, altImages: altImageSrcs = [], className, containerRef: externalRef }: FloatingBallsProps) => {
     const internalRef = useRef<HTMLDivElement>(null);
     const containerRef = (externalRef ?? internalRef) as React.RefObject<HTMLDivElement | null>;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const hoveredIdRef = useRef<number | null>(null);
 
     const images = useImages(imageSrcs);
+    const altImages = useImageSets(altImageSrcs);
 
     const ballsRef = useBouncingBalls({
         count: imageSrcs.length,
         containerRef,
         canvasRef,
         images,
+        altImages,
         hoveredIdRef,
     });
 

@@ -14,6 +14,8 @@ export interface Ball {
     breatheSpeed: number;
     zIndex: number;
     blobPoints: { x: number; y: number }[];
+    imageIndex: number;
+    imageSwitchTimer: number;
 }
 
 interface UseBouncingBallsOptions {
@@ -21,8 +23,11 @@ interface UseBouncingBallsOptions {
     containerRef: React.RefObject<HTMLDivElement | null>;
     canvasRef: React.RefObject<HTMLCanvasElement | null>;
     images: HTMLImageElement[];
+    altImages?: HTMLImageElement[][];
     hoveredIdRef: React.RefObject<number | null>;
 }
+
+const IMAGE_SWITCH_INTERVAL = 9;
 
 const MIN_SPEED = 0.5;
 const MAX_SPEED = 1;
@@ -80,7 +85,18 @@ function buildBlobPath(pts: { x: number; y: number }[], cx: number, cy: number, 
     return blob;
 }
 
-function drawBall(ctx: CanvasRenderingContext2D, ball: Ball, img: HTMLImageElement) {
+function drawBall(
+    ctx: CanvasRenderingContext2D,
+    ball: Ball,
+    baseImages: HTMLImageElement[],
+    altImages: HTMLImageElement[][]
+) {
+    const ballAlt = altImages[ball.id] ?? [];
+    const currentImg =
+        ball.imageIndex === 0
+            ? baseImages[ball.id % baseImages.length]!
+            : ballAlt[ball.imageIndex - 1] ?? baseImages[ball.id % baseImages.length]!;
+
     const breathe = 1 + Math.sin(ball.breathePhase) * BREATHE_AMPLITUDE;
     const r = ball.radius * ball.scale * breathe;
     const blobShape = buildBlobPath(ball.blobPoints, ball.x, ball.y, r);
@@ -95,7 +111,7 @@ function drawBall(ctx: CanvasRenderingContext2D, ball: Ball, img: HTMLImageEleme
 
     ctx.save();
     ctx.clip(blobShape);
-    ctx.drawImage(img, ball.x - r, ball.y - r, r * 2, r * 2);
+    ctx.drawImage(currentImg, ball.x - r, ball.y - r, r * 2, r * 2);
     ctx.restore();
 }
 
@@ -118,6 +134,8 @@ function initBalls(count: number, width: number, height: number): Ball[] {
             breatheSpeed: 0.008 + (i % 5) * 0.002,
             zIndex: 0,
             blobPoints: generateBlobPoints(),
+            imageIndex: 0,
+            imageSwitchTimer: Math.floor(Math.random() * IMAGE_SWITCH_INTERVAL),
         };
     });
 }
@@ -157,7 +175,7 @@ function applyRepulsion(balls: Ball[]) {
 
 const isActive = () => !document.hidden;
 
-export function useBouncingBalls({ count, containerRef, canvasRef, images, hoveredIdRef }: UseBouncingBallsOptions) {
+export function useBouncingBalls({ count, containerRef, canvasRef, images, altImages = [], hoveredIdRef }: UseBouncingBallsOptions) {
     const ballsRef = useRef<Ball[]>([]);
     const rafRef = useRef<number>(0);
     const isVisibleRef = useRef(false);
@@ -268,6 +286,21 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, hover
                 ball.zIndex = lerp(ball.zIndex, isHovered ? 1 : 0, 0.06);
 
                 ball.breathePhase += ball.breatheSpeed;
+
+                // Image switching — only while hovered, reset to base on leave
+                ball.imageSwitchTimer++;
+                const hasVariants = (altImages[ball.id]?.length ?? 0) > 0;
+
+                if (hasVariants && isHovered && ball.imageSwitchTimer >= IMAGE_SWITCH_INTERVAL) {
+                    ball.imageSwitchTimer = 0;
+                    const total = 1 + altImages[ball.id]!.length;
+                    ball.imageIndex = (ball.imageIndex + 1) % total;
+                }
+
+                if (hasVariants && !isHovered && ball.imageIndex !== 0) {
+                    ball.imageIndex = 0;
+                    ball.imageSwitchTimer = 0;
+                }
             }
 
             applyRepulsion(balls);
@@ -275,8 +308,7 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, hover
             const sorted = [...balls].sort((a, b) => a.zIndex - b.zIndex);
 
             for (const ball of sorted) {
-                const img = images[ball.id % images.length];
-                if (img.complete) drawBall(ctx, ball, img);
+                drawBall(ctx, ball, images, altImages);
             }
         };
 
@@ -313,7 +345,7 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, hover
             document.removeEventListener('visibilitychange', handleVisibility);
             stopTick();
         };
-    }, [count, containerRef, canvasRef, images, hoveredIdRef]);
+    }, [count, containerRef, canvasRef, images, altImages, hoveredIdRef]);
 
     return ballsRef;
 }
