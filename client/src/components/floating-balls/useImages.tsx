@@ -11,44 +11,40 @@ function createHiddenContainer(): HTMLDivElement {
 }
 
 export function useImages(srcs: string[]): HTMLImageElement[] {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-
-    if (!containerRef.current) {
-        containerRef.current = createHiddenContainer();
-        document.body.appendChild(containerRef.current);
-    }
+    const srcsKey = srcs.join(',');
 
     const images = useMemo(
         () =>
             srcs.map((src) => {
                 const img = new Image();
                 img.src = src;
-                if (isGif(src)) {
-                    containerRef.current?.appendChild(img);
-                }
                 return img;
             }),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [srcs.join(',')]
+        [srcsKey]
     );
 
     useEffect(() => {
+        const container = createHiddenContainer();
+        document.body.appendChild(container);
+
+        images.forEach((img, i) => {
+            if (isGif(srcs[i] ?? '')) {
+                container.appendChild(img);
+            }
+        });
+
         return () => {
-            containerRef.current?.remove();
-            containerRef.current = null;
+            container.remove();
         };
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [images]);
 
     return images;
 }
 
 export function useImageSets(sets: string[][]): HTMLImageElement[][] {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-
-    if (!containerRef.current) {
-        containerRef.current = createHiddenContainer();
-        document.body.appendChild(containerRef.current);
-    }
+    const setsKey = sets.map((s) => s.join(',')).join('|');
 
     const imageSets = useMemo(
         () =>
@@ -56,22 +52,31 @@ export function useImageSets(sets: string[][]): HTMLImageElement[][] {
                 srcs.map((src) => {
                     const img = new Image();
                     img.src = src;
-                    if (isGif(src)) {
-                        containerRef.current?.appendChild(img);
-                    }
                     return img;
                 })
             ),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [sets.map((s) => s.join(',')).join('|')]
+        [setsKey]
     );
 
     useEffect(() => {
+        const container = createHiddenContainer();
+        document.body.appendChild(container);
+
+        sets.forEach((srcs, si) => {
+            srcs.forEach((src, ii) => {
+                if (isGif(src)) {
+                    const img = imageSets[si]?.[ii];
+                    if (img) container.appendChild(img);
+                }
+            });
+        });
+
         return () => {
-            containerRef.current?.remove();
-            containerRef.current = null;
+            container.remove();
         };
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [imageSets]);
 
     return imageSets;
 }
