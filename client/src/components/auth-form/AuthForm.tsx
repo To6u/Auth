@@ -1,8 +1,11 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState, useCallback } from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
 import { useAuthForm } from 'client/src/hooks/useAuthForm.ts';
 import { MODE_CONFIGS } from 'client/src/constants/auth.constants.ts';
 import {AnimatedTitle, FormFields, Logo, ModeSelector, SubmitButton} from "client/src/components/auth-form/components";
+import { FormProgress } from './components/FormProgress/FormProgress';
+import type { SegmentStatus } from './components/FormProgress/FormProgress';
+import type { FormData, FormErrors, TouchedFields } from 'client/src/types/auth.types';
 
 interface AuthFormProps {
     onExitingChange?: (isExiting: boolean) => void;
@@ -30,6 +33,35 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
 
     const modeConfig = useMemo(() => MODE_CONFIGS[viewMode], [viewMode]);
 
+    // ── FormProgress — focused field tracking ──────────────────────
+    const [focusedField, setFocusedField] = useState<string | null>(null);
+
+    const handleFocusField = useCallback((name: string | null) => {
+        setFocusedField(name);
+    }, []);
+
+    const fieldOrder: string[] = useMemo(() => {
+        if (viewMode === 'login') return ['email', 'password'];
+        if (viewMode === 'register') return ['email', 'password', 'confirmPassword'];
+        return showPasswordFields ? ['email', 'newPassword', 'confirmNewPassword'] : ['email'];
+    }, [viewMode, showPasswordFields]);
+
+    const segments: SegmentStatus[] = useMemo(() => {
+        const fd = formData as Record<string, string | undefined>;
+        const fe = errors as Record<string, string | undefined>;
+        const ft = touched as Record<string, boolean | undefined>;
+
+        return fieldOrder.map((field): SegmentStatus => {
+            if (field === focusedField) return 'filling';
+            const isTouched = !!ft[field];
+            const hasError = !!(fe[field]);
+            const value = fd[field];
+            if (isTouched && hasError) return 'error';
+            if (isTouched && !hasError && value) return 'valid';
+            return 'empty';
+        });
+    }, [fieldOrder, focusedField, formData, errors, touched]);
+
     return (
         <div className="login-container">
             <div className="auth-form-section-top">
@@ -38,6 +70,8 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
             </div>
 
             <AnimatedTitle title={modeConfig.title} />
+
+            <FormProgress segments={segments} />
 
             <LayoutGroup>
                 <motion.form
@@ -55,6 +89,7 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
                         onChange={handleChange}
                         onBlur={handleBlur}
                         showPasswordFields={showPasswordFields}
+                        onFocusField={handleFocusField}
                     />
 
                     <SubmitButton

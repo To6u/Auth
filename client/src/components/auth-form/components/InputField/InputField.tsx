@@ -2,6 +2,8 @@ import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { EyeIcon, EyeOffIcon } from 'client/src/assets/icons';
 
+export type MatchStatus = 'match' | 'mismatch' | 'none';
+
 interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     error?: string;
@@ -9,6 +11,8 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     showPasswordToggle?: boolean;
     isPasswordVisible?: boolean;
     onTogglePassword?: () => void;
+    /** Show ✓ / ✗ icon for confirm-password fields. Omit prop to hide entirely. */
+    matchStatus?: MatchStatus;
 }
 
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
@@ -22,6 +26,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             showPasswordToggle = false,
             isPasswordVisible = false,
             onTogglePassword,
+            matchStatus,
             ...props
         },
         ref
@@ -60,6 +65,22 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                                 <EyeIcon className="toggle-icon" />
                             )}
                         </button>
+                    )}
+
+                    {matchStatus !== undefined && (
+                        <span
+                            className={`input-match-icon${matchStatus === 'match' ? ' input-match-icon--match' : matchStatus === 'mismatch' ? ' input-match-icon--mismatch' : ''}`}
+                            aria-live="polite"
+                            aria-label={
+                                matchStatus === 'match'
+                                    ? 'Пароли совпадают'
+                                    : matchStatus === 'mismatch'
+                                      ? 'Пароли не совпадают'
+                                      : ''
+                            }
+                        >
+                            {matchStatus === 'match' ? '✓' : matchStatus === 'mismatch' ? '✗' : ''}
+                        </span>
                     )}
                 </div>
 
