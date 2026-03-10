@@ -1,0 +1,56 @@
+/* ================================================================
+   FormProgress — field-fill progress bar
+   Pure CSS, no Framer Motion
+   ================================================================ */
+
+.form-progress {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.form-progress__segment {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.35s ease;
+}
+
+/* ── States ──────────────────────────────────────────────────── */
+
+.form-progress__segment--empty {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.form-progress__segment--filling {
+    background: rgba(165, 180, 252, 0.55);
+    animation: form-progress-pulse 1.6s ease-in-out infinite;
+}
+
+.form-progress__segment--valid {
+    background: #4ade80;
+}
+
+.form-progress__segment--error {
+    background: #f87171;
+}
+
+@keyframes form-progress-pulse {
+    0%,
+    100% {
+        opacity: 0.45;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .form-progress__segment--filling {
+        animation: none;
+        opacity: 0.75;
+    }
+}

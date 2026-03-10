@@ -147,9 +147,46 @@ label {
     color: #666;
 }
 
-.input-container:has(.password-toggle-btn) {
+.input-container:has(.password-toggle-btn),
+.input-container:has(.input-match-icon) {
     display: flex;
     gap: 4px;
+}
+
+/* ── Confirm-password match icon ──────────────────────────── */
+
+.input-match-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 64px;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+    background-color: rgba(42, 42, 42, 0.2);
+    color: transparent;
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        color 0.2s ease;
+    pointer-events: none;
+    user-select: none;
+}
+
+.input-match-icon--match {
+    color: #4ade80;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.input-match-icon--mismatch {
+    color: #f87171;
+    opacity: 1;
+    transform: scale(1);
 }
 
 .password-toggle-btn {

@@ -2,6 +2,7 @@ import { memo, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { FormErrors, TouchedFields, ViewMode, FormData } from "client/src/types/auth.types.ts";
 import { InputField } from "client/src/components/auth-form/components/index";
+import { PasswordStrength } from '../PasswordStrength/PasswordStrength';
 
 interface FormFieldsProps {
     viewMode: ViewMode;
@@ -9,20 +10,24 @@ interface FormFieldsProps {
     errors: FormErrors;
     touched: TouchedFields;
     isLoading: boolean;
-    showPasswordFields?: boolean; // <- добавлено
+    showPasswordFields?: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
+    /** Notifies parent which field is currently focused (null = none) */
+    onFocusField?: (name: string | null) => void;
 }
 
 export const FormFields = memo<FormFieldsProps>(
-    ({ viewMode, formData, errors, touched, isLoading, showPasswordFields = false, onChange, onBlur }) => {
-        // Состояния для видимости паролей
+    ({ viewMode, formData, errors, touched, isLoading, showPasswordFields = false, onChange, onBlur, onFocusField }) => {
+        // ── Password visibility toggles ─────────────────────────────
         const [showPassword, setShowPassword] = useState(false);
         const [showConfirmPassword, setShowConfirmPassword] = useState(false);
         const [showNewPassword, setShowNewPassword] = useState(false);
         const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
-        // Мемоизированные обработчики переключения
+        // ── Password focus — drives PasswordStrength visibility ─────
+        const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
         const togglePasswordVisibility = useCallback(() => {
             setShowPassword(prev => !prev);
         }, []);
@@ -38,6 +43,22 @@ export const FormFields = memo<FormFieldsProps>(
         const toggleConfirmNewPasswordVisibility = useCallback(() => {
             setShowConfirmNewPassword(prev => !prev);
         }, []);
+
+        // ── Wrapped blur: also clears focused-field for FormProgress ─
+        const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+            if (e.target.name === 'password' || e.target.name === 'newPassword') {
+                setIsPasswordFocused(false);
+            }
+            onFocusField?.(null);
+            onBlur(e);
+        }, [onBlur, onFocusField]);
+
+        // ── Confirm-password match icon ─────────────────────────────
+        const confirmMatchStatus = (() => {
+            const val = formData.confirmPassword ?? '';
+            if (!val) return 'none' as const;
+            return val === formData.password ? 'match' as const : 'mismatch' as const;
+        })();
 
         return (
             <AnimatePresence initial={false}>
@@ -55,7 +76,8 @@ export const FormFields = memo<FormFieldsProps>(
                         touched={touched.email}
                         disabled={isLoading || (viewMode === 'reset' && showPasswordFields)}
                         onChange={onChange}
-                        onBlur={onBlur}
+                        onFocus={() => onFocusField?.('email')}
+                        onBlur={handleBlur}
                         autoComplete="email"
                     />
                 </motion.div>
@@ -82,7 +104,11 @@ export const FormFields = memo<FormFieldsProps>(
                             touched={touched.password}
                             disabled={isLoading}
                             onChange={onChange}
-                            onBlur={onBlur}
+                            onFocus={() => {
+                                setIsPasswordFocused(true);
+                                onFocusField?.('password');
+                            }}
+                            onBlur={handleBlur}
                             autoComplete={
                                 viewMode === 'register' ? 'new-password' : 'current-password'
                             }
@@ -90,6 +116,14 @@ export const FormFields = memo<FormFieldsProps>(
                             isPasswordVisible={showPassword}
                             onTogglePassword={togglePasswordVisibility}
                         />
+
+                        {/* Strength meter — only in register mode */}
+                        {viewMode === 'register' && (
+                            <PasswordStrength
+                                password={formData.password}
+                                visible={isPasswordFocused || !!formData.password}
+                            />
+                        )}
                     </motion.div>
                 )}
 
@@ -115,11 +149,13 @@ export const FormFields = memo<FormFieldsProps>(
                             touched={touched.confirmPassword || false}
                             disabled={isLoading}
                             onChange={onChange}
-                            onBlur={onBlur}
+                            onFocus={() => onFocusField?.('confirmPassword')}
+                            onBlur={handleBlur}
                             autoComplete="new-password"
                             showPasswordToggle
                             isPasswordVisible={showConfirmPassword}
                             onTogglePassword={toggleConfirmPasswordVisibility}
+                            matchStatus={confirmMatchStatus}
                         />
                     </motion.div>
                 )}
@@ -147,11 +183,19 @@ export const FormFields = memo<FormFieldsProps>(
                                 touched={touched.newPassword || false}
                                 disabled={isLoading}
                                 onChange={onChange}
-                                onBlur={onBlur}
+                                onFocus={() => {
+                                    setIsPasswordFocused(true);
+                                    onFocusField?.('newPassword');
+                                }}
+                                onBlur={handleBlur}
                                 autoComplete="new-password"
                                 showPasswordToggle
                                 isPasswordVisible={showNewPassword}
                                 onTogglePassword={toggleNewPasswordVisibility}
+                            />
+                            <PasswordStrength
+                                password={formData.newPassword ?? ''}
+                                visible={isPasswordFocused || !!formData.newPassword}
                             />
                         </motion.div>
 
@@ -175,7 +219,8 @@ export const FormFields = memo<FormFieldsProps>(
                                 touched={touched.confirmNewPassword || false}
                                 disabled={isLoading}
                                 onChange={onChange}
-                                onBlur={onBlur}
+                                onFocus={() => onFocusField?.('confirmNewPassword')}
+                                onBlur={handleBlur}
                                 autoComplete="new-password"
                                 showPasswordToggle
                                 isPasswordVisible={showConfirmNewPassword}
