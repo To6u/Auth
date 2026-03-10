@@ -8,9 +8,10 @@ import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
 import { Projects } from '@/pages/profile/components/projects';
 import Header from '@/components/header/Header.tsx';
 import { useRef, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 
 export const ProfilePage = () => {
-    const { user, logout, isLoading } = useAuthInfo();
+    const { isAuthenticated, isLoading, logout } = useAuthInfo();
 
     // Ref для таймера логаута — отменяется при размонтировании
     const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -23,51 +24,40 @@ export const ProfilePage = () => {
         };
     }, []);
 
-    const handleLogout = useCallback((triggerExit: () => void) => {
-        triggerExit();
-        logoutTimerRef.current = setTimeout(() => {
-            logout();
-        }, 600);
-    }, [logout]);
-
-    if (isLoading) {
-        return (
-            <AnimatedPageWrapper>
-                <div className="profile-container">
-                    <div className="profile-card">
-                        <p>Загрузка...</p>
-                    </div>
-                </div>
-            </AnimatedPageWrapper>
-        );
-    }
-
-    if (!user) {
-        return (
-            <AnimatedPageWrapper>
-                <div className="profile-container">
-                    <div className="profile-card">
-                        <p className="error">Не удалось загрузить профиль</p>
-                    </div>
-                </div>
-            </AnimatedPageWrapper>
-        );
-    }
+    const handleLogout = useCallback(
+        (triggerExit: () => void) => {
+            triggerExit();
+            logoutTimerRef.current = setTimeout(() => {
+                logout();
+            }, 600);
+        },
+        [logout]
+    );
 
     return (
         <AnimatedPageWrapper>
             {({ isExiting, triggerExit }) => (
                 <div className="page-profile">
-                    <SubmitButton
-                        isLoading={isExiting}
-                        buttonText=""
-                        loadingText=""
-                        icon={<LogoutIcon />}
-                        iconPosition="left"
-                        animationDirection="right"
-                        onClick={() => handleLogout(triggerExit)}
-                        type="button"
-                    />
+                    {/* Auth action — shown after auth state resolves */}
+                    {!isLoading && (
+                        isAuthenticated ? (
+                            <SubmitButton
+                                isLoading={isExiting}
+                                buttonText=""
+                                loadingText=""
+                                icon={<LogoutIcon />}
+                                iconPosition="left"
+                                animationDirection="right"
+                                onClick={() => handleLogout(triggerExit)}
+                                type="button"
+                            />
+                        ) : (
+                            <Link to="/login" className="profile-login-link">
+                                Войти
+                            </Link>
+                        )
+                    )}
+
                     <Header />
                     <Hero />
                     <AboutHero />
