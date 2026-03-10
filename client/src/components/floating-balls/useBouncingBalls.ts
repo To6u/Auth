@@ -15,6 +15,8 @@ export interface Ball {
     zIndex: number;
     blobPoints: { x: number; y: number }[];
     imageIndex: number;
+    prevImageIndex: number;
+    imageAlpha: number;
     imageSwitchTimer: number;
 }
 
@@ -27,7 +29,8 @@ interface UseBouncingBallsOptions {
     hoveredIdRef: React.RefObject<number | null>;
 }
 
-const IMAGE_SWITCH_INTERVAL = 9;
+const IMAGE_SWITCH_INTERVAL_S = 0.8;
+const IMAGE_ALPHA_LERP = 0.12;
 
 const MIN_SPEED = 0.5;
 const MAX_SPEED = 1;
@@ -41,6 +44,7 @@ const FPS_CAP = 30;
 const FRAME_MS = 1000 / FPS_CAP;
 const OVERLAP_THRESHOLD = 0.85;
 const REPULSION_FORCE = 0.3;
+const HOVERED_RADIUS = 200;
 
 function randomBetween(min: number, max: number) {
     return min + Math.random() * (max - min);
@@ -60,29 +64,28 @@ function generateBlobPoints(count = 8): { x: number; y: number }[] {
     return points;
 }
 
-function buildBlobPath(pts: { x: number; y: number }[], cx: number, cy: number, r: number, tension = 0.5): Path2D {
+function traceBlobPath(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[], cx: number, cy: number, r: number, tension = 0.5): void {
     const n = pts.length;
-    const blob = new Path2D();
     const p = pts.map((pt) => ({ x: cx + pt.x * r, y: cy + pt.y * r }));
 
-    blob.moveTo(p[0].x, p[0].y);
+    ctx.beginPath();
+    ctx.moveTo(p[0]!.x, p[0]!.y);
 
     for (let i = 0; i < n; i++) {
-        const p0 = p[(i - 1 + n) % n];
-        const p1 = p[i];
-        const p2 = p[(i + 1) % n];
-        const p3 = p[(i + 2) % n];
+        const p0 = p[(i - 1 + n) % n]!;
+        const p1 = p[i]!;
+        const p2 = p[(i + 1) % n]!;
+        const p3 = p[(i + 2) % n]!;
 
         const cp1x = p1.x + ((p2.x - p0.x) * tension) / 3;
         const cp1y = p1.y + ((p2.y - p0.y) * tension) / 3;
         const cp2x = p2.x - ((p3.x - p1.x) * tension) / 3;
         const cp2y = p2.y - ((p3.y - p1.y) * tension) / 3;
 
-        blob.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
     }
 
-    blob.closePath();
-    return blob;
+    ctx.closePath();
 }
 
 function drawBall(
@@ -92,26 +95,34 @@ function drawBall(
     altImages: HTMLImageElement[][]
 ) {
     const ballAlt = altImages[ball.id] ?? [];
-    const currentImg =
-        ball.imageIndex === 0
+    const getImg = (index: number): HTMLImageElement =>
+        index === 0
             ? baseImages[ball.id % baseImages.length]!
-            : ballAlt[ball.imageIndex - 1] ?? baseImages[ball.id % baseImages.length]!;
+            : ballAlt[index - 1] ?? baseImages[ball.id % baseImages.length]!;
+
+    const prevImg = getImg(ball.prevImageIndex);
+    const currentImg = getImg(ball.imageIndex);
 
     const breathe = 1 + Math.sin(ball.breathePhase) * BREATHE_AMPLITUDE;
     const r = ball.radius * ball.scale * breathe;
-    const blobShape = buildBlobPath(ball.blobPoints, ball.x, ball.y, r);
 
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.22)';
     ctx.shadowBlur = 24;
     ctx.shadowOffsetY = 6;
     ctx.fillStyle = '#000';
-    ctx.fill(blobShape);
+    traceBlobPath(ctx, ball.blobPoints, ball.x, ball.y, r);
+    ctx.fill();
     ctx.restore();
 
     ctx.save();
-    ctx.clip(blobShape);
+    traceBlobPath(ctx, ball.blobPoints, ball.x, ball.y, r);
+    ctx.clip();
+    ctx.globalAlpha = 1;
+    ctx.drawImage(prevImg, ball.x - r, ball.y - r, r * 2, r * 2);
+    ctx.globalAlpha = ball.imageAlpha;
     ctx.drawImage(currentImg, ball.x - r, ball.y - r, r * 2, r * 2);
+    ctx.globalAlpha = 1;
     ctx.restore();
 }
 
@@ -135,7 +146,9 @@ function initBalls(count: number, width: number, height: number): Ball[] {
             zIndex: 0,
             blobPoints: generateBlobPoints(),
             imageIndex: 0,
-            imageSwitchTimer: Math.floor(Math.random() * IMAGE_SWITCH_INTERVAL),
+            prevImageIndex: 0,
+            imageAlpha: 1,
+            imageSwitchTimer: Math.random() * IMAGE_SWITCH_INTERVAL_S,
         };
     });
 }
@@ -188,6 +201,8 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
         let cachedW = 0;
         let cachedH = 0;
         let lastFrameTime = 0;
+        let sorted: Ball[] = [];
+        let zIndexDirty = true;
 
         const startTick = () => {
             if (isVisibleRef.current && isActive() && initialized) {
@@ -208,7 +223,12 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
         intersectionObserver.observe(container);
 
         const handleVisibility = () => {
-            document.hidden ? stopTick() : startTick();
+            if (document.hidden) {
+                stopTick();
+            } else {
+                lastFrameTime = 0;
+                startTick();
+            }
         };
 
         document.addEventListener('visibilitychange', handleVisibility);
@@ -217,6 +237,7 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
             rafRef.current = requestAnimationFrame(tick);
 
             if (timestamp - lastFrameTime < FRAME_MS) return;
+            const delta = (timestamp - lastFrameTime) / 1000;
             lastFrameTime = timestamp;
 
             const canvas = canvasRef.current;
@@ -275,7 +296,7 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
                 }
 
                 const isHovered = ball.id === hoveredId;
-                const targetScale = hoveredId === null ? 1 : isHovered ? 1.4 : 0.75;
+                const targetScale = hoveredId === null ? 1 : isHovered ? HOVERED_RADIUS / ball.radius : 0.6;
                 ball.targetScale = targetScale;
                 if (Math.abs(ball.targetScale - ball.scale) > 0.001) {
                     ball.scale = lerp(ball.scale, ball.targetScale, SCALE_LERP);
@@ -283,29 +304,45 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
                     ball.scale = ball.targetScale;
                 }
 
-                ball.zIndex = lerp(ball.zIndex, isHovered ? 1 : 0, 0.06);
+                const newZIndex = lerp(ball.zIndex, isHovered ? 1 : 0, 0.06);
+                if (Math.abs(newZIndex - ball.zIndex) > 0.0005) zIndexDirty = true;
+                ball.zIndex = newZIndex;
 
                 ball.breathePhase += ball.breatheSpeed;
 
                 // Image switching — only while hovered, reset to base on leave
-                ball.imageSwitchTimer++;
+                ball.imageSwitchTimer += delta;
                 const hasVariants = (altImages[ball.id]?.length ?? 0) > 0;
 
-                if (hasVariants && isHovered && ball.imageSwitchTimer >= IMAGE_SWITCH_INTERVAL) {
+                if (hasVariants && isHovered && ball.imageSwitchTimer >= IMAGE_SWITCH_INTERVAL_S) {
                     ball.imageSwitchTimer = 0;
                     const total = 1 + altImages[ball.id]!.length;
-                    ball.imageIndex = (ball.imageIndex + 1) % total;
+                    const next = ball.imageIndex + 1;
+                    if (next < total) {
+                        ball.prevImageIndex = ball.imageIndex;
+                        ball.imageIndex = next;
+                        ball.imageAlpha = 0;
+                    }
                 }
 
                 if (hasVariants && !isHovered && ball.imageIndex !== 0) {
+                    ball.prevImageIndex = ball.imageIndex;
                     ball.imageIndex = 0;
+                    ball.imageAlpha = 0;
                     ball.imageSwitchTimer = 0;
+                }
+
+                if (ball.imageAlpha < 1) {
+                    ball.imageAlpha = lerp(ball.imageAlpha, 1, IMAGE_ALPHA_LERP);
                 }
             }
 
             applyRepulsion(balls);
 
-            const sorted = [...balls].sort((a, b) => a.zIndex - b.zIndex);
+            if (zIndexDirty) {
+                sorted = [...balls].sort((a, b) => a.zIndex - b.zIndex);
+                zIndexDirty = false;
+            }
 
             for (const ball of sorted) {
                 drawBall(ctx, ball, images, altImages);
@@ -357,10 +394,9 @@ export function useHitTest(
 ) {
     const handleMouseMove = useCallback(
         (e: React.MouseEvent<HTMLDivElement>) => {
-            const container = containerRef.current;
-            if (!container) return;
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) return;
 
-            const rect = container.getBoundingClientRect();
             const mx = e.clientX - rect.left;
             const my = e.clientY - rect.top;
 
@@ -378,8 +414,9 @@ export function useHitTest(
                 }
             }
 
+            const container = containerRef.current;
             hoveredIdRef.current = found;
-            container.style.cursor = found !== null ? 'pointer' : 'default';
+            if (container) container.style.cursor = found !== null ? 'pointer' : 'default';
         },
         [ballsRef, containerRef, hoveredIdRef]
     );
