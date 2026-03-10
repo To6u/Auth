@@ -15,7 +15,7 @@ interface Project {
     description: string;
     tags: string[];
     status: ProjectStatus;
-    year: number;
+    year: string;
     wx: number;
     wy: number;
     wz: number;
@@ -30,12 +30,12 @@ interface Project {
 const PROJECTS: Project[] = [
     {
         id: '1',
-        title: 'AI Dashboard',
+        title: 'Форма входа',
         description:
-            'Enterprise analytics platform with real-time ML predictions and interactive data visualization.',
+            'Три режима — вход, регистрация, сброс пароля — в едином интерфейсе. Переключение между ними анимировано через Framer Motion с пружинной физикой. Валидация — real-time на blur, серверная через Zod.',
         tags: ['React', 'TypeScript', 'WebGL', 'D3.js'],
         status: 'live',
-        year: 2024,
+        year: '2024',
         wx: 0,
         wy: 0,
         wz: 0,
@@ -43,12 +43,11 @@ const PROJECTS: Project[] = [
     },
     {
         id: '2',
-        title: '3D Portfolio Engine',
-        description:
-            'Cinematic web experience using CSS 3D transforms, mouse-driven parallax and multi-layer depth system.',
-        tags: ['Vanilla JS', 'CSS 3D', 'Canvas'],
+        title: 'Моя страница',
+        description: 'Пополняю, поддерживаю и улучшаю партфолио.',
+        tags: ['React JS', 'WebGL', 'CSS 3D', 'Canvas'],
         status: 'wip',
-        year: 2025,
+        year: 'декабрь 2025 - ...',
         wx: -320,
         wy: 90,
         wz: -1500,
@@ -60,7 +59,20 @@ const PROJECTS: Project[] = [
             'Component library with scroll-driven animations, physics springs and GPU-accelerated transitions.',
         tags: ['React', 'Framer Motion', 'TypeScript'],
         status: 'archived',
-        year: 2023,
+        year: '2026',
+        wx: 280,
+        wy: -70,
+        wz: -3000,
+        github: '#',
+    },
+    {
+        id: '',
+        title: 'Motion Design System',
+        description:
+            'Component library with scroll-driven animations, physics springs and GPU-accelerated transitions.',
+        tags: ['React', 'Framer Motion', 'TypeScript'],
+        status: 'archived',
+        year: '2026',
         wx: 280,
         wy: -70,
         wz: -3000,
@@ -84,30 +96,18 @@ interface Vec3 {
  * the world transform inverts it so cards approach the viewer.
  */
 const CAM_PATH: Vec3[] = [
-    { x: 0,    y: 0,   z: 0    }, // start → card-0
-    { x: -200, y: 60,  z: 800  }, // sweep left
-    { x: -320, y: 90,  z: 1500 }, // arrive card-1
-    { x: 80,   y: 10,  z: 2200 }, // sweep right
-    { x: 280,  y: -70, z: 3000 }, // arrive card-2
-    { x: 280,  y: -70, z: 3400 }, // ease-out tail
+    { x: 0, y: 0, z: 0 }, // start → card-0
+    { x: -200, y: 60, z: 800 }, // sweep left
+    { x: -320, y: 90, z: 1500 }, // arrive card-1
+    { x: 80, y: 10, z: 2200 }, // sweep right
+    { x: 280, y: -70, z: 3000 }, // arrive card-2
+    { x: 280, y: -70, z: 3400 }, // ease-out tail
 ];
 
-function catmullRom(
-    p0: number,
-    p1: number,
-    p2: number,
-    p3: number,
-    t: number,
-): number {
+function catmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number {
     const t2 = t * t;
     const t3 = t2 * t;
-    return (
-        0.5 *
-        (2 * p1 +
-            (-p0 + p2) * t +
-            (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
-            (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
-    );
+    return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
 }
 
 /**
@@ -144,9 +144,9 @@ function clamp(v: number, lo: number, hi: number): number {
 // ─────────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
-    live: 'Live',
-    wip: 'In Progress',
-    archived: 'Archived',
+    live: 'Онлайн',
+    wip: 'В работе',
+    archived: 'В планах',
 };
 
 interface ProjectCardProps {
@@ -182,23 +182,13 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
         {(data.link ?? data.github) && (
             <div className="projects-scene__links">
                 {data.link && (
-                    <a
-                        href={data.link}
-                        className="projects-scene__link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
+                    <a href={data.link} className="projects-scene__link" target="_blank" rel="noopener noreferrer">
                         <ExternalLink size={14} />
                         <span>Live</span>
                     </a>
                 )}
                 {data.github && (
-                    <a
-                        href={data.github}
-                        className="projects-scene__link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
+                    <a href={data.github} className="projects-scene__link" target="_blank" rel="noopener noreferrer">
                         <Github size={14} />
                         <span>GitHub</span>
                     </a>
@@ -249,9 +239,7 @@ export const Projects = () => {
         });
         bodyResizeObserver.observe(document.body);
 
-        const reducedMotion = window.matchMedia(
-            '(prefers-reduced-motion: reduce)',
-        ).matches;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // ── Mutable camera state (never in React state — lives in rAF) ──
         let camX = 0;
@@ -277,9 +265,7 @@ export const Projects = () => {
 
         function syncVisibility(): void {
             const scrollY = window.scrollY;
-            const inView =
-                scrollY + window.innerHeight > sectionTop &&
-                scrollY < sectionTop + sectionEl.offsetHeight;
+            const inView = scrollY + window.innerHeight > sectionTop && scrollY < sectionTop + sectionEl.offsetHeight;
 
             if (inView === lastInView) return;
             lastInView = inView;
@@ -332,8 +318,7 @@ export const Projects = () => {
                 }
 
                 el.style.opacity = String(opacity);
-                el.style.filter =
-                    blurPx > 0 ? `blur(${blurPx.toFixed(2)}px)` : 'none';
+                el.style.filter = blurPx > 0 ? `blur(${blurPx.toFixed(2)}px)` : 'none';
 
                 const absZ = Math.abs(effectiveZ);
                 if (absZ < minAbsZ) {
@@ -347,9 +332,7 @@ export const Projects = () => {
                 lastActiveIndex = activeIndex;
 
                 if (counterCurRef.current) {
-                    counterCurRef.current.textContent = String(
-                        activeIndex + 1,
-                    ).padStart(2, '0');
+                    counterCurRef.current.textContent = String(activeIndex + 1).padStart(2, '0');
                 }
 
                 navDotRefs.current.forEach((dot, i) => {
@@ -411,7 +394,6 @@ export const Projects = () => {
             }, 150);
             cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(tick);
-
         }
 
         window.addEventListener('scroll', onScroll, { passive: true });
@@ -478,10 +460,7 @@ export const Projects = () => {
                     </div>
 
                     {/* Scroll hint */}
-                    <div
-                        className="projects-scene__scroll-hint"
-                        ref={scrollHintRef}
-                    >
+                    <div className="projects-scene__scroll-hint" ref={scrollHintRef}>
                         <ArrowDown size={12} />
                         <span>Scroll</span>
                     </div>
@@ -489,11 +468,7 @@ export const Projects = () => {
             </section>
 
             {/* Fixed nav dots — outside section so they overlay freely */}
-            <nav
-                className="projects-scene__nav"
-                ref={navRef}
-                aria-label="Projects navigation"
-            >
+            <nav className="projects-scene__nav" ref={navRef} aria-label="Projects navigation">
                 {PROJECTS.map((p, i) => (
                     <div
                         key={p.id}
