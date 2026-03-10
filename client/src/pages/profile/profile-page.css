@@ -1,3 +1,38 @@
+/* ── Auth action button (shared positioning) ─────────────────── */
+.page-profile .submit-button,
+.page-profile .profile-login-link {
+    position: fixed;
+    z-index: 4;
+    width: 100px;
+    height: 100px;
+    padding: 20px;
+    border-radius: 50%;
+    margin-left: 40px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 30px;
+}
+
+.page-profile .profile-login-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.page-profile .profile-login-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
 .page-profile .submit-button {
     position: fixed;
     z-index: 4;

@@ -16,9 +16,13 @@ import { PageLoadingFallback } from '@/components/error-boundary/PageLoadingFall
 import { StaticBackground } from '@/components/wave-bg/StaticBackground.tsx';
 import { useMotionPreference } from '@/hooks/useMotionPreference.ts';
 
-// ProfilePage загружается лениво — не попадает в initial bundle страницы логина
+// Lazy-loaded pages — не попадают в initial bundle
 const ProfilePage = lazy(() =>
     import('@/pages/profile/ProfilePage.tsx').then((m) => ({ default: m.ProfilePage }))
+);
+
+const DashboardPage = lazy(() =>
+    import('@/pages/dashboard/DashboardPage.tsx').then((m) => ({ default: m.DashboardPage }))
 );
 
 // Компонент-обёртка для страниц
@@ -39,6 +43,21 @@ function AnimatedRoutes() {
                 <div className="layout-content">
                     <AnimatePresence mode="wait">
                         <Routes location={location} key={location.pathname}>
+                            {/* Public portfolio page */}
+                            <Route
+                                path="/"
+                                element={
+                                    <ErrorBoundary fallback={<PageErrorFallback />} name="ProfilePage">
+                                        <Suspense fallback={<PageLoadingFallback />}>
+                                            <PageWrapper>
+                                                <ProfilePage />
+                                            </PageWrapper>
+                                        </Suspense>
+                                    </ErrorBoundary>
+                                }
+                            />
+
+                            {/* Auth page */}
                             <Route
                                 path="/login"
                                 element={
@@ -49,22 +68,26 @@ function AnimatedRoutes() {
                                     </ErrorBoundary>
                                 }
                             />
+
+                            {/* Protected dashboard */}
                             <Route
-                                path="/profile"
+                                path="/dashboard"
                                 element={
-                                    <ErrorBoundary fallback={<PageErrorFallback />} name="ProfilePage">
+                                    <ErrorBoundary fallback={<PageErrorFallback />} name="DashboardPage">
                                         <Suspense fallback={<PageLoadingFallback />}>
                                             <PageWrapper>
                                                 <ProtectedRoute>
-                                                    <ProfilePage />
+                                                    <DashboardPage />
                                                 </ProtectedRoute>
                                             </PageWrapper>
                                         </Suspense>
                                     </ErrorBoundary>
                                 }
                             />
-                            <Route path="/" element={<Navigate to="/login" replace />} />
-                            <Route path="*" element={<Navigate to="/login" replace />} />
+
+                            {/* Legacy /profile redirect */}
+                            <Route path="/profile" element={<Navigate to="/" replace />} />
+                            <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </AnimatePresence>
                 </div>

@@ -86,7 +86,7 @@ export const useAuthApi = ({
                     login(data.user);
                     setIsExiting(true);
                     navigationTimerRef.current = setTimeout(() => {
-                        navigate('/profile');
+                        navigate('/dashboard');
                     }, 600);
 
                 } else if (viewMode === 'reset') {

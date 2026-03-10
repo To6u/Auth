@@ -39,7 +39,7 @@ const PROJECTS: Project[] = [
         wx: 0,
         wy: 0,
         wz: 0,
-        link: '#',
+        link: '/login',
     },
     {
         id: '2',
