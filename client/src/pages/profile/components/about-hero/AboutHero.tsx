@@ -6,13 +6,25 @@ import { NameSection, SectionOneContent, SectionThreeContent } from './component
 import FloatingBalls from '@/components/floating-balls/FloatingBalls';
 import './about-hero.css';
 
-const imageModules = import.meta.glob('@/assets/about-images/*.jpg', {
+const imageModules = import.meta.glob('@/assets/about-images/*.{jpg,jpeg,JPEG,gif,GIF,png}', {
     eager: true,
     query: '?url',
     import: 'default',
 });
 
-const PHOTOS = Object.values(imageModules) as string[];
+const variantRegex = /-\d+\.(jpg|JPEG|jpeg)$/i;
+const _entries = Object.entries(imageModules) as [string, string][];
+const _baseEntries = _entries.filter(([path]) => !variantRegex.test(path));
+const _altEntries  = _entries.filter(([path]) =>  variantRegex.test(path));
+
+const PHOTOS = _baseEntries.map(([, url]) => url);
+const ALT_PHOTOS: string[][] = _baseEntries.map(([basePath]) => {
+    const stem = basePath.replace(/\.(jpg|JPEG|jpeg)$/i, '');
+    return _altEntries
+        .filter(([altPath]) => altPath.replace(variantRegex, '') === stem)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([, url]) => url);
+});
 
 export const AboutHero = memo(() => {
     const sectionOneRef = useRef<HTMLDivElement>(null);
@@ -143,7 +155,7 @@ export const AboutHero = memo(() => {
 
                         <motion.div style={{ opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]) }}>
                             <WaveFilterBallsPlace />
-                            <FloatingBalls images={PHOTOS} className="floating-balls-my-place" containerRef={containerRefBallsPlace} />
+                            <FloatingBalls images={PHOTOS} altImages={ALT_PHOTOS} className="floating-balls-my-place" containerRef={containerRefBallsPlace} />
                         </motion.div>
                     </div>
                 </div>
@@ -164,6 +176,7 @@ export const AboutHero = memo(() => {
                                 <WaveFilterBallsWay />
                                 <FloatingBalls
                                     images={PHOTOS}
+                                    altImages={ALT_PHOTOS}
                                     className="floating-balls-my-way"
                                     containerRef={containerRefBallsWay}
                                 />
