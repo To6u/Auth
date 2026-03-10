@@ -2,16 +2,17 @@ import { useAuthInfo } from 'client/src/hooks/useAuthInfo';
 import { LogoutIcon } from 'client/src/assets/icons';
 import { AnimatedPageWrapper } from 'client/src/components/layout/AnimatedPageWrapper';
 import '@/pages/profile/profile-page.css';
-import { SubmitButton } from '@/components/auth-form/components';
+import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
 import Hero from '@/pages/profile/components/hero/Hero.tsx';
 import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
 import { Projects } from '@/pages/profile/components/projects';
 import Header from '@/components/header/Header.tsx';
 import { useRef, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const ProfilePage = () => {
     const { isAuthenticated, isLoading, logout } = useAuthInfo();
+    const navigate = useNavigate();
 
     // Ref для таймера логаута — отменяется при размонтировании
     const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -52,9 +53,12 @@ export const ProfilePage = () => {
                                 type="button"
                             />
                         ) : (
-                            <Link to="/login" className="profile-login-link">
-                                Войти
-                            </Link>
+                            <SubmitButton
+                                isLoading={false}
+                                buttonText="Войти"
+                                onClick={() => navigate('/login')}
+                                type="button"
+                            />
                         )
                     )}
 
