@@ -2,7 +2,7 @@ import { memo, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { FormErrors, TouchedFields, ViewMode, FormData } from "client/src/types/auth.types.ts";
 import { InputField } from "client/src/components/auth-form/components/index";
-import { PasswordStrength } from '../PasswordStrength/PasswordStrength';
+import { getPasswordStrength } from '@/utils/validation.utils';
 
 interface FormFieldsProps {
     viewMode: ViewMode;
@@ -25,9 +25,6 @@ export const FormFields = memo<FormFieldsProps>(
         const [showNewPassword, setShowNewPassword] = useState(false);
         const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
-        // ── Password focus — drives PasswordStrength visibility ─────
-        const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-
         const togglePasswordVisibility = useCallback(() => {
             setShowPassword(prev => !prev);
         }, []);
@@ -46,9 +43,6 @@ export const FormFields = memo<FormFieldsProps>(
 
         // ── Wrapped blur: also clears focused-field for FormProgress ─
         const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-            if (e.target.name === 'password' || e.target.name === 'newPassword') {
-                setIsPasswordFocused(false);
-            }
             onFocusField?.(null);
             onBlur(e);
         }, [onBlur, onFocusField]);
@@ -104,10 +98,7 @@ export const FormFields = memo<FormFieldsProps>(
                             touched={touched.password}
                             disabled={isLoading}
                             onChange={onChange}
-                            onFocus={() => {
-                                setIsPasswordFocused(true);
-                                onFocusField?.('password');
-                            }}
+                            onFocus={() => onFocusField?.('password')}
                             onBlur={handleBlur}
                             autoComplete={
                                 viewMode === 'register' ? 'new-password' : 'current-password'
@@ -115,15 +106,12 @@ export const FormFields = memo<FormFieldsProps>(
                             showPasswordToggle
                             isPasswordVisible={showPassword}
                             onTogglePassword={togglePasswordVisibility}
+                            strengthLevel={
+                                viewMode === 'register'
+                                    ? getPasswordStrength(formData.password)
+                                    : undefined
+                            }
                         />
-
-                        {/* Strength meter — only in register mode */}
-                        {viewMode === 'register' && (
-                            <PasswordStrength
-                                password={formData.password}
-                                visible={isPasswordFocused || !!formData.password}
-                            />
-                        )}
                     </motion.div>
                 )}
 
@@ -183,19 +171,13 @@ export const FormFields = memo<FormFieldsProps>(
                                 touched={touched.newPassword || false}
                                 disabled={isLoading}
                                 onChange={onChange}
-                                onFocus={() => {
-                                    setIsPasswordFocused(true);
-                                    onFocusField?.('newPassword');
-                                }}
+                                onFocus={() => onFocusField?.('newPassword')}
                                 onBlur={handleBlur}
                                 autoComplete="new-password"
                                 showPasswordToggle
                                 isPasswordVisible={showNewPassword}
                                 onTogglePassword={toggleNewPasswordVisibility}
-                            />
-                            <PasswordStrength
-                                password={formData.newPassword ?? ''}
-                                visible={isPasswordFocused || !!formData.newPassword}
+                                strengthLevel={getPasswordStrength(formData.newPassword ?? '')}
                             />
                         </motion.div>
 

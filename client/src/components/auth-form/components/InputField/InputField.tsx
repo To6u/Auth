@@ -13,6 +13,8 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     onTogglePassword?: () => void;
     /** Show ✓ / ✗ icon for confirm-password fields. Omit prop to hide entirely. */
     matchStatus?: MatchStatus;
+    /** Уровень силы пароля 0–4. Отображает полоску по нижней кромке поля. */
+    strengthLevel?: 0 | 1 | 2 | 3 | 4;
 }
 
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
@@ -27,6 +29,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             isPasswordVisible = false,
             onTogglePassword,
             matchStatus,
+            strengthLevel,
             onChange,
             onAnimationStart,
             ...props
@@ -49,16 +52,24 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 </label>
 
                 <div className="input-container">
-                    <input
-                        ref={ref}
-                        id={id}
-                        className={`input-field ${hasError ? 'input-error' : ''}`}
-                        aria-invalid={hasError ? 'true' : 'false'}
-                        aria-describedby={hasError ? `${id}-error` : undefined}
-                        onChange={onChange}
-                        onAnimationStart={handleAnimationStart}
-                        {...props}
-                    />
+                    <div className="input-field-inner">
+                        <input
+                            ref={ref}
+                            id={id}
+                            className={`input-field ${hasError ? 'input-error' : ''}`}
+                            aria-invalid={hasError ? 'true' : 'false'}
+                            aria-describedby={hasError ? `${id}-error` : undefined}
+                            onChange={onChange}
+                            onAnimationStart={handleAnimationStart}
+                            {...props}
+                        />
+                        {strengthLevel !== undefined && (
+                            <div
+                                className={`input-strength-bar${strengthLevel > 0 ? ` input-strength-bar--level-${strengthLevel}` : ''}`}
+                                aria-hidden="true"
+                            />
+                        )}
+                    </div>
 
                     {showPasswordToggle && (
                         <button
