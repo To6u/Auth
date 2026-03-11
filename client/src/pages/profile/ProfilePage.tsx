@@ -28,11 +28,12 @@ export const ProfilePage = () => {
     const handleLogout = useCallback(
         (triggerExit: () => void) => {
             triggerExit();
-            logoutTimerRef.current = setTimeout(() => {
-                logout();
+            logoutTimerRef.current = setTimeout(async () => {
+                await logout();
+                navigate('/login');
             }, 600);
         },
-        [logout]
+        [logout, navigate]
     );
 
     return (
