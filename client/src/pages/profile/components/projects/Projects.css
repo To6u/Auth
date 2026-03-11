@@ -172,32 +172,9 @@
 
 /* ── Tag list ──────────────────────────────────────────────────── */
 .projects-scene__tags {
-    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-}
-
-.projects-scene__tags-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgba(40, 40, 50, 0.95) 0%, rgba(25, 25, 35, 0.85) 100%);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.35);
-    opacity: 1;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.projects-scene__tags:hover .projects-scene__tags-overlay {
-    opacity: 0;
 }
 
 .projects-scene__tag {
