@@ -66,16 +66,16 @@ const PROJECTS: Project[] = [
         github: '#',
     },
     {
-        id: '',
+        id: '4',
         title: 'Motion Design System',
         description:
             'Component library with scroll-driven animations, physics springs and GPU-accelerated transitions.',
         tags: ['React', 'Framer Motion', 'TypeScript'],
         status: 'archived',
         year: '2026',
-        wx: 280,
-        wy: -70,
-        wz: -3000,
+        wx: -220,
+        wy: 70,
+        wz: -4500,
         github: '#',
     },
 ];
@@ -96,12 +96,14 @@ interface Vec3 {
  * the world transform inverts it so cards approach the viewer.
  */
 const CAM_PATH: Vec3[] = [
-    { x: 0, y: 0, z: 0 }, // start → card-0
-    { x: -200, y: 60, z: 800 }, // sweep left
-    { x: -320, y: 90, z: 1500 }, // arrive card-1
-    { x: 80, y: 10, z: 2200 }, // sweep right
-    { x: 280, y: -70, z: 3000 }, // arrive card-2
-    { x: 280, y: -70, z: 3400 }, // ease-out tail
+    { x: 0,    y: 0,   z: 0    }, // start → card-0
+    { x: -200, y: 60,  z: 800  }, // sweep left
+    { x: -320, y: 90,  z: 1500 }, // arrive card-1
+    { x: 80,   y: 10,  z: 2200 }, // sweep right
+    { x: 280,  y: -70, z: 3000 }, // arrive card-2
+    { x: 20,   y: -10, z: 3700 }, // sweep left → card-3
+    { x: -220, y: 70,  z: 4500 }, // arrive card-3
+    { x: -220, y: 70,  z: 4900 }, // ease-out tail
 ];
 
 function catmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number {
@@ -461,7 +463,7 @@ export const Projects = () => {
                     {/* Counter */}
                     <div className="projects-scene__counter" ref={counterRef}>
                         <span ref={counterCurRef}>01</span>
-                        <span> / 03</span>
+                        <span> / {String(PROJECTS.length).padStart(2, '0')}</span>
                     </div>
 
                     {/* Scroll hint */}

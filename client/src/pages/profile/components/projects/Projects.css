@@ -6,7 +6,7 @@
 /* ── Scene container (scroll driver) ──────────────────────────── */
 .projects-scene {
     position: relative;
-    height: 500vh;
+    height: 650vh;
     margin-top: 5rem;
 }
 
