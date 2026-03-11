@@ -33,7 +33,7 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 400px;
+    width: 600px;
     transform-style: preserve-3d;
     will-change: transform, opacity, filter;
     /* NO transition — smoothing via JS lerp */
@@ -49,12 +49,12 @@
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
+    border-radius: 60px;
+    corner-shape: squircle;
     padding: 28px 32px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    overflow: hidden;
 }
 
 /* Glass highlight */
@@ -109,6 +109,34 @@
     color: rgba(255, 255, 255, 0.3);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.04em;
+}
+
+.projects-scene__card-main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 8px;
+    position: relative;
+}
+
+.projects-scene__card-text {
+    display: grid;
+    grid-auto-flow: row;
+    grid-gap: 8px;
+}
+
+.projects-scene__card-image {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    border-radius: 40px;
+    corner-shape: squircle;
+    background: linear-gradient(135deg, rgba(40, 40, 50, 0.95) 0%, rgba(25, 25, 35, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    position: absolute;
+    right: -30%;
 }
 
 /* ── Card title ────────────────────────────────────────────────── */

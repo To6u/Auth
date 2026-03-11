@@ -168,8 +168,13 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
             <span className="projects-scene__year">{data.year}</span>
         </div>
 
-        <h3 className="projects-scene__card-title">{data.title}</h3>
-        <p className="projects-scene__card-desc">{data.description}</p>
+        <div className="projects-scene__card-main-content">
+            <div className="projects-scene__card-text">
+                <h3 className="projects-scene__card-title">{data.title}</h3>
+                <p className="projects-scene__card-desc">{data.description}</p>
+            </div>
+            <div className="projects-scene__card-image"></div>
+        </div>
 
         <div className="projects-scene__tags">
             {data.tags.map((tag) => (
@@ -184,7 +189,7 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
                 {data.link && (
                     <a href={data.link} className="projects-scene__link" target="_blank" rel="noopener noreferrer">
                         <ExternalLink size={14} />
-                        <span>Live</span>
+                        <span>Посмотреть в живую</span>
                     </a>
                 )}
                 {data.github && (
