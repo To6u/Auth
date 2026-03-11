@@ -189,6 +189,7 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
                     {tag}
                 </span>
             ))}
+            <span className="projects-scene__tags-overlay">На чем едет</span>
         </div>
 
         {(data.link ?? data.github) && (
