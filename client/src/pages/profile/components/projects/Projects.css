@@ -143,13 +143,13 @@
     right: 10px;
 }
 
-.projects-scene__card-image-asset {
+/* ── Logo override inside card-image ──────────────────────────── */
+/* wave-trip-logo задан для auth-формы (300×300, margin-bottom: 44px).
+   Перебиваем только габариты и отступ — остальное (маска, градиент) берём как есть. */
+.projects-scene__card-image .wave-trip-logo {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    border-radius: 36px;
-    pointer-events: none;
-    user-select: none;
+    margin-bottom: 0;
 }
 
 /* ── Card title ────────────────────────────────────────────────── */

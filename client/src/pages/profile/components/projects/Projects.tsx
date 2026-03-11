@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef } from 'react';
 import { ExternalLink, Github, ArrowDown } from 'lucide-react';
 import { projectsState } from '@/lib/projectsState';
-import logoSrc from '@/assets/logo.svg';
+import { Logo } from '@/components/auth-form/components/Logo/Logo';
 import './Projects.css';
 
 // ─────────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@ interface Project {
     wz: number;
     link?: string;
     github?: string;
-    image?: string;
+    logo?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ const PROJECTS: Project[] = [
         wx: -320,
         wy: 90,
         wz: -1500,
-        image: logoSrc,
+        logo: true,
     },
     {
         id: '3',
@@ -179,14 +179,7 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
                 <p className="projects-scene__card-desc">{data.description}</p>
             </div>
             <div className="projects-scene__card-image">
-                {data.image && (
-                    <img
-                        src={data.image}
-                        alt={data.title}
-                        className="projects-scene__card-image-asset"
-                        draggable={false}
-                    />
-                )}
+                {data.logo && <Logo />}
             </div>
         </div>
 
