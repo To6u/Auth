@@ -27,11 +27,20 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             isPasswordVisible = false,
             onTogglePassword,
             matchStatus,
+            onChange,
+            onAnimationStart,
             ...props
         },
         ref
     ) => {
         const hasError = touched && error;
+
+        const handleAnimationStart = (e: React.AnimationEvent<HTMLInputElement>) => {
+            if (e.animationName === 'autofill-start') {
+                onChange?.(e as unknown as React.ChangeEvent<HTMLInputElement>);
+            }
+            onAnimationStart?.(e);
+        };
 
         return (
             <div className={`input-field-wrapper ${className}`}>
@@ -46,6 +55,8 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                         className={`input-field ${hasError ? 'input-error' : ''}`}
                         aria-invalid={hasError ? 'true' : 'false'}
                         aria-describedby={hasError ? `${id}-error` : undefined}
+                        onChange={onChange}
+                        onAnimationStart={handleAnimationStart}
                         {...props}
                     />
 

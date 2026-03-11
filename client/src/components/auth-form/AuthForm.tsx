@@ -57,7 +57,8 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
             const hasError = !!(fe[field]);
             const value = fd[field];
             if (isTouched && hasError) return 'error';
-            if (isTouched && !hasError && value) return 'valid';
+            // value без touched — корректно: покрывает автозаполнение браузера
+            if (value && !hasError) return 'valid';
             return 'empty';
         });
     }, [fieldOrder, focusedField, formData, errors, touched]);
