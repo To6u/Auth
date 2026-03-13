@@ -80,7 +80,7 @@ export const useWaveAnimation = (
         let isPageVisible = !document.hidden;
         let lastActivityTime = performance.now();
         let isIdlePaused = false;
-        const IDLE_TIMEOUT = 5000; // pause after 5s of no activity
+        const IDLE_TIMEOUT = 30_000; // pause after 30s of no activity
 
         const resize = () => {
             if (cancelled) return;
