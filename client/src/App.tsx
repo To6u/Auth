@@ -1,12 +1,12 @@
-import 'client/src/App.css';
+import './App.css';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { AuthInfoProvider } from 'client/src/context/AuthInfoContext';
-import { LoginPage } from 'client/src/pages/LoginPage';
-import { ProtectedRoute } from 'client/src/components/route/ProtectedRoute.tsx';
-import WavesBackground from 'client/src/components/wave-bg/WavesBackground';
-import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground.tsx';
+import { AuthInfoProvider } from '@/context/AuthInfoContext';
+import { LoginPage } from '@/pages/LoginPage';
+import { ProtectedRoute } from '@/components/route/ProtectedRoute';
+import WavesBackground from '@/components/wave-bg/WavesBackground';
+import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground';
 import { AnimatePresence } from 'framer-motion';
-import 'client/src/components/layout/layout.css';
+import '@/components/layout/layout.css';
 import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
 import * as React from 'react';
 import { lazy, Suspense } from 'react';
@@ -35,7 +35,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 
 function AnimatedRoutes() {
     const location = useLocation();
-    const { prefersReducedMotion, isMobile } = useMotionPreference();
+    const { prefersReducedMotion, isTabletOrMobile } = useMotionPreference();
 
     return (
         <>
@@ -106,16 +106,16 @@ function AnimatedRoutes() {
                         <ThinWavesBackground />
                     </ErrorBoundary>
 
-                    {!isMobile && (
-                        <>
-                            <ErrorBoundary fallback={null} name="WavesBackground">
-                                <WavesBackground />
-                            </ErrorBoundary>
-                            <ErrorBoundary fallback={null} name="WavesWithText">
-                                <WavesWithText showText={location.pathname !== '/login'} />
-                            </ErrorBoundary>
-                        </>
-                    )}
+                    <ErrorBoundary fallback={null} name="WavesBackground">
+                        <WavesBackground />
+                    </ErrorBoundary>
+
+                    <ErrorBoundary fallback={null} name="WavesWithText">
+                        <WavesWithText
+                            showText={location.pathname !== '/login'}
+                            isStatic={isTabletOrMobile}
+                        />
+                    </ErrorBoundary>
                 </>
             )}
         </>

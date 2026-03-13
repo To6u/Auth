@@ -64,6 +64,8 @@ export const createTextAnimState = (): TextAnimState => ({
     exitProgress: 0,
     scrollY: 0,
     waveScrollProgress: 0,
+    contactsProgress: 0,
+    contactsTarget: 0,
 });
 
 export const updateTextAnimState = (anim: TextAnimState, time: number): void => {
@@ -136,7 +138,8 @@ export const fillLineBuffer = (
 ): number => {
     if (lines.length === 0 || !anim.initialized) return 0;
 
-    const scale = (width / TEXT_CONFIG.canvasWidth) * TEXT_CONFIG.scale;
+    const mobileScale = width / dpr <= 1024 ? 1.5 : 1;
+    const scale = (width / TEXT_CONFIG.canvasWidth) * TEXT_CONFIG.scale * mobileScale;
     const offsetX = (width - TEXT_CONFIG.canvasWidth * scale) / 2;
     const baseOffsetY = height * TEXT_CONFIG.verticalPosition - (TEXT_CONFIG.canvasHeight * scale) / 2;
 
@@ -145,7 +148,8 @@ export const fillLineBuffer = (
     anim.exitProgress = lerp(anim.exitProgress, scrollProgress, ANIM_CONFIG.exitSmoothing);
 
     const offsetY = baseOffsetY - anim.exitProgress * height * ANIM_CONFIG.exitOffsetY;
-    const lineHalfWidth = (TEXT_CONFIG.lineWidth * scale) / 2;
+    // Минимум 3 CSS-пикселя на любом экране (на мобилке scale мал → линии невидимы)
+    const lineHalfWidth = Math.max(3 * dpr, (TEXT_CONFIG.lineWidth * scale) / 2);
     const adjustedExit = Math.max(0, (anim.exitProgress - ANIM_CONFIG.exitFadeStart) / (1 - ANIM_CONFIG.exitFadeStart));
 
     let idx = 0;

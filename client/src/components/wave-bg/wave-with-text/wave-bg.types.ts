@@ -56,4 +56,8 @@ export interface TextAnimState {
     exitProgress: number;
     scrollY: number;
     waveScrollProgress: number;
+    /** Прогресс скролла к секции #contacts [0..1], сглаженный */
+    contactsProgress: number;
+    /** Целевое значение для contactsProgress до сглаживания */
+    contactsTarget: number;
 }

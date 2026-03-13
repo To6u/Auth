@@ -3,42 +3,42 @@ import { useState, useEffect } from 'react';
 interface MotionPreference {
     /** Пользователь включил "Уменьшить движение" в системе */
     prefersReducedMotion: boolean;
-    /** Ширина экрана < 768px */
-    isMobile: boolean;
+    /** Ширина экрана ≤ 1024px (мобилка + планшет) */
+    isTabletOrMobile: boolean;
 }
 
 /**
  * Реактивно отслеживает системные media-query для управления анимациями.
  *
  * Использование в App.tsx:
- *   const { prefersReducedMotion, isMobile } = useMotionPreference();
+ *   const { prefersReducedMotion, isTabletOrMobile } = useMotionPreference();
  *
  *   - prefersReducedMotion → не рендерить canvas вообще (a11y + производительность)
- *   - isMobile             → рендерить только лёгкий ThinWavesBackground
+ *   - isTabletOrMobile     → статичные волны в WavesWithText
  */
 export const useMotionPreference = (): MotionPreference => {
     const [prefersReducedMotion, setPrefersReducedMotion] = useState(
         () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
     );
-    const [isMobile, setIsMobile] = useState(
-        () => window.matchMedia('(max-width: 767px)').matches
+    const [isTabletOrMobile, setIsTabletOrMobile] = useState(
+        () => window.matchMedia('(max-width: 1024px)').matches
     );
 
     useEffect(() => {
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-        const mobileQuery = window.matchMedia('(max-width: 767px)');
+        const tabletQuery = window.matchMedia('(max-width: 1024px)');
 
         const handleMotionChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-        const handleMobileChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        const handleTabletChange = (e: MediaQueryListEvent) => setIsTabletOrMobile(e.matches);
 
         motionQuery.addEventListener('change', handleMotionChange);
-        mobileQuery.addEventListener('change', handleMobileChange);
+        tabletQuery.addEventListener('change', handleTabletChange);
 
         return () => {
             motionQuery.removeEventListener('change', handleMotionChange);
-            mobileQuery.removeEventListener('change', handleMobileChange);
+            tabletQuery.removeEventListener('change', handleTabletChange);
         };
     }, []);
 
-    return { prefersReducedMotion, isMobile };
+    return { prefersReducedMotion, isTabletOrMobile };
 };

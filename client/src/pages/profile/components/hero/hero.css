@@ -79,6 +79,13 @@
     }
 }
 
+@media (max-width: 768px) {
+    .hero__content {
+        font-size: 120px;
+        grid-gap: 40px;
+    }
+}
+
 @media (max-width: 480px) {
     .hero__content {
         padding: 0 1rem;

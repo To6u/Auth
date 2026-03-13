@@ -96,7 +96,7 @@ export const wavesConfig: WaveConfig[] = [
         },
     },
 
-    // Wave 2 — bottom anchor
+    // Wave 2 — top-center anchor
     {
         anchor: 'top-center',
         amplitude: 80,

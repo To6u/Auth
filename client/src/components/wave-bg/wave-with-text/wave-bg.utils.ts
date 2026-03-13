@@ -166,10 +166,10 @@ export const fillWaveVertices = (
     let baseY: number;
     if (wave.anchor === 'bottom') {
         const edgeOffset = zProgress * height * 0.5;
-        baseY = height - edgeOffset + wave.verticalSpeed * Math.sin(time * 0.001) * (1 - scrollProgress);
+        baseY = height - edgeOffset + wave.verticalSpeed * Math.sin(effectiveTime * 0.001) * (1 - scrollProgress);
     } else {
         const verticalPosition = startVerticalPosition - scrollProgress * (startVerticalPosition - endVerticalPosition);
-        const verticalMovement = wave.verticalSpeed * Math.sin(time * 0.001) * (1 - scrollProgress);
+        const verticalMovement = wave.verticalSpeed * Math.sin(effectiveTime * 0.001) * (1 - scrollProgress);
         baseY = height * verticalPosition + verticalMovement;
     }
 
@@ -185,7 +185,7 @@ export const fillWaveVertices = (
         let y = baseY + Math.sin(x * wave.frequency + phase) * wave.amplitude * amplitudeFactor;
 
         if (wave.tilt) {
-            const tiltPhase = time * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
+            const tiltPhase = effectiveTime * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
             y += Math.sin(x * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * height * tiltFactor;
         }
 
@@ -203,7 +203,7 @@ export const fillWaveVertices = (
 
         if (wave.widthModulation) {
             const modulationStrength = 1 - scrollProgress * 0.8;
-            const wPhase = time * wave.widthModulation.speed * WAVE_SPEED_MULTIPLIER;
+            const wPhase = effectiveTime * wave.widthModulation.speed * WAVE_SPEED_MULTIPLIER;
             const mod =
                 Math.sin(x * wave.widthModulation.frequency + wPhase) *
                 wave.widthModulation.amplitude *
@@ -234,7 +234,8 @@ export const fillWaveVerticesVertical = (
     scrollProgress: number,
     camProgress: number,
     side: 'left' | 'right' | 'top-center',
-    phaseTime = 0
+    phaseTime = 0,
+    contactsProgress = 0
 ): number => {
     const zProgress = Math.min(1, scrollProgress * 0.3 + camProgress * 0.6);
     const effectiveTime = phaseTime > 0 ? phaseTime : time;
@@ -254,7 +255,7 @@ export const fillWaveVerticesVertical = (
     const sigma = (MOUSE_CONFIG.radius * dpr) / MOUSE_CONFIG.falloff;
     const hasMouseEffect =
         mouse.smoothActive > MOUSE_ACTIVE_THRESHOLD &&
-        scrollProgress < MOUSE_CONFIG.scrollCutoff;
+        (scrollProgress < MOUSE_CONFIG.scrollCutoff || contactsProgress > 0);
 
     let idx = 0;
 
@@ -262,7 +263,7 @@ export const fillWaveVerticesVertical = (
         let x = baseX + Math.sin(y * wave.frequency + phase) * wave.amplitude * amplitudeFactor;
 
         if (wave.tilt) {
-            const tiltPhase = time * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
+            const tiltPhase = effectiveTime * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
             x += Math.sin(y * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * width * tiltFactor;
         }
 
@@ -274,10 +275,11 @@ export const fillWaveVerticesVertical = (
             x += (mouseX - x) * strength * MOUSE_CONFIG.strengthScale;
         }
 
-        let halfWidth = (wave.lineWidth * WAVE_WIDTH_MULTIPLIER) / 2;
+        const mobileWidthFactor = width / dpr <= 1024 ? 0.35 : 1;
+        let halfWidth = (wave.lineWidth * WAVE_WIDTH_MULTIPLIER * mobileWidthFactor) / 2;
 
         if (wave.widthModulation) {
-            const wPhase = time * wave.widthModulation.speed * WAVE_SPEED_MULTIPLIER;
+            const wPhase = effectiveTime * wave.widthModulation.speed * WAVE_SPEED_MULTIPLIER;
             const mod =
                 Math.sin(y * wave.widthModulation.frequency + wPhase) *
                 wave.widthModulation.amplitude;
@@ -290,7 +292,23 @@ export const fillWaveVerticesVertical = (
         const verticalFade = (side === 'left' || side === 'right')
             ? (1 - (y / height) * 0.85) * topBoost
             : (1 - (y / height) * 0.4) * topBoost;
-        halfWidth *= (1 - zProgress * 0.4) * verticalFade;
+
+        // Pinch-эффект при скролле к секции #contacts:
+        // минимум ширины на 40% высоты контейнера, плавно расширяется к краям
+        let pinch = 1;
+        if (contactsProgress > 0) {
+            const t = y / height;
+            // smoothstep даёт нулевую производную на обоих концах → нет угла в точке минимума
+            const ss = (x: number) => x * x * (3 - 2 * x);
+            const pinchFn = t <= 0.35
+                ? 1 - ss(t / 0.35)
+                : ss((t - 0.35) / 0.65);
+            // Remapping [0,1] → [0.06, 1] без clamp — сохраняет гладкость кривой
+            pinch = 0.06 + pinchFn * 0.94;
+        }
+        const contactsPinchFactor = 1 - contactsProgress + contactsProgress * pinch;
+
+        halfWidth *= (1 - zProgress * 0.4) * verticalFade * contactsPinchFactor;
 
         buffer[idx++] = x - halfWidth;
         buffer[idx++] = y;

@@ -1,0 +1,105 @@
+/* ================================================================
+   Contacts — 100vh section
+   ================================================================ */
+
+.contacts-section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 0 24px;
+    overflow: hidden;
+}
+
+.contacts-bg-img {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+    transform: translateX(-50%) translateY(380px);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    user-select: none;
+}
+
+.contacts-inner {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    margin-top: 12rem;
+}
+
+.contacts-heading {
+    text-align: center;
+    margin: 0;
+    font-size: 5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: rgba(255, 244, 234, 0.92);
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.contacts-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contacts-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.contacts-item:first-child {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.contacts-item__label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.contacts-item__link {
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(255, 244, 234, 0.75);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.contacts-item__link:hover {
+    color: #a5b4fc;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .contacts-heading {
+        font-size: 3rem;
+    }
+
+    .contacts-item__link {
+        font-size: 15px;
+    }
+}
+
+/* ── Reduce motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .contacts-item__link {
+        transition: none;
+    }
+}

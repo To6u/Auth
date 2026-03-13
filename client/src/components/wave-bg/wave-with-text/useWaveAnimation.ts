@@ -18,7 +18,8 @@ import type { MouseState, TextLine } from './wave-bg.types';
 
 export const useWaveAnimation = (
     canvasRef: RefObject<HTMLCanvasElement | null>,
-    showTextRef: RefObject<boolean>
+    showTextRef: RefObject<boolean>,
+    isStatic = false
 ): void => {
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -66,6 +67,9 @@ export const useWaveAnimation = (
         let routeExitProgress = showTextRef.current ? 0 : 1;
         let prevTime = 0;
         let phaseAccumulator = 0;
+        // Плавный parallax-сдвиг canvas по X — lerp к target чтобы не было резкого прыжка
+        // при входе/выходе из блока проектов (projectsState.active toggle).
+        let canvasOffsetX = 0;
         let dpr = 1;
         let isPageVisible = !document.hidden;
         let lastActivityTime = performance.now();
@@ -82,7 +86,9 @@ export const useWaveAnimation = (
             gl.viewport(0, 0, w, h);
 
             const step = Math.max(8, Math.floor(w / 450));
-            const bufSize = Math.ceil(w / step + 1) * 2 * 2;
+            // Буфер должен покрывать и горизонталь (w) и вертикаль (h) —
+            // вертикальные волны итерируются по высоте, на мобилке h >> w
+            const bufSize = Math.ceil(Math.max(w, h) / step + 1) * 2 * 2;
             vertexBuffers = wavesConfig.map(() => new Float32Array(bufSize));
 
             const maxLines = 200;
@@ -92,7 +98,7 @@ export const useWaveAnimation = (
         resize();
 
         const resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(document.body);
+        resizeObserver.observe(document.documentElement);
 
         const mouse: MouseState = {
             x: 0,
@@ -131,14 +137,23 @@ export const useWaveAnimation = (
 
         const onScroll = () => {
             anim.scrollY = window.scrollY;
+
+            const contactsEl = document.getElementById('contacts');
+            if (contactsEl) {
+                const rect = contactsEl.getBoundingClientRect();
+                const vh = window.innerHeight;
+                // 0 = секция ниже вьюпорта, 1 = секция полностью видна (rect.bottom <= vh)
+                const raw = (vh + rect.height - rect.bottom) / rect.height;
+                anim.contactsTarget = Math.max(0, Math.min(1, raw));
+            }
         };
         window.addEventListener('scroll', onScroll, { passive: true });
 
         const animate = (time: number) => {
             if (cancelled) return;
 
-            // Idle check — pause if no activity for IDLE_TIMEOUT ms
-            if (time - lastActivityTime > IDLE_TIMEOUT) {
+            // Idle check — только на десктопе (на мобилке нет mousemove, idle нельзя детектировать корректно)
+            if (!isStatic && time - lastActivityTime > IDLE_TIMEOUT) {
                 isIdlePaused = true;
                 return;
             }
@@ -150,8 +165,11 @@ export const useWaveAnimation = (
                 ? 1 + projectsState.camProgress * 0.6
                 : 1;
             projectsState.smoothedSpeedFactor += (targetSpeedFactor - projectsState.smoothedSpeedFactor) * 0.06;
-            phaseAccumulator += delta * projectsState.smoothedSpeedFactor;
-            if (phaseAccumulator > 1_000_000) phaseAccumulator -= 1_000_000;
+            // На мобилке/планшете волны статичны — фаза не накапливается
+            if (!isStatic) {
+                phaseAccumulator += delta * projectsState.smoothedSpeedFactor;
+                if (phaseAccumulator > 1_000_000) phaseAccumulator -= 1_000_000;
+            }
 
             updateMouseState(mouse);
 
@@ -164,6 +182,7 @@ export const useWaveAnimation = (
                 Math.min(1, anim.scrollY / (viewportHeight * WAVE_SCROLL_CONFIG.scrollRange))
             );
             anim.waveScrollProgress = lerp(anim.waveScrollProgress, targetWaveProgress, WAVE_SCROLL_CONFIG.smoothing);
+            anim.contactsProgress = lerp(anim.contactsProgress, anim.contactsTarget, 0.05);
 
             // Route exit/enter: slide линий по той же оси что entry-анимация
             const showText = showTextRef.current;
@@ -186,10 +205,12 @@ export const useWaveAnimation = (
                 updateTextAnimState(anim, time);
             }
 
-            const mouseInfluenceFactor =
+            const baseMouseInfluence =
                 isTextVisible && anim.exitProgress > 0.3
                     ? Math.max(0, 1 - (anim.exitProgress - 0.3) / 0.4)
                     : 1;
+            // При скролле к контактам восстанавливаем влияние мыши
+            const mouseInfluenceFactor = Math.max(baseMouseInfluence, anim.contactsProgress);
 
             const effectiveMouse: MouseState = {
                 ...mouse,
@@ -200,17 +221,15 @@ export const useWaveAnimation = (
 
             const wavesCanvas = canvasRef.current;
             if (wavesCanvas) {
-                const hasSignificantMovement =
-                    projectsState.active && Math.abs(projectsState.camX) > 1;
+                const targetOffsetX = projectsState.active ? -projectsState.camX * 0.08 : 0;
+                canvasOffsetX += (targetOffsetX - canvasOffsetX) * 0.08;
 
-                if (hasSignificantMovement) {
-                    const px = Math.round(-projectsState.camX * 0.08 * 10) / 10;
-                    const newTransform = `translateZ(0) translateX(${px}px)`;
-                    if (wavesCanvas.style.transform !== newTransform) {
-                        wavesCanvas.style.transform = newTransform;
-                    }
-                } else if (wavesCanvas.style.transform !== 'translateZ(0)') {
-                    wavesCanvas.style.transform = 'translateZ(0)';
+                const px = Math.round(canvasOffsetX * 10) / 10;
+                const newTransform = Math.abs(px) > 0.05
+                    ? `translateZ(0) translateX(${px}px)`
+                    : 'translateZ(0)';
+                if (wavesCanvas.style.transform !== newTransform) {
+                    wavesCanvas.style.transform = newTransform;
                 }
             }
 
@@ -227,7 +246,8 @@ export const useWaveAnimation = (
                         effectiveMouse, dpr,
                         anim.waveScrollProgress, projectsState.camProgress,
                         waveConf.anchor as 'left' | 'right' | 'top-center',
-                        phaseAccumulator
+                        phaseAccumulator,
+                        anim.contactsProgress
                     );
                 } else {
                     counts[i] = fillWaveVertices(
@@ -242,7 +262,7 @@ export const useWaveAnimation = (
             // Render wave 0
             const buf0 = vertexBuffers[0];
             if (buf0 && counts[0]) {
-                renderWave(gl, waveProgram, waveBuffer, buf0, counts[0], 0, time, width, height);
+                renderWave(gl, waveProgram, waveBuffer, buf0, counts[0], 0, phaseAccumulator, width, height);
             }
 
             // Render text between wave 0 and waves 1-2
@@ -254,7 +274,7 @@ export const useWaveAnimation = (
             for (let i = 1; i < wavesConfig.length; i++) {
                 const buf = vertexBuffers[i];
                 if (!buf || !counts[i]) continue;
-                renderWave(gl, waveProgram, waveBuffer, buf, counts[i], i, time, width, height);
+                renderWave(gl, waveProgram, waveBuffer, buf, counts[i], i, phaseAccumulator, width, height);
             }
 
             animFrame = requestAnimationFrame(animate);
@@ -277,18 +297,23 @@ export const useWaveAnimation = (
                 cancelAnimationFrame(animFrame);
             } else {
                 isPageVisible = true;
+                isIdlePaused = false;
                 lastActivityTime = performance.now();
                 prevTime = 0;
+                cancelAnimationFrame(animFrame);
                 animFrame = requestAnimationFrame(animate);
             }
         };
 
         const onMouseMove = () => resumeFromIdle();
         const onScrollActivity = () => resumeFromIdle();
+        const onTouch = () => resumeFromIdle();
 
         document.addEventListener('visibilitychange', onVisibilityChange);
         window.addEventListener('mousemove', onMouseMove, { passive: true });
         window.addEventListener('scroll', onScrollActivity, { passive: true });
+        window.addEventListener('touchstart', onTouch, { passive: true });
+        window.addEventListener('touchmove', onTouch, { passive: true });
 
         return () => {
             cancelled = true;
@@ -300,6 +325,8 @@ export const useWaveAnimation = (
             document.removeEventListener('visibilitychange', onVisibilityChange);
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('scroll', onScrollActivity);
+            window.removeEventListener('touchstart', onTouch);
+            window.removeEventListener('touchmove', onTouch);
             resizeObserver.disconnect();
 
             gl.deleteProgram(waveProgram.program);

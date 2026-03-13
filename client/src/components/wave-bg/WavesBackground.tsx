@@ -1,5 +1,5 @@
 import { useEffect, useRef, useMemo, useState } from 'react';
-import { wavesConfig, type WaveConfig, WAVE_SPEED_MULTIPLIER } from 'client/src/components/wave-bg/wavesConfig.ts';
+import { wavesConfig, type WaveConfig, WAVE_SPEED_MULTIPLIER } from '@/components/wave-bg/wavesConfig';
 
 // =====================================================
 // ОПТИМИЗАЦИЯ 1: Throttling для mousemove
