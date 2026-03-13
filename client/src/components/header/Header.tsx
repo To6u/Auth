@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import './header.css';
 
 const NAV_ITEMS = [
@@ -14,23 +14,26 @@ type SectionId = (typeof NAV_ITEMS)[number]['id'];
 const Header = () => {
     const [activeId, setActiveId] = useState<SectionId | null>(null);
 
-    const handleIntersect = useCallback((entries: IntersectionObserverEntry[]) => {
-        const visible = entries.find((e) => e.isIntersecting);
-        if (visible) setActiveId(visible.target.id as SectionId);
-    }, []);
-
     useEffect(() => {
-        const observer = new IntersectionObserver(handleIntersect, {
-            threshold: 0.3,
-        });
+        // IntersectionObserver не подходит для секций разной высоты:
+        // threshold: 0.3 на #projects (650vh) требует 195vh видимости — никогда не выполнится.
+        // Scroll-подход: ищем самую нижнюю секцию, чей top прошёл середину viewport.
+        const getActive = (): SectionId | null => {
+            const mid = window.scrollY + window.innerHeight * 0.5;
+            for (let i = NAV_ITEMS.length - 1; i >= 0; i--) {
+                const el = document.getElementById(NAV_ITEMS[i]!.id);
+                if (!el) continue;
+                const top = el.getBoundingClientRect().top + window.scrollY;
+                if (mid >= top) return NAV_ITEMS[i]!.id;
+            }
+            return null;
+        };
 
-        NAV_ITEMS.forEach(({ id }) => {
-            const el = document.getElementById(id);
-            if (el) observer.observe(el);
-        });
-
-        return () => observer.disconnect();
-    }, [handleIntersect]);
+        const onScroll = () => setActiveId(getActive());
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     return (
         <ul className="header">

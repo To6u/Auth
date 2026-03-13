@@ -6,6 +6,7 @@ import { SubmitButton } from '@/components/auth-form/components/SubmitButton/Sub
 import Hero from '@/pages/profile/components/hero/Hero.tsx';
 import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
 import { Projects } from '@/pages/profile/components/projects';
+import { Contacts } from '@/pages/profile/components/contacts/Contacts';
 import Header from '@/components/header/Header.tsx';
 import { useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -67,6 +68,7 @@ export const ProfilePage = () => {
                     <Hero />
                     <AboutHero />
                     <Projects />
+                    <Contacts />
                 </div>
             )}
         </AnimatedPageWrapper>
