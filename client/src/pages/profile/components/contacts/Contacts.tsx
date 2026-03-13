@@ -8,6 +8,14 @@ const CONTACTS = [
     { label: 'Telegram', value: '@niyaz', href: 'https://t.me/niyaz' },
 ];
 
+// Lerp-коэффициент сглаживания мыши — идентичен updateMouseState в wave-bg
+const MOUSE_LERP = 0.06;
+// Максимальный 3D-наклон (deg) — создаёт объёмность
+const MAX_TILT_X = 8;
+const MAX_TILT_Y = 12;
+// Горизонтальное смещение вслед за мышью (px)
+const MOUSE_PARALLAX_X = 20;
+
 export const Contacts = () => {
     const sectionRef = useRef<HTMLElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
@@ -17,26 +25,69 @@ export const Contacts = () => {
         const img = imgRef.current;
         if (!section || !img) return;
 
-        const update = () => {
+        // Скролл-параллакс (вход снизу)
+        let scrollTranslateY = 380;
+        let opacity = 0;
+
+        // Мышиный параллакс — нормализованная позиция -1..1 от центра viewport
+        let rawMouseX = 0;
+        let rawMouseY = 0;
+        let smoothMouseX = 0;
+        let smoothMouseY = 0;
+        let rafId = 0;
+        let cancelled = false;
+
+        const onScroll = () => {
             const rect = section.getBoundingClientRect();
             const vh = window.innerHeight;
-
-            // 0 = секция ниже вьюпорта, 1 = секция полностью видна
             const progress = (vh + rect.height - rect.bottom) / rect.height;
             const clamped = Math.max(0, Math.min(1, progress));
-
-            // Параллакс: изображение начинает снизу (+380px) и плывёт к 0
-            const translateY = 380 * (1 - clamped);
-            // Плавное появление: opacity 0 → 1 в первой половине прокрутки
-            const opacity = Math.min(1, clamped * 2);
-
-            img.style.transform = `translateX(-50%) translateY(${translateY.toFixed(1)}px)`;
-            img.style.opacity = opacity.toFixed(3);
+            scrollTranslateY = 380 * (1 - clamped);
+            opacity = Math.min(1, clamped * 2);
         };
 
-        window.addEventListener('scroll', update, { passive: true });
-        update();
-        return () => window.removeEventListener('scroll', update);
+        const onMouseMove = (e: MouseEvent) => {
+            rawMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            rawMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        };
+
+        const tick = () => {
+            if (cancelled) return;
+
+            smoothMouseX += (rawMouseX - smoothMouseX) * MOUSE_LERP;
+            smoothMouseY += (rawMouseY - smoothMouseY) * MOUSE_LERP;
+
+            // 3D-наклон: мышь вправо → правый край изображения уходит вперёд
+            const tiltY = smoothMouseX * MAX_TILT_Y;
+            // 3D-наклон: мышь вниз → нижний край уходит к зрителю
+            const tiltX = smoothMouseY * -MAX_TILT_X;
+            // Горизонтальное смещение вслед за мышью
+            const offsetX = smoothMouseX * MOUSE_PARALLAX_X;
+
+            img.style.transform = [
+                `translateX(calc(-50% + ${offsetX.toFixed(2)}px))`,
+                `translateY(${scrollTranslateY.toFixed(2)}px)`,
+                `perspective(800px)`,
+                `rotateX(${tiltX.toFixed(3)}deg)`,
+                `rotateY(${tiltY.toFixed(3)}deg)`,
+            ].join(' ');
+            img.style.opacity = opacity.toFixed(3);
+
+            rafId = requestAnimationFrame(tick);
+        };
+
+        onScroll();
+        rafId = requestAnimationFrame(tick);
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+        return () => {
+            cancelled = true;
+            cancelAnimationFrame(rafId);
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('mousemove', onMouseMove);
+        };
     }, []);
 
     return (
