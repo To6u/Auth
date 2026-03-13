@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type {
     ViewMode,
     FormData,
@@ -30,13 +30,17 @@ export const useFormValidation = (viewMode: ViewMode, showPasswordFields: boolea
     const [errors, setErrors] = useState<FormErrors>(INITIAL_ERRORS);
     const [touched, setTouched] = useState<TouchedFields>(INITIAL_TOUCHED);
 
+    // Ref для чтения touched в handleChange без включения объекта в deps
+    const touchedRef = useRef(touched);
+    useEffect(() => { touchedRef.current = touched; });
+
     const handleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const { name, value } = e.target;
 
             setFormData((prev) => ({ ...prev, [name]: value }));
 
-            if (touched[name as keyof TouchedFields]) {
+            if (touchedRef.current[name as keyof TouchedFields]) {
                 const validator = getFieldValidator(name, formData.password);
                 const error = validator(value);
                 setErrors((prev) => ({ ...prev, [name]: error }));
@@ -58,7 +62,7 @@ export const useFormValidation = (viewMode: ViewMode, showPasswordFields: boolea
                 }
             }
         },
-        [touched, formData.password, formData.confirmPassword, formData.confirmNewPassword, viewMode]
+        [formData.password, formData.confirmPassword, formData.confirmNewPassword, viewMode]
     );
 
     const handleBlur = useCallback(

@@ -46,6 +46,17 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
         return showPasswordFields ? ['email', 'newPassword', 'confirmNewPassword'] : ['email'];
     }, [viewMode, showPasswordFields]);
 
+    // Примитивная строка-ключ из значений полей — изменяется только когда меняются сами данные,
+    // а не ссылки на объекты formData/errors/touched
+    const segmentDeps = fieldOrder
+        .map((f) => {
+            const fd = formData as Record<string, string | undefined>;
+            const fe = errors as Record<string, string | undefined>;
+            const ft = touched as Record<string, boolean | undefined>;
+            return `${fd[f] ?? ''}|${fe[f] ?? ''}|${ft[f] ?? ''}`;
+        })
+        .join(',');
+
     const segments: SegmentStatus[] = useMemo(() => {
         const fd = formData as Record<string, string | undefined>;
         const fe = errors as Record<string, string | undefined>;
@@ -61,7 +72,8 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
             if (value && !hasError) return 'valid';
             return 'empty';
         });
-    }, [fieldOrder, focusedField, formData, errors, touched]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fieldOrder, focusedField, segmentDeps]);
 
     return (
         <div className="login-container">
