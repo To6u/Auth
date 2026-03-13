@@ -266,6 +266,8 @@ export const Projects = () => {
 
         const LERP = 0.09;
         const THRESHOLD = 0.1;
+        // Задержка сброса isScrolling — достаточно чтобы покрыть инерцию тачпада (~2-3 кадра)
+        const SCROLL_IDLE_MS = 150;
 
         // ── Scroll progress ──────────────────────────────────────────────
         function getProgress(): number {
@@ -403,7 +405,7 @@ export const Projects = () => {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
                 projectsState.isScrolling = false;
-            }, 150);
+            }, SCROLL_IDLE_MS);
             cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(tick);
         }

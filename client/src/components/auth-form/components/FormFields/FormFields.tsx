@@ -20,25 +20,15 @@ interface FormFieldsProps {
 export const FormFields = memo<FormFieldsProps>(
     ({ viewMode, formData, errors, touched, isLoading, showPasswordFields = false, onChange, onBlur, onFocusField }) => {
         // ── Password visibility toggles ─────────────────────────────
-        const [showPassword, setShowPassword] = useState(false);
-        const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-        const [showNewPassword, setShowNewPassword] = useState(false);
-        const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+        const [visibility, setVisibility] = useState({
+            password: false,
+            confirmPassword: false,
+            newPassword: false,
+            confirmNewPassword: false,
+        });
 
-        const togglePasswordVisibility = useCallback(() => {
-            setShowPassword(prev => !prev);
-        }, []);
-
-        const toggleConfirmPasswordVisibility = useCallback(() => {
-            setShowConfirmPassword(prev => !prev);
-        }, []);
-
-        const toggleNewPasswordVisibility = useCallback(() => {
-            setShowNewPassword(prev => !prev);
-        }, []);
-
-        const toggleConfirmNewPasswordVisibility = useCallback(() => {
-            setShowConfirmNewPassword(prev => !prev);
+        const toggleVisibility = useCallback((field: keyof typeof visibility) => {
+            setVisibility(prev => ({ ...prev, [field]: !prev[field] }));
         }, []);
 
         // ── Wrapped blur: also clears focused-field for FormProgress ─
@@ -88,7 +78,7 @@ export const FormFields = memo<FormFieldsProps>(
                     >
                         <InputField
                             key="password-field"
-                            type={showPassword ? 'text' : 'password'}
+                            type={visibility.password ? 'text' : 'password'}
                             id="password"
                             name="password"
                             value={formData.password}
@@ -104,8 +94,8 @@ export const FormFields = memo<FormFieldsProps>(
                                 viewMode === 'register' ? 'new-password' : 'current-password'
                             }
                             showPasswordToggle
-                            isPasswordVisible={showPassword}
-                            onTogglePassword={togglePasswordVisibility}
+                            isPasswordVisible={visibility.password}
+                            onTogglePassword={() => toggleVisibility('password')}
                             strengthLevel={
                                 viewMode === 'register'
                                     ? getPasswordStrength(formData.password)
@@ -127,7 +117,7 @@ export const FormFields = memo<FormFieldsProps>(
                     >
                         <InputField
                             key="confirm-password-field"
-                            type={showConfirmPassword ? 'text' : 'password'}
+                            type={visibility.confirmPassword ? 'text' : 'password'}
                             id="confirmPassword"
                             name="confirmPassword"
                             value={formData.confirmPassword || ''}
@@ -141,8 +131,8 @@ export const FormFields = memo<FormFieldsProps>(
                             onBlur={handleBlur}
                             autoComplete="new-password"
                             showPasswordToggle
-                            isPasswordVisible={showConfirmPassword}
-                            onTogglePassword={toggleConfirmPasswordVisibility}
+                            isPasswordVisible={visibility.confirmPassword}
+                            onTogglePassword={() => toggleVisibility('confirmPassword')}
                             matchStatus={confirmMatchStatus}
                         />
                     </motion.div>
@@ -161,7 +151,7 @@ export const FormFields = memo<FormFieldsProps>(
                         >
                             <InputField
                                 key="new-password-field"
-                                type={showNewPassword ? 'text' : 'password'}
+                                type={visibility.newPassword ? 'text' : 'password'}
                                 id="newPassword"
                                 name="newPassword"
                                 value={formData.newPassword || ''}
@@ -175,8 +165,8 @@ export const FormFields = memo<FormFieldsProps>(
                                 onBlur={handleBlur}
                                 autoComplete="new-password"
                                 showPasswordToggle
-                                isPasswordVisible={showNewPassword}
-                                onTogglePassword={toggleNewPasswordVisibility}
+                                isPasswordVisible={visibility.newPassword}
+                                onTogglePassword={() => toggleVisibility('newPassword')}
                                 strengthLevel={getPasswordStrength(formData.newPassword ?? '')}
                             />
                         </motion.div>
@@ -191,7 +181,7 @@ export const FormFields = memo<FormFieldsProps>(
                         >
                             <InputField
                                 key="confirm-new-password-field"
-                                type={showConfirmNewPassword ? 'text' : 'password'}
+                                type={visibility.confirmNewPassword ? 'text' : 'password'}
                                 id="confirmNewPassword"
                                 name="confirmNewPassword"
                                 value={formData.confirmNewPassword || ''}
@@ -205,8 +195,8 @@ export const FormFields = memo<FormFieldsProps>(
                                 onBlur={handleBlur}
                                 autoComplete="new-password"
                                 showPasswordToggle
-                                isPasswordVisible={showConfirmNewPassword}
-                                onTogglePassword={toggleConfirmNewPasswordVisibility}
+                                isPasswordVisible={visibility.confirmNewPassword}
+                                onTogglePassword={() => toggleVisibility('confirmNewPassword')}
                             />
                         </motion.div>
                     </>

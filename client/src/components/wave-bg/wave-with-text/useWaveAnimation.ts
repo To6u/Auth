@@ -60,6 +60,12 @@ export const useWaveAnimation = (
 
         // Скорость slide: ~0.8с при 60fps — симметрично entry (initialSpeed=0.02 ≈ 50 кадров)
         const ROUTE_EXIT_SPEED = 0.05;
+        // Lerp-коэффициент сглаживания speedFactor волн при скролле Projects
+        const SPEED_FACTOR_LERP = 0.06;
+        // Lerp-коэффициент появления секции Contacts (медленнее — плавный parallax)
+        const CONTACTS_LERP = 0.05;
+        // Коэффициент X-параллакса canvas относительно camX (8% смещения)
+        const CANVAS_PARALLAX_FACTOR = 0.08;
 
         let vertexBuffers: Float32Array[] = [];
         let lineDataBuf: Float32Array = new Float32Array(0);
@@ -164,7 +170,7 @@ export const useWaveAnimation = (
             const targetSpeedFactor = projectsState.isScrolling
                 ? 1 + projectsState.camProgress * 0.6
                 : 1;
-            projectsState.smoothedSpeedFactor += (targetSpeedFactor - projectsState.smoothedSpeedFactor) * 0.06;
+            projectsState.smoothedSpeedFactor += (targetSpeedFactor - projectsState.smoothedSpeedFactor) * SPEED_FACTOR_LERP;
             // На мобилке/планшете волны статичны — фаза не накапливается
             if (!isStatic) {
                 phaseAccumulator += delta * projectsState.smoothedSpeedFactor;
@@ -182,7 +188,7 @@ export const useWaveAnimation = (
                 Math.min(1, anim.scrollY / (viewportHeight * WAVE_SCROLL_CONFIG.scrollRange))
             );
             anim.waveScrollProgress = lerp(anim.waveScrollProgress, targetWaveProgress, WAVE_SCROLL_CONFIG.smoothing);
-            anim.contactsProgress = lerp(anim.contactsProgress, anim.contactsTarget, 0.05);
+            anim.contactsProgress = lerp(anim.contactsProgress, anim.contactsTarget, CONTACTS_LERP);
 
             // Route exit/enter: slide линий по той же оси что entry-анимация
             const showText = showTextRef.current;
@@ -221,8 +227,8 @@ export const useWaveAnimation = (
 
             const wavesCanvas = canvasRef.current;
             if (wavesCanvas) {
-                const targetOffsetX = projectsState.active ? -projectsState.camX * 0.08 : 0;
-                canvasOffsetX += (targetOffsetX - canvasOffsetX) * 0.08;
+                const targetOffsetX = projectsState.active ? -projectsState.camX * CANVAS_PARALLAX_FACTOR : 0;
+                canvasOffsetX += (targetOffsetX - canvasOffsetX) * CANVAS_PARALLAX_FACTOR;
 
                 const px = Math.round(canvasOffsetX * 10) / 10;
                 const newTransform = Math.abs(px) > 0.05
