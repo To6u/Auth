@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, useCallback, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,7 +29,7 @@ export const AnimatedPageWrapper = ({
     const [isExiting, setIsExiting] = useState(false);
     const navigate = useNavigate();
 
-    const handleExit = () => {
+    const handleExit = useCallback(() => {
         onExitStart?.();
         setIsExiting(true);
 
@@ -38,7 +38,7 @@ export const AnimatedPageWrapper = ({
                 navigate(navigateTo);
             }, exitDuration);
         }
-    };
+    }, [onExitStart, navigateTo, exitDuration, navigate]);
 
     const contextProps: AnimatedPageContextProps = {
         isExiting,

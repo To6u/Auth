@@ -1,7 +1,7 @@
 import { memo, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { FormErrors, TouchedFields, ViewMode, FormData } from "client/src/types/auth.types.ts";
-import { InputField } from "client/src/components/auth-form/components/index";
+import { InputField } from '@/components/auth-form/components/InputField/InputField';
 import { getPasswordStrength } from '@/utils/validation.utils';
 
 interface FormFieldsProps {

@@ -132,8 +132,8 @@ export const useWaveAnimation = (
             lineDataBuf = new Float32Array(lines.length * ANIM_BUFFER_MULTIPLIER);
         });
 
-        window.addEventListener('mousemove', onMouseMoveCoords);
-        document.addEventListener('mouseleave', onMouseLeave);
+        window.addEventListener('mousemove', onMouseMoveCoords, { passive: true });
+        document.addEventListener('mouseleave', onMouseLeave, { passive: true });
 
         const onScroll = () => {
             anim.scrollY = window.scrollY;
