@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import './header.css';
 
 const NAV_ITEMS = [
@@ -6,20 +6,18 @@ const NAV_ITEMS = [
     { id: 'place', label: 'Откуда' },
     { id: 'way', label: 'Путь' },
     { id: 'projects', label: 'Проекты' },
-    { id: 'contacts', label: 'Связь' },
+    { id: 'contacts', label: 'СЦ' },
 ] as const;
 
 type SectionId = (typeof NAV_ITEMS)[number]['id'];
 
 const Header = () => {
     const [activeId, setActiveId] = useState<SectionId | null>(null);
-    // Кешированные позиции секций — пересчитываются только при resize, не в scroll hot path
+    const [isOpen, setIsOpen] = useState(false);
     const topsRef = useRef<number[]>([]);
+    const scrollYRef = useRef(0);
 
     useEffect(() => {
-        // IntersectionObserver не подходит для секций разной высоты:
-        // threshold: 0.3 на #projects (650vh) требует 195vh видимости — никогда не выполнится.
-        // Scroll-подход: ищем самую нижнюю секцию, чей top прошёл середину viewport.
         const cacheTops = () => {
             topsRef.current = NAV_ITEMS.map(({ id }) => {
                 const el = document.getElementById(id);
@@ -46,16 +44,74 @@ const Header = () => {
         };
     }, []);
 
+    // Блокируем скролл страницы когда меню открыто (включая iOS Safari)
+    useEffect(() => {
+        if (isOpen) {
+            scrollYRef.current = window.scrollY;
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollYRef.current}px`;
+            document.body.style.width = '100%';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            window.scrollTo({ top: scrollYRef.current, behavior: 'instant' });
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+        };
+    }, [isOpen]);
+
+    const handleLinkClick = useCallback(() => setIsOpen(false), []);
+
     return (
-        <ul className="header">
-            {NAV_ITEMS.map(({ id, label }) => (
-                <li key={id}>
-                    <a href={`#${id}`} className={activeId === id ? 'header__link--active' : undefined}>
-                        {label}
-                    </a>
-                </li>
-            ))}
-        </ul>
+        <>
+            {/* Десктоп nav */}
+            <ul className="header">
+                {NAV_ITEMS.map(({ id, label }) => (
+                    <li key={id}>
+                        <a
+                            href={`#${id}`}
+                            className={activeId === id ? 'header__link--active' : undefined}
+                        >
+                            {label}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+
+            {/* Гамбургер кнопка — только на мобилке */}
+            <button
+                className={`header__burger${isOpen ? ' header__burger--open' : ''}`}
+                onClick={() => setIsOpen(v => !v)}
+                aria-label={isOpen ? 'Закрыть меню' : 'Открыть меню'}
+                aria-expanded={isOpen}
+            >
+                <span /><span /><span />
+            </button>
+
+            {/* Мобильное меню */}
+            <nav className={`header__mobile-menu${isOpen ? ' header__mobile-menu--open' : ''}`}>
+                <ul>
+                    {NAV_ITEMS.map(({ id, label }) => (
+                        <li key={id}>
+                            <a
+                                href={`#${id}`}
+                                className={activeId === id ? 'header__link--active' : undefined}
+                                onClick={handleLinkClick}
+                            >
+                                {label}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </>
     );
 };
 

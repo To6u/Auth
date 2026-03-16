@@ -2,19 +2,129 @@ import { useEffect, useRef } from 'react';
 import snowImg from '@/assets/Snow1.png';
 import './contacts.css';
 
-const CONTACTS = [
-    { label: 'Email', value: 'niyaz@example.com', href: 'mailto:niyaz@example.com' },
-    { label: 'GitHub', value: 'github.com/niyaz', href: 'https://github.com/niyaz' },
-    { label: 'Telegram', value: '@niyaz', href: 'https://t.me/niyaz' },
-];
+// ── Иконки ──────────────────────────────────────────────────────────────────
 
-// Lerp-коэффициент сглаживания мыши — идентичен updateMouseState в wave-bg
+const TelegramIcon = () => (
+    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+    </svg>
+);
+
+const InstagramIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+);
+
+const EmailIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <polyline points="2,4 12,13 22,4"/>
+    </svg>
+);
+
+// ── Конфиг карточек ──────────────────────────────────────────────────────────
+
+const SOCIAL_CARDS = [
+    {
+        id: 'telegram',
+        label: 'Telegram',
+        handle: '@niyaz',
+        href: 'https://t.me/niyaz',
+        Icon: TelegramIcon,
+        color: 'rgba(41, 182, 246, 0.85)',
+    },
+    {
+        id: 'instagram',
+        label: 'Instagram',
+        handle: '@niyaz',
+        href: 'https://instagram.com/niyaz',
+        Icon: InstagramIcon,
+        color: 'rgba(225, 100, 150, 0.85)',
+    },
+    {
+        id: 'email',
+        label: 'Email',
+        handle: 'niyaz@example.com',
+        href: 'mailto:niyaz@example.com',
+        Icon: EmailIcon,
+        color: 'rgba(165, 180, 252, 0.85)',
+    },
+] as const;
+
+// ── Хук 3D-наклона карточки при наведении ───────────────────────────────────
+
+const MAX_TILT = 15; // deg
+
+function useCardTilt() {
+    const ref = useRef<HTMLAnchorElement>(null);
+
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+
+        const onMove = (e: MouseEvent) => {
+            const rect = el.getBoundingClientRect();
+            // Нормализованная позиция -1..1 внутри карточки
+            const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+            const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+            el.style.transform = [
+                'perspective(600px)',
+                `rotateX(${(-ny * MAX_TILT).toFixed(2)}deg)`,
+                `rotateY(${(nx * MAX_TILT).toFixed(2)}deg)`,
+                'scale(1.04)',
+            ].join(' ');
+        };
+
+        const onLeave = () => {
+            el.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg) scale(1)';
+        };
+
+        el.addEventListener('mousemove', onMove);
+        el.addEventListener('mouseleave', onLeave);
+        return () => {
+            el.removeEventListener('mousemove', onMove);
+            el.removeEventListener('mouseleave', onLeave);
+        };
+    }, []);
+
+    return ref;
+}
+
+// ── Карточка ─────────────────────────────────────────────────────────────────
+
+type CardProps = (typeof SOCIAL_CARDS)[number];
+
+const SocialCard = ({ label, handle, href, Icon, color }: CardProps) => {
+    const ref = useCardTilt();
+
+    return (
+        <a
+            ref={ref}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="contacts-card"
+        >
+            <span className="contacts-card__icon" style={{ color }}>
+                <Icon />
+            </span>
+            <span className="contacts-card__label">{label}</span>
+            <span className="contacts-card__handle">{handle}</span>
+        </a>
+    );
+};
+
+// ── Lerp-параметры фонового изображения ─────────────────────────────────────
+
 const MOUSE_LERP = 0.06;
-// Максимальный 3D-наклон (deg) — создаёт объёмность
-const MAX_TILT_X = 8;
-const MAX_TILT_Y = 12;
-// Горизонтальное смещение вслед за мышью (px)
-const MOUSE_PARALLAX_X = 20;
+const BG_TILT_X = 8;
+const BG_TILT_Y = 12;
+const BG_PARALLAX_X = 20;
+
+// ── Компонент ────────────────────────────────────────────────────────────────
 
 export const Contacts = () => {
     const sectionRef = useRef<HTMLElement>(null);
@@ -25,11 +135,8 @@ export const Contacts = () => {
         const img = imgRef.current;
         if (!section || !img) return;
 
-        // Скролл-параллакс (вход снизу)
         let scrollTranslateY = 380;
-        let opacity = 0;
-
-        // Мышиный параллакс — нормализованная позиция -1..1 от центра viewport
+        let bgOpacity = 0;
         let rawMouseX = 0;
         let rawMouseY = 0;
         let smoothMouseX = 0;
@@ -43,7 +150,7 @@ export const Contacts = () => {
             const progress = (vh + rect.height - rect.bottom) / rect.height;
             const clamped = Math.max(0, Math.min(1, progress));
             scrollTranslateY = 380 * (1 - clamped);
-            opacity = Math.min(1, clamped * 2);
+            bgOpacity = Math.min(1, clamped * 2);
         };
 
         const onMouseMove = (e: MouseEvent) => {
@@ -53,16 +160,12 @@ export const Contacts = () => {
 
         const tick = () => {
             if (cancelled) return;
-
             smoothMouseX += (rawMouseX - smoothMouseX) * MOUSE_LERP;
             smoothMouseY += (rawMouseY - smoothMouseY) * MOUSE_LERP;
 
-            // 3D-наклон: мышь вправо → правый край изображения уходит вперёд
-            const tiltY = smoothMouseX * MAX_TILT_Y;
-            // 3D-наклон: мышь вниз → нижний край уходит к зрителю
-            const tiltX = smoothMouseY * -MAX_TILT_X;
-            // Горизонтальное смещение вслед за мышью
-            const offsetX = smoothMouseX * MOUSE_PARALLAX_X;
+            const tiltY = smoothMouseX * BG_TILT_Y;
+            const tiltX = smoothMouseY * -BG_TILT_X;
+            const offsetX = smoothMouseX * BG_PARALLAX_X;
 
             img.style.transform = [
                 `translateX(calc(-50% + ${offsetX.toFixed(2)}px))`,
@@ -71,14 +174,13 @@ export const Contacts = () => {
                 `rotateX(${tiltX.toFixed(3)}deg)`,
                 `rotateY(${tiltY.toFixed(3)}deg)`,
             ].join(' ');
-            img.style.opacity = opacity.toFixed(3);
+            img.style.opacity = bgOpacity.toFixed(3);
 
             rafId = requestAnimationFrame(tick);
         };
 
         onScroll();
         rafId = requestAnimationFrame(tick);
-
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('mousemove', onMouseMove, { passive: true });
 
@@ -99,23 +201,14 @@ export const Contacts = () => {
                 aria-hidden="true"
                 className="contacts-bg-img"
             />
+
             <div className="contacts-inner">
-                <h2 className="contacts-heading">Контакты</h2>
-                <ul className="contacts-list">
-                    {CONTACTS.map(({ label, value, href }) => (
-                        <li key={label} className="contacts-item">
-                            <span className="contacts-item__label">{label}</span>
-                            <a
-                                className="contacts-item__link"
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {value}
-                            </a>
-                        </li>
+                <h2 className="contacts-heading">Соц сети</h2>
+                <div className="contacts-cards">
+                    {SOCIAL_CARDS.map((card) => (
+                        <SocialCard key={card.id} {...card} />
                     ))}
-                </ul>
+                </div>
             </div>
         </section>
     );
