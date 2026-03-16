@@ -31,3 +31,7 @@ backup_*/
 .claude_system_prompt.tmp
 SERVER.md
 CLIENT.md
+# AI / Claude Code
+CLAUDE.md
+.claude/
+skills-lock.json
