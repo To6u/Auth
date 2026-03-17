@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 export interface Ball {
     id: number;
@@ -27,6 +28,7 @@ interface UseBouncingBallsOptions {
     images: HTMLImageElement[];
     altImages?: HTMLImageElement[][];
     hoveredIdRef: React.RefObject<number | null>;
+    autoSwitch?: boolean;
 }
 
 const IMAGE_SWITCH_INTERVAL_S = 0.8;
@@ -64,7 +66,14 @@ function generateBlobPoints(count = 8): { x: number; y: number }[] {
     return points;
 }
 
-function traceBlobPath(ctx: CanvasRenderingContext2D, pts: { x: number; y: number }[], cx: number, cy: number, r: number, tension = 0.5): void {
+function traceBlobPath(
+    ctx: CanvasRenderingContext2D,
+    pts: { x: number; y: number }[],
+    cx: number,
+    cy: number,
+    r: number,
+    tension = 0.5
+): void {
     const n = pts.length;
     const p = pts.map((pt) => ({ x: cx + pt.x * r, y: cy + pt.y * r }));
 
@@ -98,7 +107,7 @@ function drawBall(
     const getImg = (index: number): HTMLImageElement =>
         index === 0
             ? baseImages[ball.id % baseImages.length]!
-            : ballAlt[index - 1] ?? baseImages[ball.id % baseImages.length]!;
+            : (ballAlt[index - 1] ?? baseImages[ball.id % baseImages.length]!);
 
     const prevImg = getImg(ball.prevImageIndex);
     const currentImg = getImg(ball.imageIndex);
@@ -153,16 +162,17 @@ function initBalls(count: number, width: number, height: number): Ball[] {
     });
 }
 
-function applyRepulsion(balls: Ball[]) {
+function applyRepulsion(balls: Ball[], hoveredId: number | null) {
     for (let i = 0; i < balls.length; i++) {
         for (let j = i + 1; j < balls.length; j++) {
             const a = balls[i];
             const b = balls[j];
+            if (a.id === hoveredId || b.id === hoveredId) continue;
 
             const dx = b.x - a.x;
             const dy = b.y - a.y;
             const dist = Math.hypot(dx, dy);
-            const minDist = (a.radius + b.radius) * OVERLAP_THRESHOLD;
+            const minDist = (a.radius * a.scale + b.radius * b.scale) * OVERLAP_THRESHOLD;
 
             if (dist < minDist && dist > 0) {
                 const overlap = (minDist - dist) / minDist;
@@ -188,10 +198,22 @@ function applyRepulsion(balls: Ball[]) {
 
 const isActive = () => !document.hidden;
 
-export function useBouncingBalls({ count, containerRef, canvasRef, images, altImages = [], hoveredIdRef }: UseBouncingBallsOptions) {
+export function useBouncingBalls({
+    count,
+    containerRef,
+    canvasRef,
+    images,
+    altImages = [],
+    hoveredIdRef,
+    autoSwitch = false,
+}: UseBouncingBallsOptions) {
     const ballsRef = useRef<Ball[]>([]);
+    const sortedRef = useRef<Ball[]>([]);
     const rafRef = useRef<number>(0);
     const isVisibleRef = useRef(false);
+    // Ref чтобы закрытие tick всегда видело актуальное значение без пересоздания эффекта
+    const autoSwitchRef = useRef(autoSwitch);
+    autoSwitchRef.current = autoSwitch;
 
     useEffect(() => {
         const container = containerRef.current;
@@ -253,50 +275,90 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
             ctx.clearRect(0, 0, w, h);
 
             for (const ball of balls) {
-                ball.x += ball.vx;
-                ball.y += ball.vy;
+                const isHovered = ball.id === hoveredId;
 
-                const effectiveR = ball.radius * ball.scale * (1 + BREATHE_AMPLITUDE);
+                if (isHovered) {
+                    ball.vx = 0;
+                    ball.vy = 0;
 
-                if (ball.x - effectiveR <= 0) {
-                    ball.x = effectiveR;
-                    ball.vx = Math.abs(ball.vx);
-                } else if (ball.x + effectiveR >= w) {
-                    ball.x = w - effectiveR;
-                    ball.vx = -Math.abs(ball.vx);
-                }
+                    // Мягко сдвигаем к допустимой позиции чтобы увеличенный шар не обрезался
+                    const effectiveR = ball.radius * ball.scale * (1 + BREATHE_AMPLITUDE);
+                    const padding = 4;
+                    const minX = effectiveR + padding;
+                    const maxX = w - effectiveR - padding;
+                    const minY = effectiveR + padding;
+                    const maxY = h - effectiveR - padding;
 
-                if (ball.y - effectiveR <= 0) {
-                    ball.y = effectiveR;
-                    ball.vy = Math.abs(ball.vy);
-                } else if (ball.y + effectiveR >= h) {
-                    ball.y = h - effectiveR;
-                    ball.vy = -Math.abs(ball.vy);
-                }
+                    let targetX: number;
+                    let targetY: number;
 
-                const speed = Math.hypot(ball.vx, ball.vy);
-                if (speed < MIN_SPEED) {
-                    const angle = Math.atan2(ball.vy, ball.vx);
-                    ball.vx = Math.cos(angle) * MIN_SPEED;
-                    ball.vy = Math.sin(angle) * MIN_SPEED;
-                }
+                    if (minX > maxX) {
+                        targetX = w / 2;
+                    } else {
+                        targetX = Math.max(minX, Math.min(maxX, ball.x));
+                    }
 
-                ball.nudgeTimer++;
-                if (ball.nudgeTimer >= NUDGE_INTERVAL) {
-                    ball.nudgeTimer = 0;
-                    const angle = Math.random() * Math.PI * 2;
-                    ball.vx += Math.cos(angle) * NUDGE_FORCE;
-                    ball.vy += Math.sin(angle) * NUDGE_FORCE;
+                    if (minY > maxY) {
+                        targetY = h / 2;
+                    } else {
+                        targetY = Math.max(minY, Math.min(maxY, ball.y));
+                    }
 
-                    const nudgedSpeed = Math.hypot(ball.vx, ball.vy);
-                    if (nudgedSpeed > MAX_SPEED) {
-                        ball.vx = (ball.vx / nudgedSpeed) * MAX_SPEED;
-                        ball.vy = (ball.vy / nudgedSpeed) * MAX_SPEED;
+                    ball.x = lerp(ball.x, targetX, 0.08);
+                    ball.y = lerp(ball.y, targetY, 0.08);
+                } else {
+                    ball.x += ball.vx;
+                    ball.y += ball.vy;
+
+                    const effectiveR = ball.radius * ball.scale * (1 + BREATHE_AMPLITUDE);
+
+                    if (ball.x - effectiveR <= 0) {
+                        ball.x = effectiveR;
+                        ball.vx = Math.abs(ball.vx);
+                    } else if (ball.x + effectiveR >= w) {
+                        ball.x = w - effectiveR;
+                        ball.vx = -Math.abs(ball.vx);
+                    }
+
+                    if (ball.y - effectiveR <= 0) {
+                        ball.y = effectiveR;
+                        ball.vy = Math.abs(ball.vy);
+                    } else if (ball.y + effectiveR >= h) {
+                        ball.y = h - effectiveR;
+                        ball.vy = -Math.abs(ball.vy);
+                    }
+
+                    const speed = Math.hypot(ball.vx, ball.vy);
+                    if (speed < MIN_SPEED) {
+                        const angle = Math.atan2(ball.vy, ball.vx);
+                        ball.vx = Math.cos(angle) * MIN_SPEED;
+                        ball.vy = Math.sin(angle) * MIN_SPEED;
+                    }
+
+                    ball.nudgeTimer++;
+                    if (ball.nudgeTimer >= NUDGE_INTERVAL) {
+                        ball.nudgeTimer = 0;
+                        const angle = Math.random() * Math.PI * 2;
+                        ball.vx += Math.cos(angle) * NUDGE_FORCE;
+                        ball.vy += Math.sin(angle) * NUDGE_FORCE;
+
+                        const nudgedSpeed = Math.hypot(ball.vx, ball.vy);
+                        if (nudgedSpeed > MAX_SPEED) {
+                            ball.vx = (ball.vx / nudgedSpeed) * MAX_SPEED;
+                            ball.vy = (ball.vy / nudgedSpeed) * MAX_SPEED;
+                        }
                     }
                 }
-
-                const isHovered = ball.id === hoveredId;
-                const targetScale = hoveredId === null ? 1 : isHovered ? HOVERED_RADIUS / ball.radius : 0.6;
+                let targetScale: number;
+                if (hoveredId === null) {
+                    targetScale = 1;
+                } else if (isHovered) {
+                    // Макс радиус = половина ширины контейнера минус 1rem (16px) с каждой стороны
+                    const maxHoveredRadius = Math.min(HOVERED_RADIUS, (w - 32) / 2);
+                    targetScale = maxHoveredRadius / ball.radius;
+                } else {
+                    targetScale = 0.6;
+                }
                 ball.targetScale = targetScale;
                 if (Math.abs(ball.targetScale - ball.scale) > 0.001) {
                     ball.scale = lerp(ball.scale, ball.targetScale, SCALE_LERP);
@@ -310,26 +372,37 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
 
                 ball.breathePhase += ball.breatheSpeed;
 
-                // Image switching — only while hovered, reset to base on leave
+                // Image switching — авто по таймеру (autoSwitch) или по ховеру
                 ball.imageSwitchTimer += delta;
                 const hasVariants = (altImages[ball.id]?.length ?? 0) > 0;
 
-                if (hasVariants && isHovered && ball.imageSwitchTimer >= IMAGE_SWITCH_INTERVAL_S) {
-                    ball.imageSwitchTimer = 0;
-                    const total = 1 + altImages[ball.id]!.length;
-                    const next = ball.imageIndex + 1;
-                    if (next < total) {
-                        ball.prevImageIndex = ball.imageIndex;
-                        ball.imageIndex = next;
-                        ball.imageAlpha = 0;
+                if (hasVariants) {
+                    if (autoSwitchRef.current) {
+                        if (ball.imageSwitchTimer >= IMAGE_SWITCH_INTERVAL_S) {
+                            ball.imageSwitchTimer = 0;
+                            const total = 1 + altImages[ball.id]!.length;
+                            ball.prevImageIndex = ball.imageIndex;
+                            ball.imageIndex = (ball.imageIndex + 1) % total;
+                            ball.imageAlpha = 0;
+                        }
+                    } else {
+                        if (isHovered && ball.imageSwitchTimer >= IMAGE_SWITCH_INTERVAL_S) {
+                            ball.imageSwitchTimer = 0;
+                            const total = 1 + altImages[ball.id]!.length;
+                            const next = ball.imageIndex + 1;
+                            if (next < total) {
+                                ball.prevImageIndex = ball.imageIndex;
+                                ball.imageIndex = next;
+                                ball.imageAlpha = 0;
+                            }
+                        }
+                        if (!isHovered && ball.imageIndex !== 0) {
+                            ball.prevImageIndex = ball.imageIndex;
+                            ball.imageIndex = 0;
+                            ball.imageAlpha = 0;
+                            ball.imageSwitchTimer = 0;
+                        }
                     }
-                }
-
-                if (hasVariants && !isHovered && ball.imageIndex !== 0) {
-                    ball.prevImageIndex = ball.imageIndex;
-                    ball.imageIndex = 0;
-                    ball.imageAlpha = 0;
-                    ball.imageSwitchTimer = 0;
                 }
 
                 if (ball.imageAlpha < 1) {
@@ -337,10 +410,11 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
                 }
             }
 
-            applyRepulsion(balls);
+            applyRepulsion(balls, hoveredId);
 
             if (zIndexDirty) {
                 sorted = [...balls].sort((a, b) => a.zIndex - b.zIndex);
+                sortedRef.current = sorted;
                 zIndexDirty = false;
             }
 
@@ -358,7 +432,7 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
 
             const canvas = canvasRef.current;
             if (canvas) {
-                const dpr = window.devicePixelRatio || 1;
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
                 canvas.width = width * dpr;
                 canvas.height = height * dpr;
                 canvas.style.width = `${width}px`;
@@ -384,11 +458,11 @@ export function useBouncingBalls({ count, containerRef, canvasRef, images, altIm
         };
     }, [count, containerRef, canvasRef, images, altImages, hoveredIdRef]);
 
-    return ballsRef;
+    return { ballsRef, sortedRef };
 }
 
 export function useHitTest(
-    ballsRef: React.RefObject<Ball[]>,
+    sortedRef: React.RefObject<Ball[]>,
     containerRef: React.RefObject<HTMLDivElement | null>,
     hoveredIdRef: React.RefObject<number | null>
 ) {
@@ -400,10 +474,9 @@ export function useHitTest(
             const mx = e.clientX - rect.left;
             const my = e.clientY - rect.top;
 
-            const balls = ballsRef.current;
+            // sortedRef поддерживается RAF loop — сортировка по zIndex уже выполнена
+            const sorted = [...sortedRef.current].reverse();
             let found: number | null = null;
-
-            const sorted = [...balls].sort((a, b) => b.zIndex - a.zIndex);
 
             for (const ball of sorted) {
                 const breathe = 1 + Math.sin(ball.breathePhase) * BREATHE_AMPLITUDE;
@@ -418,7 +491,7 @@ export function useHitTest(
             hoveredIdRef.current = found;
             if (container) container.style.cursor = found !== null ? 'pointer' : 'default';
         },
-        [ballsRef, containerRef, hoveredIdRef]
+        [sortedRef, containerRef, hoveredIdRef]
     );
 
     const handleMouseLeave = useCallback(() => {

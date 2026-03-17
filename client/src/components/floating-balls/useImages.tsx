@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 
 function isGif(src: string): boolean {
     return src.toLowerCase().includes('.gif');
@@ -6,7 +6,8 @@ function isGif(src: string): boolean {
 
 function createHiddenContainer(): HTMLDivElement {
     const el = document.createElement('div');
-    el.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none';
+    el.style.cssText =
+        'position:fixed;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none';
     return el;
 }
 

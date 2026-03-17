@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import type React from 'react';
+import { useRef } from 'react';
 import { useBouncingBalls, useHitTest } from './useBouncingBalls';
-import { useImages, useImageSets } from './useImages';
+import { useImageSets, useImages } from './useImages';
 import './floating-balls.css';
 
 interface FloatingBallsProps {
@@ -8,9 +9,16 @@ interface FloatingBallsProps {
     altImages?: string[][];
     className?: string;
     containerRef?: React.RefObject<HTMLDivElement | null> | React.RefObject<HTMLDivElement>;
+    autoSwitch?: boolean;
 }
 
-export const FloatingBalls = ({ images: imageSrcs, altImages: altImageSrcs = [], className, containerRef: externalRef }: FloatingBallsProps) => {
+export const FloatingBalls = ({
+    images: imageSrcs,
+    altImages: altImageSrcs = [],
+    className,
+    containerRef: externalRef,
+    autoSwitch = false,
+}: FloatingBallsProps) => {
     const internalRef = useRef<HTMLDivElement>(null);
     const containerRef = (externalRef ?? internalRef) as React.RefObject<HTMLDivElement | null>;
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,16 +27,17 @@ export const FloatingBalls = ({ images: imageSrcs, altImages: altImageSrcs = [],
     const images = useImages(imageSrcs);
     const altImages = useImageSets(altImageSrcs);
 
-    const ballsRef = useBouncingBalls({
+    const { sortedRef } = useBouncingBalls({
         count: imageSrcs.length,
         containerRef,
         canvasRef,
         images,
         altImages,
         hoveredIdRef,
+        autoSwitch,
     });
 
-    const { handleMouseMove, handleMouseLeave } = useHitTest(ballsRef, containerRef, hoveredIdRef);
+    const { handleMouseMove, handleMouseLeave } = useHitTest(sortedRef, containerRef, hoveredIdRef);
 
     return (
         <div
