@@ -150,6 +150,7 @@ export const ScrollProgressIndicator = memo(
                     height={svgHeight}
                     viewBox={`0 0 ${PATH_WIDTH} ${svgHeight}`}
                     overflow="visible"
+                    preserveAspectRatio="xMidYMin meet"
                 >
                     <defs>
                         <clipPath id={clipId}>

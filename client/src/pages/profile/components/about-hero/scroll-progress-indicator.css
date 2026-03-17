@@ -1,7 +1,7 @@
 .scroll-progress-indicator {
     position: absolute;
     left: -30px;
-    top: 20px;
+    top: 0;
     bottom: 0;
     width: 12px;
 }
@@ -11,6 +11,7 @@
     top: 0;
     left: 0;
     overflow: visible;
+    height: 100%;
 }
 
 /* Трек — едва заметная волна (незаполненная часть) */
