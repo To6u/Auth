@@ -167,6 +167,7 @@ export const AboutHero = memo(() => {
 
     // Opacity для FloatingBalls «Дорога» — вынесен на верхний уровень, чтобы не нарушать rules of hooks
     const ballsWayOpacity = useTransform(sectionThreeEnterProgress, [0, 1], [0, 1]);
+    const ballsPlaceOpacity = useTransform(sectionOneEnterProgress, [0, 1], [0, 1]);
 
     const { WaveFilter: WaveFilterBallsPlace, containerRef: containerRefBallsPlace } =
         useWaveEffect(sectionThreeInvertedProgress, { maxScale: 90, alwaysOn: true });
@@ -193,8 +194,8 @@ export const AboutHero = memo(() => {
     const sectionHeading = useScrollSection({
         enter: {
             progress: sectionOneEnterProgress,
-            range: isMobile ? [0, 0.6] : [0.3, 1],
-            props: isMobile
+            range: isMobileLayout ? [0, 0.6] : [0.3, 1],
+            props: isMobileLayout
                 ? { x: [-300, 0], opacity: [0, 1] }
                 : { scale: [0, 1], x: [600, 0], y: [200, 0], opacity: [0, 1] },
         },
@@ -265,7 +266,7 @@ export const AboutHero = memo(() => {
                         {!isMobileLayout && (
                             <motion.div
                                 style={{
-                                    opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]),
+                                    opacity: ballsPlaceOpacity,
                                     width: '100%',
                                 }}
                             >
@@ -285,7 +286,7 @@ export const AboutHero = memo(() => {
                     {isMobileLayout && (
                         <motion.div
                             style={{
-                                opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]),
+                                opacity: ballsPlaceOpacity,
                                 width: '100%',
                             }}
                         >
@@ -348,7 +349,7 @@ export const AboutHero = memo(() => {
                         className="glass-card about-hero-section-three"
                         style={{ transformOrigin: 'right bottom', ...sectionThree.style }}
                     >
-                        <SectionThreeContent gateProgress={sectionThreeEnterProgress} />
+                        <SectionThreeContent gateProgress={sectionThreeEnterEffective} />
                     </motion.div>
                 </div>
             </div>
