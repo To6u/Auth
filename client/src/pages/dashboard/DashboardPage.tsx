@@ -1,7 +1,7 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthInfo } from '@/hooks/useAuthInfo';
 import { AnimatedPageWrapper } from '@/components/layout/AnimatedPageWrapper';
+import { useAuthInfo } from '@/hooks/useAuthInfo';
 import './dashboard.css';
 
 export const DashboardPage = () => {

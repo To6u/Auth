@@ -5,14 +5,16 @@
  */
 export function PageLoadingFallback() {
     return (
-        <div style={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'rgba(255,255,255,0.4)',
-            fontSize: '14px',
-        }}>
+        <div
+            style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '14px',
+            }}
+        >
             Загрузка...
         </div>
     );

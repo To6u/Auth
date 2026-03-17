@@ -33,19 +33,10 @@ export const PopoverTrigger = ({ id, children, content }: PopoverTriggerProps) =
 
     return (
         <>
-            <b
-                ref={triggerRef}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
+            <b ref={triggerRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {children}
             </b>
-            <div
-                ref={popoverRef}
-                popover="manual"
-                id={id}
-                className="popover-trigger"
-            >
+            <div ref={popoverRef} popover="manual" id={id} className="popover-trigger">
                 {content}
             </div>
         </>

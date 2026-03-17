@@ -1,7 +1,8 @@
-import React, { Children, isValidElement, memo, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import type React from 'react';
+import { Children, isValidElement, memo, useMemo, useState } from 'react';
 import './expandable-content.css';
-import { BezierDefinition } from 'motion-utils';
+import type { BezierDefinition } from 'motion-utils';
 
 interface ExpandableContentProps {
     children: React.ReactNode;
@@ -17,7 +18,9 @@ export const ExpandableContent = memo(({ children, className = '' }: ExpandableC
         const childArray = Children.toArray(children).filter(isValidElement);
 
         // Находим первый <p> и все элементы до него (включая <span> перед ним)
-        let firstPIndex = childArray.findIndex((child) => typeof child.type === 'string' && child.type === 'p');
+        let firstPIndex = childArray.findIndex(
+            (child) => typeof child.type === 'string' && child.type === 'p'
+        );
 
         if (firstPIndex === -1) firstPIndex = childArray.length;
 

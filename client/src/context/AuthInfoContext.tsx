@@ -1,7 +1,7 @@
-import {ReactNode, useEffect, useState} from 'react';
-import {getUserProfile, logoutUser} from 'client/src/services/api.service';
-import {User} from "@/types/auth-info-context.types.ts";
+import { getUserProfile, logoutUser } from 'client/src/services/api.service';
+import { type ReactNode, useEffect, useState } from 'react';
 import { AuthInfoContext } from '@/context/createAuthInfoContext.ts';
+import type { User } from '@/types/auth-info-context.types.ts';
 
 export const AuthInfoProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);

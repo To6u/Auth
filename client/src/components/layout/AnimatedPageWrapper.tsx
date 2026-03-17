@@ -1,5 +1,5 @@
-import { useState, useCallback, ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { type ReactNode, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface AnimatedPageContextProps {

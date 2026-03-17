@@ -1,7 +1,4 @@
-export function generateNoiseDataURL(
-    size: number = 200,
-    opacity: number = 0.08
-): string {
+export function generateNoiseDataURL(size: number = 200, opacity: number = 0.08): string {
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
@@ -15,9 +12,9 @@ export function generateNoiseDataURL(
     // Генерируем случайный шум для каждого пикселя
     for (let i = 0; i < data.length; i += 4) {
         const noise = Math.random() * 255;
-        data[i] = noise;           // R
-        data[i + 1] = noise;       // G
-        data[i + 2] = noise;       // B
+        data[i] = noise; // R
+        data[i + 1] = noise; // G
+        data[i + 2] = noise; // B
         data[i + 3] = opacity * 255; // A
     }
 
@@ -46,9 +43,7 @@ export function generatePerlinNoiseDataURL(
             const i = (y * size + x) * 4;
 
             // Простая имитация Perlin noise
-            const noise =
-                Math.sin(x / scale) * Math.cos(y / scale) * 127 +
-                Math.random() * 128;
+            const noise = Math.sin(x / scale) * Math.cos(y / scale) * 127 + Math.random() * 128;
 
             const value = Math.floor(noise);
             data[i] = value;

@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { motion } from 'framer-motion';
+import { memo } from 'react';
 import type { TabSelectorProps } from './tab-selector.types';
 import './tab-selector.css';
 
@@ -18,7 +18,9 @@ function TabSelectorInner<T extends string>({
     centered = false,
     className = '',
 }: TabSelectorProps<T>) {
-    const selectorClass = ['tab-selector', centered && 'tab-selector--centered', className].filter(Boolean).join(' ');
+    const selectorClass = ['tab-selector', centered && 'tab-selector--centered', className]
+        .filter(Boolean)
+        .join(' ');
 
     return (
         <div className={selectorClass}>

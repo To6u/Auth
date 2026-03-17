@@ -6,17 +6,19 @@ export function PageErrorFallback() {
     const handleReload = () => window.location.reload();
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            gap: '16px',
-            color: '#fff',
-            textAlign: 'center',
-            padding: '24px',
-        }}>
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                gap: '16px',
+                color: '#fff',
+                textAlign: 'center',
+                padding: '24px',
+            }}
+        >
             <p style={{ fontSize: '16px', opacity: 0.7, margin: 0 }}>
                 Что-то пошло не так. Попробуйте перезагрузить страницу.
             </p>

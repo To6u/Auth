@@ -1,12 +1,12 @@
 import {
-    LoginResponseSchema,
-    RegisterResponseSchema,
-    CheckEmailResponseSchema,
-    UserSchema,
-    type User,
-    type LoginResponse,
-    type RegisterResponse,
     type CheckEmailResponse,
+    CheckEmailResponseSchema,
+    type LoginResponse,
+    LoginResponseSchema,
+    type RegisterResponse,
+    RegisterResponseSchema,
+    type User,
+    UserSchema,
 } from './api.schemas';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';

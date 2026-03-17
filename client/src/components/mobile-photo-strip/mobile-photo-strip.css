@@ -1,0 +1,101 @@
+.mobile-photo-strip {
+    /* overflow-x: clip не создаёт scroll container (в отличие от hidden) — увеличенное фото не обрезается по Y */
+    overflow-x: clip;
+    overflow-y: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    position: relative;
+    z-index: 1;
+}
+
+.mobile-photo-strip--active {
+    z-index: 9999;
+}
+
+/* ── Rows ── */
+
+.mobile-photo-strip__row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    will-change: transform;
+    position: relative;
+    z-index: 1;
+}
+
+.mobile-photo-strip__row--has-selected {
+    z-index: 100;
+}
+
+.mobile-photo-strip__row--left {
+    animation: strip-scroll-left 25s ease-in-out infinite alternate;
+}
+
+.mobile-photo-strip__row--right {
+    animation: strip-scroll-right 25s ease-in-out infinite alternate;
+}
+
+.mobile-photo-strip__row--paused {
+    animation-play-state: paused;
+}
+
+/* ── Photos ── */
+
+.mobile-photo-strip__photo {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-radius 0.4s ease, transform 0.4s ease, opacity 0.3s ease;
+    position: relative;
+    z-index: 1;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-photo-strip__photo--selected {
+    position: relative;
+    z-index: 100;
+}
+
+.mobile-photo-strip__photo--dimmed {
+    opacity: 0.3;
+}
+
+/* ── Overlay ── */
+
+.mobile-photo-strip__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+/* ── Keyframes ── */
+
+/* alternate: мягкое покачивание ±20% — нет jump при перезапуске цикла */
+@keyframes strip-scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-20%);
+    }
+}
+
+@keyframes strip-scroll-right {
+    0% {
+        transform: translateX(-20%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}

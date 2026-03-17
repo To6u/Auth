@@ -1,4 +1,10 @@
-import type { ViewMode, ModeConfig, FormData, FormErrors, TouchedFields } from 'client/src/types/auth.types';
+import type {
+    FormData,
+    FormErrors,
+    ModeConfig,
+    TouchedFields,
+    ViewMode,
+} from 'client/src/types/auth.types';
 
 // Test credentials — читаются из .env.local (не коммитится)
 // Заполни client/.env.local: VITE_TEST_EMAIL=... VITE_TEST_PASS=...

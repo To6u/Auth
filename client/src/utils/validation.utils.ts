@@ -1,7 +1,4 @@
-import {
-    EMAIL_REGEX,
-    MIN_PASSWORD_LENGTH,
-} from 'client/src/constants/auth.constants';
+import { EMAIL_REGEX, MIN_PASSWORD_LENGTH } from 'client/src/constants/auth.constants';
 
 // ─────────────────────────────────────────────────────────────
 // Password strength
@@ -78,10 +75,7 @@ export const validatePassword = (password: string): string => {
 /**
  * Validates password confirmation match
  */
-export const validateConfirmPassword = (
-    confirmPassword: string,
-    password: string
-): string => {
+export const validateConfirmPassword = (confirmPassword: string, password: string): string => {
     if (!confirmPassword) {
         return 'Подтверждение пароля обязательно';
     }

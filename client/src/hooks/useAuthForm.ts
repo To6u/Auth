@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
 import type { ViewMode } from 'client/src/types/auth.types';
-import { useFormValidation } from './useFormValidation';
+import { useCallback, useState } from 'react';
 import { useAuthApi } from './useAuthApi';
+import { useFormValidation } from './useFormValidation';
 
 /**
  * Оркестратор: склеивает useFormValidation + useAuthApi.

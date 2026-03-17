@@ -1,4 +1,4 @@
-import { Component, ReactNode } from 'react';
+import { Component, type ReactNode } from 'react';
 
 interface Props {
     /** Что показать вместо упавшего дерева. null = тихо скрыть (для canvas) */

@@ -1,22 +1,17 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import type {
-    ViewMode,
-    FormData,
-    FormErrors,
-    TouchedFields,
-} from 'client/src/types/auth.types';
 import {
     getInitialFormData,
     INITIAL_ERRORS,
     INITIAL_TOUCHED,
     MODE_CONFIGS,
 } from 'client/src/constants/auth.constants';
+import type { FormData, FormErrors, TouchedFields, ViewMode } from 'client/src/types/auth.types';
 import {
+    getFieldValidator,
+    validateConfirmPassword,
     validateEmail,
     validatePassword,
-    validateConfirmPassword,
-    getFieldValidator,
 } from 'client/src/utils/validation.utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * Управляет состоянием полей формы и логикой валидации.
@@ -32,7 +27,9 @@ export const useFormValidation = (viewMode: ViewMode, showPasswordFields: boolea
 
     // Ref для чтения touched в handleChange без включения объекта в deps
     const touchedRef = useRef(touched);
-    useEffect(() => { touchedRef.current = touched; });
+    useEffect(() => {
+        touchedRef.current = touched;
+    });
 
     const handleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +54,10 @@ export const useFormValidation = (viewMode: ViewMode, showPasswordFields: boolea
                 if (name === 'newPassword' && formData.confirmNewPassword) {
                     setErrors((prev) => ({
                         ...prev,
-                        confirmNewPassword: validateConfirmPassword(formData.confirmNewPassword!, value),
+                        confirmNewPassword: validateConfirmPassword(
+                            formData.confirmNewPassword!,
+                            value
+                        ),
                     }));
                 }
             }

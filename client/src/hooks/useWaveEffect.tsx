@@ -1,5 +1,5 @@
-import { useRef, useCallback, useId, useEffect, useState } from 'react';
-import { useMotionValueEvent, type MotionValue } from 'framer-motion';
+import { type MotionValue, useMotionValueEvent } from 'framer-motion';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 
 interface UseWaveEffectOptions {
     maxScale?: number;
@@ -14,7 +14,10 @@ interface UseWaveEffectOptions {
     alwaysOn?: boolean;
 }
 
-export const useWaveEffect = (scaleProgress: MotionValue<number>, options: UseWaveEffectOptions = {}) => {
+export const useWaveEffect = (
+    scaleProgress: MotionValue<number>,
+    options: UseWaveEffectOptions = {}
+) => {
     const {
         maxScale = 25,
         frequencyX = 0.015,
@@ -164,7 +167,10 @@ export const useWaveEffect = (scaleProgress: MotionValue<number>, options: UseWa
 
     const WaveFilter = useCallback(
         () => (
-            <svg style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }} aria-hidden="true">
+            <svg
+                style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }}
+                aria-hidden="true"
+            >
                 <defs>
                     <filter id={filterId} colorInterpolationFilters="sRGB">
                         <feTurbulence

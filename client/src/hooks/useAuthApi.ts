@@ -1,18 +1,18 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import type {
-    ViewMode,
-    FormData,
-    FormErrors,
-    TouchedFields,
-} from 'client/src/types/auth.types';
 import {
     getInitialFormData,
     INITIAL_ERRORS,
     INITIAL_TOUCHED,
     SUCCESS_MESSAGES,
 } from 'client/src/constants/auth.constants';
-import { registerUser, loginUser, checkEmail, resetPassword } from 'client/src/services/api.service';
+import {
+    checkEmail,
+    loginUser,
+    registerUser,
+    resetPassword,
+} from 'client/src/services/api.service';
+import type { FormData, FormErrors, TouchedFields, ViewMode } from 'client/src/types/auth.types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthInfo } from '@/hooks/useAuthInfo';
 
 function getErrorMessage(error: unknown): string {
@@ -80,15 +80,16 @@ export const useAuthApi = ({
                     setFormData(getInitialFormData(viewMode));
                     setErrors(INITIAL_ERRORS);
                     setTouched(INITIAL_TOUCHED);
-
                 } else if (viewMode === 'login') {
-                    const data = await loginUser({ email: formData.email, password: formData.password });
+                    const data = await loginUser({
+                        email: formData.email,
+                        password: formData.password,
+                    });
                     login(data.user);
                     setIsExiting(true);
                     navigationTimerRef.current = setTimeout(() => {
                         navigate('/dashboard');
                     }, 600);
-
                 } else if (viewMode === 'reset') {
                     if (!showPasswordFields) {
                         // Шаг 1: проверяем email
@@ -118,10 +119,17 @@ export const useAuthApi = ({
             }
         },
         [
-            viewMode, formData, showPasswordFields,
-            validateForm, navigate, login,
-            setErrors, setFormData, setTouched,
-            setShowPasswordFields, onViewModeChange,
+            viewMode,
+            formData,
+            showPasswordFields,
+            validateForm,
+            navigate,
+            login,
+            setErrors,
+            setFormData,
+            setTouched,
+            setShowPasswordFields,
+            onViewModeChange,
         ]
     );
 
