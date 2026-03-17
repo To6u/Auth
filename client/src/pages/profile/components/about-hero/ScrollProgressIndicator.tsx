@@ -50,6 +50,10 @@ export const ScrollProgressIndicator = memo(
         const prevHeightRef = useRef(0);
         const initializedRef = useRef(false);
         const lastScrollCheckRef = useRef(0);
+        const wasVisibleRef = useRef(false);
+        // ref для сравнения svgHeight (state) в MotionValue-колбэках без stale closure
+        const svgHeightRef = useRef(0);
+        svgHeightRef.current = svgHeight;
 
         const { scrollYProgress } = useScroll({
             target: containerRef,
@@ -108,15 +112,22 @@ export const ScrollProgressIndicator = memo(
             [containerRef, headingSelector, svgHeightMV]
         );
 
-        // Re-measure при появлении индикатора — ловит рассинхрон когда контейнер
-        // вырос (ExpandableContent, шрифты) пока секция была вне поля зрения
+        // Re-measure при появлении индикатора — ловит рассинхрон когда prevHeightRef
+        // обновился (ResizeObserver), но setSvgHeight не прошёл (flushSync вне React)
         useMotionValueEvent(indicatorOpacity, 'change', (v) => {
-            if (v < 0.01) return;
-            const container = containerRef.current;
-            if (!container) return;
-            const h = container.getBoundingClientRect().height;
-            if (Math.abs(prevHeightRef.current - h) > 2) {
-                measureAndUpdate(false);
+            const isVisible = v > 0.01;
+            if (isVisible && !wasVisibleRef.current) {
+                wasVisibleRef.current = true;
+                const container = containerRef.current;
+                if (!container) return;
+                const h = container.getBoundingClientRect().height;
+                // Сравниваем с svgHeight state (не prevHeightRef — он мог обновиться без state)
+                if (Math.abs(svgHeightRef.current - h) > 2) {
+                    prevHeightRef.current = 0; // сбрасываем чтобы heightChanged guard пропустил
+                    measureAndUpdate(false);
+                }
+            } else if (!isVisible) {
+                wasVisibleRef.current = false;
             }
         });
 
@@ -141,7 +152,8 @@ export const ScrollProgressIndicator = memo(
             if (!container) return;
 
             const onResize = () => {
-                measureAndUpdate(true);
+                // sync=false: избегаем flushSync вне React-контекста (ResizeObserver)
+                measureAndUpdate(false);
                 // Заставляем Framer Motion пересчитать scrollYProgress с новой геометрией
                 window.dispatchEvent(new Event('scroll'));
             };
