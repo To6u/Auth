@@ -108,6 +108,18 @@ export const ScrollProgressIndicator = memo(
             [containerRef, headingSelector, svgHeightMV]
         );
 
+        // Re-measure при появлении индикатора — ловит рассинхрон когда контейнер
+        // вырос (ExpandableContent, шрифты) пока секция была вне поля зрения
+        useMotionValueEvent(indicatorOpacity, 'change', (v) => {
+            if (v < 0.01) return;
+            const container = containerRef.current;
+            if (!container) return;
+            const h = container.getBoundingClientRect().height;
+            if (Math.abs(prevHeightRef.current - h) > 2) {
+                measureAndUpdate(false);
+            }
+        });
+
         // Throttled fallback — ловит рассинхрон после AnimatePresence exit
         useMotionValueEvent(scrollYProgress, 'change', () => {
             const now = performance.now();
