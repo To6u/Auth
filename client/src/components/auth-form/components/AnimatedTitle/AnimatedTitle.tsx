@@ -1,6 +1,6 @@
+import { ANIMATION_DURATION } from 'client/src/constants/auth.constants.ts';
+import { AnimatePresence, motion } from 'framer-motion';
 import { memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {ANIMATION_DURATION} from "client/src/constants/auth.constants.ts";
 
 interface AnimatedTitleProps {
     title: string;

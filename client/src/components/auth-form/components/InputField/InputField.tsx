@@ -1,6 +1,6 @@
-import { forwardRef } from 'react';
-import { motion } from 'framer-motion';
 import { EyeIcon, EyeOffIcon } from 'client/src/assets/icons';
+import { motion } from 'framer-motion';
+import { forwardRef } from 'react';
 
 export type MatchStatus = 'match' | 'mismatch' | 'none';
 
@@ -76,9 +76,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                             type="button"
                             className="password-toggle-btn"
                             onClick={onTogglePassword}
-                            aria-label={
-                                isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль'
-                            }
+                            aria-label={isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль'}
                             tabIndex={-1}
                         >
                             {isPasswordVisible ? (

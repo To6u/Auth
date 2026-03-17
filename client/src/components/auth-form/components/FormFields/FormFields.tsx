@@ -1,6 +1,6 @@
-import { memo, useState, useCallback } from 'react';
+import type { FormData, FormErrors, TouchedFields, ViewMode } from 'client/src/types/auth.types.ts';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { FormErrors, TouchedFields, ViewMode, FormData } from "client/src/types/auth.types.ts";
+import { memo, useCallback, useState } from 'react';
 import { InputField } from '@/components/auth-form/components/InputField/InputField';
 import { getPasswordStrength } from '@/utils/validation.utils';
 
@@ -18,7 +18,17 @@ interface FormFieldsProps {
 }
 
 export const FormFields = memo<FormFieldsProps>(
-    ({ viewMode, formData, errors, touched, isLoading, showPasswordFields = false, onChange, onBlur, onFocusField }) => {
+    ({
+        viewMode,
+        formData,
+        errors,
+        touched,
+        isLoading,
+        showPasswordFields = false,
+        onChange,
+        onBlur,
+        onFocusField,
+    }) => {
         // ── Password visibility toggles ─────────────────────────────
         const [visibility, setVisibility] = useState({
             password: false,
@@ -28,20 +38,23 @@ export const FormFields = memo<FormFieldsProps>(
         });
 
         const toggleVisibility = useCallback((field: keyof typeof visibility) => {
-            setVisibility(prev => ({ ...prev, [field]: !prev[field] }));
+            setVisibility((prev) => ({ ...prev, [field]: !prev[field] }));
         }, []);
 
         // ── Wrapped blur: also clears focused-field for FormProgress ─
-        const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-            onFocusField?.(null);
-            onBlur(e);
-        }, [onBlur, onFocusField]);
+        const handleBlur = useCallback(
+            (e: React.FocusEvent<HTMLInputElement>) => {
+                onFocusField?.(null);
+                onBlur(e);
+            },
+            [onBlur, onFocusField]
+        );
 
         // ── Confirm-password match icon ─────────────────────────────
         const confirmMatchStatus = (() => {
             const val = formData.confirmPassword ?? '';
             if (!val) return 'none' as const;
-            return val === formData.password ? 'match' as const : 'mismatch' as const;
+            return val === formData.password ? ('match' as const) : ('mismatch' as const);
         })();
 
         return (

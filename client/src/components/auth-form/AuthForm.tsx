@@ -1,11 +1,16 @@
-import { useMemo, useEffect, useState, useCallback } from 'react';
-import { motion, LayoutGroup } from 'framer-motion';
-import { useAuthForm } from 'client/src/hooks/useAuthForm.ts';
+import {
+    AnimatedTitle,
+    FormFields,
+    Logo,
+    ModeSelector,
+    SubmitButton,
+} from 'client/src/components/auth-form/components';
 import { MODE_CONFIGS } from 'client/src/constants/auth.constants.ts';
-import {AnimatedTitle, FormFields, Logo, ModeSelector, SubmitButton} from "client/src/components/auth-form/components";
-import { FormProgress } from './components/FormProgress/FormProgress';
+import { useAuthForm } from 'client/src/hooks/useAuthForm.ts';
+import { LayoutGroup, motion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { SegmentStatus } from './components/FormProgress/FormProgress';
-import type { FormData, FormErrors, TouchedFields } from 'client/src/types/auth.types';
+import { FormProgress } from './components/FormProgress/FormProgress';
 
 interface AuthFormProps {
     onExitingChange?: (isExiting: boolean) => void;
@@ -50,29 +55,29 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
     // а не ссылки на объекты formData/errors/touched
     const segmentDeps = fieldOrder
         .map((f) => {
-            const fd = formData as Record<string, string | undefined>;
-            const fe = errors as Record<string, string | undefined>;
-            const ft = touched as Record<string, boolean | undefined>;
+            const fd = formData as unknown as Record<string, string | undefined>;
+            const fe = errors as unknown as Record<string, string | undefined>;
+            const ft = touched as unknown as Record<string, boolean | undefined>;
             return `${fd[f] ?? ''}|${fe[f] ?? ''}|${ft[f] ?? ''}`;
         })
         .join(',');
 
     const segments: SegmentStatus[] = useMemo(() => {
-        const fd = formData as Record<string, string | undefined>;
-        const fe = errors as Record<string, string | undefined>;
-        const ft = touched as Record<string, boolean | undefined>;
+        const fd = formData as unknown as Record<string, string | undefined>;
+        const fe = errors as unknown as Record<string, string | undefined>;
+        const ft = touched as unknown as Record<string, boolean | undefined>;
 
         return fieldOrder.map((field): SegmentStatus => {
             if (field === focusedField) return 'filling';
             const isTouched = !!ft[field];
-            const hasError = !!(fe[field]);
+            const hasError = !!fe[field];
             const value = fd[field];
             if (isTouched && hasError) return 'error';
             // value без touched — корректно: покрывает автозаполнение браузера
             if (value && !hasError) return 'valid';
             return 'empty';
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fieldOrder, focusedField, segmentDeps]);
 
     return (
@@ -87,12 +92,7 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
             <FormProgress segments={segments} />
 
             <LayoutGroup>
-                <motion.form
-                    onSubmit={handleSubmit}
-                    className="login-form"
-                    noValidate
-                    layout
-                >
+                <motion.form onSubmit={handleSubmit} className="login-form" noValidate layout>
                     <FormFields
                         viewMode={viewMode}
                         formData={formData}
@@ -105,10 +105,7 @@ export const AuthForm = ({ onExitingChange }: AuthFormProps) => {
                         onFocusField={handleFocusField}
                     />
 
-                    <SubmitButton
-                        isLoading={isLoading}
-                        buttonText={modeConfig.buttonText}
-                    />
+                    <SubmitButton isLoading={isLoading} buttonText={modeConfig.buttonText} />
                 </motion.form>
             </LayoutGroup>
         </div>

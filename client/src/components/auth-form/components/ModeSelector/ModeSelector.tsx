@@ -1,8 +1,8 @@
 import { memo } from 'react';
-import { TabSelector } from '@/components/tabs';
-import type { Tab } from '@/components/tabs';
-import type { ViewMode } from '@/types/auth.types';
 import { LoginIcon, RegisterIcon, ResetIcon } from '@/assets/icons';
+import type { Tab } from '@/components/tabs';
+import { TabSelector } from '@/components/tabs';
+import type { ViewMode } from '@/types/auth.types';
 
 interface ModeSelectorProps {
     currentMode: ViewMode;
