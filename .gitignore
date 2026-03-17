@@ -31,7 +31,13 @@ backup_*/
 .claude_system_prompt.tmp
 SERVER.md
 CLIENT.md
-# AI / Claude Code
+# AI / Claude Code — не коммитить в репозиторий
 CLAUDE.md
 .claude/
 skills-lock.json
+PROJECT_CODE.md
+PROJECT_CONTEXT.md
+SPEC.md
+WAVE_PROJECT_CONTEXT.md
+SERVER.md
+CLIENT.md
