@@ -165,8 +165,9 @@ export const AboutHero = memo(() => {
     // Инвертированный прогресс: максимум до входа во вьюпорт, спадает при появлении
     const sectionThreeInvertedProgress = useTransform(sectionThreeEnterProgress, (v) => 1 - v);
 
-    // Opacity для FloatingBalls «Дорога» — вынесен на верхний уровень, чтобы не нарушать rules of hooks
+    // Opacity для FloatingBalls — вынесены на верхний уровень, чтобы не нарушать rules of hooks
     const ballsWayOpacity = useTransform(sectionThreeEnterProgress, [0, 1], [0, 1]);
+    const ballsPlaceOpacity = useTransform(sectionOneEnterProgress, [0, 1], [0, 1]);
 
     const { WaveFilter: WaveFilterBallsPlace, containerRef: containerRefBallsPlace } =
         useWaveEffect(sectionThreeInvertedProgress, { maxScale: 90, alwaysOn: true });
@@ -265,7 +266,7 @@ export const AboutHero = memo(() => {
                         {!isMobileLayout && (
                             <motion.div
                                 style={{
-                                    opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]),
+                                    opacity: ballsPlaceOpacity,
                                     width: '100%',
                                 }}
                             >
@@ -285,7 +286,7 @@ export const AboutHero = memo(() => {
                     {isMobileLayout && (
                         <motion.div
                             style={{
-                                opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]),
+                                opacity: ballsPlaceOpacity,
                                 width: '100%',
                             }}
                         >
