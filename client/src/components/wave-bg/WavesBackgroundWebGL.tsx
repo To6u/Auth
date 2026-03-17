@@ -1,6 +1,11 @@
-import { useEffect, useRef, memo } from 'react';
-import { wavesConfig, parsedWaveColors, WAVE_SPEED_MULTIPLIER, WAVE_WIDTH_MULTIPLIER } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
+import { memo, useEffect, useRef } from 'react';
 import type { WaveConfig } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
+import {
+    parsedWaveColors,
+    WAVE_SPEED_MULTIPLIER,
+    WAVE_WIDTH_MULTIPLIER,
+    wavesConfig,
+} from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
 import '@/components/wave-bg/wave-with-text/waves-canvas.css';
 
 interface WaveShaderProgram {
@@ -155,7 +160,8 @@ const calculateWaveY = (
 
     if (wave.tilt) {
         const tiltPhase = time * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
-        const tiltOffset = Math.sin(x * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * height;
+        const tiltOffset =
+            Math.sin(x * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * height;
         y += tiltOffset;
     }
 
@@ -190,7 +196,8 @@ const calculateWaveWidth = (x: number, wave: WaveConfig, time: number): number =
     }
 
     const phase = time * wave.widthModulation.speed * WAVE_SPEED_MULTIPLIER;
-    const modulation = Math.sin(x * wave.widthModulation.frequency + phase) * wave.widthModulation.amplitude;
+    const modulation =
+        Math.sin(x * wave.widthModulation.frequency + phase) * wave.widthModulation.amplitude;
 
     return baseWidth * (1 + modulation);
 };
@@ -222,7 +229,11 @@ const fillWaveVertices = (
 };
 
 // Компиляция шейдера
-const compileShader = (gl: WebGLRenderingContext, source: string, type: number): WebGLShader | null => {
+const compileShader = (
+    gl: WebGLRenderingContext,
+    source: string,
+    type: number
+): WebGLShader | null => {
     const shader = gl.createShader(type);
     if (!shader) {
         console.error('Failed to create shader');
@@ -349,6 +360,7 @@ const WavesBackgroundWebGL = memo(() => {
 
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // biome-ignore lint/correctness/useHookAtTopLevel: gl.useProgram — WebGL API, не React-хук
         gl.useProgram(program.program);
 
         // Предаллоцируем буферы для вершин
@@ -414,11 +426,24 @@ const WavesBackgroundWebGL = memo(() => {
                 const buffer = vertexBuffersRef.current[index];
                 if (!buffer) return;
 
-                const vertexCount = fillWaveVertices(buffer, width, height, wave, time, step, mouse, dpr);
+                const vertexCount = fillWaveVertices(
+                    buffer,
+                    width,
+                    height,
+                    wave,
+                    time,
+                    step,
+                    mouse,
+                    dpr
+                );
                 const colors = parsedWaveColors[index];
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, bufferRef.current);
-                gl.bufferData(gl.ARRAY_BUFFER, buffer.subarray(0, vertexCount * 2), gl.DYNAMIC_DRAW);
+                gl.bufferData(
+                    gl.ARRAY_BUFFER,
+                    buffer.subarray(0, vertexCount * 2),
+                    gl.DYNAMIC_DRAW
+                );
 
                 gl.enableVertexAttribArray(locs.position);
                 gl.vertexAttribPointer(locs.position, 2, gl.FLOAT, false, 0, 0);

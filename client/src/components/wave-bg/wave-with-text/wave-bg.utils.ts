@@ -1,12 +1,17 @@
-import { WAVE_SPEED_MULTIPLIER, WAVE_WIDTH_MULTIPLIER } from './wavesConfigWebGL';
-import type { WaveConfig } from './wavesConfigWebGL';
 import type {
-    WaveShaderProgram,
     LineShaderProgram,
     MouseState,
     TextLine,
+    WaveShaderProgram,
 } from '@/components/wave-bg/wave-with-text/wave-bg.types';
-import { WAVE_VERTEX_SHADER, WAVE_FRAGMENT_SHADER, LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER } from './shaders';
+import {
+    LINE_FRAGMENT_SHADER,
+    LINE_VERTEX_SHADER,
+    WAVE_FRAGMENT_SHADER,
+    WAVE_VERTEX_SHADER,
+} from './shaders';
+import type { WaveConfig } from './wavesConfigWebGL';
+import { WAVE_SPEED_MULTIPLIER, WAVE_WIDTH_MULTIPLIER } from './wavesConfigWebGL';
 
 // ==================== CONSTANTS ====================
 
@@ -33,8 +38,8 @@ export const TEXT_CONFIG = {
 } as const;
 
 export const TEXT_COLORS = {
-    base: [255 / 255, 244 / 150, 234 / 255, 1.0] as [number, number, number, number],
-    fill: [0 / 150, 114 / 255, 209 / 255, 1.0] as [number, number, number, number],
+    base: [255 / 255, 244 / 255, 234 / 255, 1.0] as [number, number, number, number],
+    fill: [0 / 255, 114 / 255, 209 / 255, 1.0] as [number, number, number, number],
 };
 
 export const WAVE_SCROLL_CONFIG = {
@@ -55,13 +60,19 @@ const MOUSE_ACTIVE_THRESHOLD = 0.01;
 
 // ==================== MATH ====================
 
-export const lerp = (current: number, target: number, factor: number): number => current + (target - current) * factor;
+export const lerp = (current: number, target: number, factor: number): number =>
+    current + (target - current) * factor;
 
-export const easeInOutCubic = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+export const easeInOutCubic = (t: number): number =>
+    t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 
 // ==================== WEBGL HELPERS ====================
 
-const compileShader = (gl: WebGLRenderingContext, source: string, type: number): WebGLShader | null => {
+const compileShader = (
+    gl: WebGLRenderingContext,
+    source: string,
+    type: number
+): WebGLShader | null => {
     const shader = gl.createShader(type);
     if (!shader) return null;
     gl.shaderSource(shader, source);
@@ -137,6 +148,8 @@ export const createLineProgram = (gl: WebGLRenderingContext): LineShaderProgram 
 
 // ==================== WAVE GEOMETRY ====================
 
+const smoothstep = (x: number): number => x * x * (3 - 2 * x);
+
 export const fillWaveVertices = (
     buffer: Float32Array,
     width: number,
@@ -156,27 +169,32 @@ export const fillWaveVertices = (
     const effectiveTime = phaseTime > 0 ? phaseTime : time;
     const phase = wave.phase + effectiveTime * wave.speed * WAVE_SPEED_MULTIPLIER;
     const zAmplitudeFactor = 1 + Math.sin(camProgress * Math.PI) * 0.8;
-    const amplitudeFactor = wave.anchor === 'bottom'
-        ? (0.2 + zProgress * 1.4) * zAmplitudeFactor
-        : (1 - scrollProgress * 0.7) * zAmplitudeFactor;
-    const tiltFactor = wave.anchor === 'bottom'
-        ? zProgress * 1.2
-        : 1 - scrollProgress;
+    const amplitudeFactor =
+        wave.anchor === 'bottom'
+            ? (0.2 + zProgress * 1.4) * zAmplitudeFactor
+            : (1 - scrollProgress * 0.7) * zAmplitudeFactor;
+    const tiltFactor = wave.anchor === 'bottom' ? zProgress * 1.2 : 1 - scrollProgress;
 
     let baseY: number;
     if (wave.anchor === 'bottom') {
         const edgeOffset = zProgress * height * 0.5;
-        baseY = height - edgeOffset + wave.verticalSpeed * Math.sin(effectiveTime * 0.001) * (1 - scrollProgress);
+        baseY =
+            height -
+            edgeOffset +
+            wave.verticalSpeed * Math.sin(effectiveTime * 0.001) * (1 - scrollProgress);
     } else {
-        const verticalPosition = startVerticalPosition - scrollProgress * (startVerticalPosition - endVerticalPosition);
-        const verticalMovement = wave.verticalSpeed * Math.sin(effectiveTime * 0.001) * (1 - scrollProgress);
+        const verticalPosition =
+            startVerticalPosition - scrollProgress * (startVerticalPosition - endVerticalPosition);
+        const verticalMovement =
+            wave.verticalSpeed * Math.sin(effectiveTime * 0.001) * (1 - scrollProgress);
         baseY = height * verticalPosition + verticalMovement;
     }
 
     const mouseX = mouse.smoothX * dpr;
     const mouseY = mouse.smoothY * dpr;
     const sigma = (MOUSE_CONFIG.radius * dpr) / MOUSE_CONFIG.falloff;
-    const hasMouseEffect = mouse.smoothActive > MOUSE_ACTIVE_THRESHOLD && scrollProgress < MOUSE_CONFIG.scrollCutoff;
+    const hasMouseEffect =
+        mouse.smoothActive > MOUSE_ACTIVE_THRESHOLD && scrollProgress < MOUSE_CONFIG.scrollCutoff;
     const mouseInfluenceFactor = 1 - scrollProgress;
 
     let idx = 0;
@@ -186,19 +204,25 @@ export const fillWaveVertices = (
 
         if (wave.tilt) {
             const tiltPhase = effectiveTime * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
-            y += Math.sin(x * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * height * tiltFactor;
+            y +=
+                Math.sin(x * wave.tilt.frequency + tiltPhase) *
+                wave.tilt.amplitude *
+                height *
+                tiltFactor;
         }
 
         if (hasMouseEffect) {
             const dx = x - mouseX;
             const gaussian = Math.exp(-(dx * dx) / (2 * sigma * sigma));
-            const strength = MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive * mouseInfluenceFactor;
+            const strength =
+                MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive * mouseInfluenceFactor;
             y += (mouseY - y) * strength * MOUSE_CONFIG.strengthScale;
         }
 
-        const interpolatedWidth = wave.anchor === 'top'
-            ? wave.lineWidth + (targetLineWidth - wave.lineWidth) * scrollProgress
-            : wave.lineWidth;
+        const interpolatedWidth =
+            wave.anchor === 'top'
+                ? wave.lineWidth + (targetLineWidth - wave.lineWidth) * scrollProgress
+                : wave.lineWidth;
         let halfWidth = interpolatedWidth * WAVE_WIDTH_MULTIPLIER;
 
         if (wave.widthModulation) {
@@ -241,11 +265,8 @@ export const fillWaveVerticesVertical = (
     const effectiveTime = phaseTime > 0 ? phaseTime : time;
     const phase = wave.phase + effectiveTime * wave.speed * WAVE_SPEED_MULTIPLIER;
     const edgeOffset = zProgress * width * 0.55;
-    const baseX = side === 'left'
-        ? edgeOffset
-        : side === 'right'
-            ? width - edgeOffset
-            : width * 0.5;
+    const baseX =
+        side === 'left' ? edgeOffset : side === 'right' ? width - edgeOffset : width * 0.5;
     const zAmplitudeFactor = 1 + Math.sin(camProgress * Math.PI) * 0.8;
     const amplitudeFactor = (1 - scrollProgress * 0.7) * zAmplitudeFactor;
     const tiltFactor = 1 - scrollProgress;
@@ -257,6 +278,12 @@ export const fillWaveVerticesVertical = (
         mouse.smoothActive > MOUSE_ACTIVE_THRESHOLD &&
         (scrollProgress < MOUSE_CONFIG.scrollCutoff || contactsProgress > 0);
 
+    // На Contacts (contactsProgress=1): нижние 50% волны не реагируют на мышь.
+    // На Hero (contactsProgress=0): мышь активна по всей высоте.
+    // smootherstep [0.1→0.5]: нулевые первая и вторая производные на концах → максимально мягкий переход.
+    const MOUSE_Y_FADE_START = 0.1;
+    const MOUSE_Y_FADE_END = 0.5;
+
     let idx = 0;
 
     for (let y = 0; y <= height; y += step) {
@@ -264,15 +291,31 @@ export const fillWaveVerticesVertical = (
 
         if (wave.tilt) {
             const tiltPhase = effectiveTime * wave.tilt.speed * WAVE_SPEED_MULTIPLIER;
-            x += Math.sin(y * wave.tilt.frequency + tiltPhase) * wave.tilt.amplitude * width * tiltFactor;
+            x +=
+                Math.sin(y * wave.tilt.frequency + tiltPhase) *
+                wave.tilt.amplitude *
+                width *
+                tiltFactor;
         }
 
         if (hasMouseEffect) {
-            const dy = y - mouseY;
-            const gaussian = Math.exp(-(dy * dy) / (2 * sigma * sigma));
-            const strength =
-                MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive;
-            x += (mouseX - x) * strength * MOUSE_CONFIG.strengthScale;
+            const yRatio = y / height;
+            const t = Math.max(
+                0,
+                Math.min(1, (yRatio - MOUSE_Y_FADE_START) / (MOUSE_Y_FADE_END - MOUSE_Y_FADE_START))
+            );
+            // smootherstep: 6t⁵-15t⁴+10t³ → первая и вторая производные = 0 при t=0 и t=1
+            const fadeAtContacts = 1 - t * t * t * (t * (t * 6 - 15) + 10);
+            // Hero (contactsProgress=0) — мышь активна везде; Contacts (=1) — фейд нижних 50%
+            const mouseYFactor = 1 - contactsProgress * (1 - fadeAtContacts);
+
+            if (mouseYFactor > 0) {
+                const dy = y - mouseY;
+                const gaussian = Math.exp(-(dy * dy) / (2 * sigma * sigma));
+                const strength =
+                    MOUSE_CONFIG.strength * dpr * gaussian * mouse.smoothActive * mouseYFactor;
+                x += (mouseX - x) * strength * MOUSE_CONFIG.strengthScale;
+            }
         }
 
         const mobileWidthFactor = width / dpr <= 1024 ? 0.35 : 1;
@@ -286,12 +329,14 @@ export const fillWaveVerticesVertical = (
             halfWidth *= 1 + mod;
         }
 
-        const topBoost = (side === 'left' || side === 'right')
-            ? 1 + scrollProgress * 2.8
-            : 1 + scrollProgress * 1.2;
-        const verticalFade = (side === 'left' || side === 'right')
-            ? (1 - (y / height) * 0.85) * topBoost
-            : (1 - (y / height) * 0.4) * topBoost;
+        const topBoost =
+            side === 'left' || side === 'right'
+                ? 1 + scrollProgress * 2.8
+                : 1 + scrollProgress * 1.2;
+        const verticalFade =
+            side === 'left' || side === 'right'
+                ? (1 - (y / height) * 0.85) * topBoost
+                : (1 - (y / height) * 0.4) * topBoost;
 
         // Pinch-эффект при скролле к секции #contacts:
         // минимум ширины на 40% высоты контейнера, плавно расширяется к краям
@@ -299,10 +344,7 @@ export const fillWaveVerticesVertical = (
         if (contactsProgress > 0) {
             const t = y / height;
             // smoothstep даёт нулевую производную на обоих концах → нет угла в точке минимума
-            const ss = (x: number) => x * x * (3 - 2 * x);
-            const pinchFn = t <= 0.35
-                ? 1 - ss(t / 0.35)
-                : ss((t - 0.35) / 0.65);
+            const pinchFn = t <= 0.35 ? 1 - smoothstep(t / 0.35) : smoothstep((t - 0.35) / 0.65);
             // Remapping [0,1] → [0.06, 1] без clamp — сохраняет гладкость кривой
             pinch = 0.06 + pinchFn * 0.94;
         }

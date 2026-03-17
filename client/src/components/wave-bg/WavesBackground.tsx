@@ -1,5 +1,9 @@
-import { useEffect, useRef, useMemo, useState } from 'react';
-import { wavesConfig, type WaveConfig, WAVE_SPEED_MULTIPLIER } from '@/components/wave-bg/wavesConfig';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+    WAVE_SPEED_MULTIPLIER,
+    type WaveConfig,
+    wavesConfig,
+} from '@/components/wave-bg/wavesConfig';
 
 // =====================================================
 // ОПТИМИЗАЦИЯ 1: Throttling для mousemove
@@ -10,7 +14,7 @@ const throttle = <T extends (...args: never[]) => unknown>(
 ): ((...args: Parameters<T>) => void) => {
     let inThrottle = false;
 
-    return function (...args: Parameters<T>): void {
+    return (...args: Parameters<T>): void => {
         if (!inThrottle) {
             func(...args);
             inThrottle = true;
@@ -98,21 +102,21 @@ const smoothstep = (t: number): number => t * t * (3 - 2 * t);
 const getWidthMultiplier = (shapeType: number, progress: number): number => {
     switch (shapeType) {
         case 0:
-            return 0.05 + 1.2 * Math.pow(Math.sin(progress * Math.PI), 1.5);
+            return 0.05 + 1.2 * Math.sin(progress * Math.PI) ** 1.5;
         case 1:
-            return 0.03 + 1.4 * Math.pow(Math.sin(progress * Math.PI), 2.5);
+            return 0.03 + 1.4 * Math.sin(progress * Math.PI) ** 2.5;
         case 2:
-            return 1.3 - 1.1 * Math.pow(Math.sin(progress * Math.PI), 1.5);
+            return 1.3 - 1.1 * Math.sin(progress * Math.PI) ** 1.5;
         case 3:
             return 0.03 + 1.3 * smoothstep(smoothstep(progress));
         case 4:
             return 1.3 - 1.27 * smoothstep(smoothstep(progress));
         case 5:
-            return 0.1 + 1.1 * Math.pow(Math.abs(Math.sin(progress * Math.PI * 3)), 1.8);
+            return 0.1 + 1.1 * Math.abs(Math.sin(progress * Math.PI * 3)) ** 1.8;
         case 6:
-            return 0.05 + 1.3 * Math.pow(Math.sin(smoothstep(Math.pow(progress, 0.4)) * Math.PI), 1.5);
+            return 0.05 + 1.3 * Math.sin(smoothstep(progress ** 0.4) * Math.PI) ** 1.5;
         case 7:
-            return 0.05 + 1.3 * Math.pow(Math.sin(smoothstep(Math.pow(progress, 2.2)) * Math.PI), 1.5);
+            return 0.05 + 1.3 * Math.sin(smoothstep(progress ** 2.2) * Math.PI) ** 1.5;
         default:
             return 1;
     }
@@ -124,7 +128,13 @@ const getWidthMultiplier = (shapeType: number, progress: number): number => {
 class GradientCache {
     private cache = new Map<string, CanvasGradient>();
 
-    get(ctx: CanvasRenderingContext2D, width: number, height: number, color1: string, color2: string): CanvasGradient {
+    get(
+        ctx: CanvasRenderingContext2D,
+        width: number,
+        height: number,
+        color1: string,
+        color2: string
+    ): CanvasGradient {
         const key = `${width}:${height}:${color1}:${color2}`;
 
         if (!this.cache.has(key)) {
@@ -197,13 +207,18 @@ const WavesBackground = () => {
         const waveTime = time + randomOffsets[waveIndex];
         const baseSpeed = wave.speed * speedMultiplier;
 
-        const verticalOffset = Math.sin(waveTime * 0.005 * speedMultiplier + waveIndex * 0.5) * wave.verticalSpeed * 20;
+        const verticalOffset =
+            Math.sin(waveTime * 0.005 * speedMultiplier + waveIndex * 0.5) *
+            wave.verticalSpeed *
+            20;
         const yOffset = baseYOffset + verticalOffset;
 
-        const amplitudeVariation = Math.sin(waveTime * 0.003 * speedMultiplier + waveIndex * 0.3) * 0.3;
+        const amplitudeVariation =
+            Math.sin(waveTime * 0.003 * speedMultiplier + waveIndex * 0.3) * 0.3;
         const liveAmplitude = wave.amplitude * (1 + amplitudeVariation);
 
-        const frequencyVariation = Math.sin(waveTime * 0.004 * speedMultiplier + waveIndex * 0.7) * 0.15;
+        const frequencyVariation =
+            Math.sin(waveTime * 0.004 * speedMultiplier + waveIndex * 0.7) * 0.15;
         const liveFrequency = wave.frequency * (1 + frequencyVariation);
 
         const widthVariation = Math.sin(waveTime * 0.006 * speedMultiplier + waveIndex * 0.4) * 0.2;
@@ -235,32 +250,43 @@ const WavesBackground = () => {
 
             const widthMultiplier1 = getWidthMultiplier(shapeType, progress);
             const widthMultiplier2 = getWidthMultiplier(secondaryShapeType, progress);
-            const widthMultiplier = widthMultiplier1 * (1 - shapeTransition) + widthMultiplier2 * shapeTransition;
+            const widthMultiplier =
+                widthMultiplier1 * (1 - shapeTransition) + widthMultiplier2 * shapeTransition;
 
             const localDeformation =
-                Math.sin(progress * Math.PI * 8 + waveTime * 0.01 * speedMultiplier + waveIndex) * 0.1;
+                Math.sin(progress * Math.PI * 8 + waveTime * 0.01 * speedMultiplier + waveIndex) *
+                0.1;
             const finalWidthMultiplier = widthMultiplier * (1 + localDeformation);
             const currentWidth = (baseWidth * finalWidthMultiplier) / 2;
 
             const primaryWave = Math.sin(x * liveFrequency + wave.phase + waveTime * baseSpeed);
-            const secondaryWave = Math.sin(x * liveFrequency * 1.5 + waveTime * baseSpeed * 0.7) * 0.3;
+            const secondaryWave =
+                Math.sin(x * liveFrequency * 1.5 + waveTime * baseSpeed * 0.7) * 0.3;
 
             const morphNode1 =
-                Math.sin(progress * Math.PI * 3 - waveTime * 0.004 * speedMultiplier + waveIndex) * liveAmplitude * 0.4;
+                Math.sin(progress * Math.PI * 3 - waveTime * 0.004 * speedMultiplier + waveIndex) *
+                liveAmplitude *
+                0.4;
             const morphNode2 =
-                Math.sin(progress * Math.PI * 5 + waveTime * 0.006 * speedMultiplier - waveIndex * 0.5) *
+                Math.sin(
+                    progress * Math.PI * 5 + waveTime * 0.006 * speedMultiplier - waveIndex * 0.5
+                ) *
                 liveAmplitude *
                 0.25;
             const morphNode3 =
-                Math.sin(progress * Math.PI * 7 - waveTime * 0.005 * speedMultiplier + waveIndex * 1.2) *
+                Math.sin(
+                    progress * Math.PI * 7 - waveTime * 0.005 * speedMultiplier + waveIndex * 1.2
+                ) *
                 liveAmplitude *
                 0.15;
-            const localPulse = Math.sin(progress * Math.PI * 4 + waveTime * 0.008 * speedMultiplier) * 0.2 + 1;
+            const localPulse =
+                Math.sin(progress * Math.PI * 4 + waveTime * 0.008 * speedMultiplier) * 0.2 + 1;
 
             // ОПТИМИЗАЦИЯ 8: Избегаем Math.sqrt если возможно
             const distanceFromMouseX = x - rotatedMouseX;
             const distanceFromMouseY = waveY - rotatedMouseY;
-            const totalDistanceSq = distanceFromMouseX * distanceFromMouseX + distanceFromMouseY * distanceFromMouseY;
+            const totalDistanceSq =
+                distanceFromMouseX * distanceFromMouseX + distanceFromMouseY * distanceFromMouseY;
             const mouseInfluenceRadiusSq = maxMouseInfluenceRadius * maxMouseInfluenceRadius;
 
             let mouseDeformation = 0;
@@ -268,7 +294,8 @@ const WavesBackground = () => {
             if (totalDistanceSq < mouseInfluenceRadiusSq && maxMouseInfluenceRadius > 0) {
                 const totalDistance = Math.sqrt(totalDistanceSq);
                 const influenceStrength = 1 - totalDistance / maxMouseInfluenceRadius;
-                const deformationPattern = Math.sin(influenceStrength * Math.PI * 2) * influenceStrength;
+                const deformationPattern =
+                    Math.sin(influenceStrength * Math.PI * 2) * influenceStrength;
                 mouseDeformation = deformationPattern * liveAmplitude * 0.8;
             }
 
@@ -307,7 +334,11 @@ const WavesBackground = () => {
         let brightness = 1;
         let glowAmount = 0;
 
-        if (distToMouse < maxColorInfluenceRadius && maxColorInfluenceRadius > 0 && isMouseInsideCanvas) {
+        if (
+            distToMouse < maxColorInfluenceRadius &&
+            maxColorInfluenceRadius > 0 &&
+            isMouseInsideCanvas
+        ) {
             const strength = 1 - distToMouse / maxColorInfluenceRadius;
             brightness = 1 + strength * 0.8;
             glowAmount = strength * 0.6;
@@ -317,7 +348,13 @@ const WavesBackground = () => {
         const color2 = modifyColor(wave.gradientColors[1], brightness, glowAmount);
 
         // ОПТИМИЗАЦИЯ 9: Используем кэш градиентов
-        const gradient = gradientCache.current.get(ctx, canvas.width, canvas.height, color1, color2);
+        const gradient = gradientCache.current.get(
+            ctx,
+            canvas.width,
+            canvas.height,
+            color1,
+            color2
+        );
 
         if (glowAmount > 0.1) {
             const shadowColor = color1.replace(/[\d.]+\)$/, '0.6)');
@@ -401,8 +438,10 @@ const WavesBackground = () => {
                 mousePos.current.y <= canvas.height;
 
             const mouseLerpSpeed = isMouseInsideCanvas ? 0.15 : 0.08;
-            smoothMousePos.current.x += (mousePos.current.x - smoothMousePos.current.x) * mouseLerpSpeed;
-            smoothMousePos.current.y += (mousePos.current.y - smoothMousePos.current.y) * mouseLerpSpeed;
+            smoothMousePos.current.x +=
+                (mousePos.current.x - smoothMousePos.current.x) * mouseLerpSpeed;
+            smoothMousePos.current.y +=
+                (mousePos.current.y - smoothMousePos.current.y) * mouseLerpSpeed;
 
             const rotatedMouseX =
                 centerX +
@@ -415,7 +454,8 @@ const WavesBackground = () => {
 
             const targetInfluence = isMouseInsideCanvas ? 1 : 0;
             const influenceLerpSpeed = 0.05;
-            mouseInfluenceStrength.current += (targetInfluence - mouseInfluenceStrength.current) * influenceLerpSpeed;
+            mouseInfluenceStrength.current +=
+                (targetInfluence - mouseInfluenceStrength.current) * influenceLerpSpeed;
 
             // ИСПРАВЛЕНИЕ: Плавный сброс времени
             let effectiveTime = time;
@@ -440,7 +480,9 @@ const WavesBackground = () => {
                 } else {
                     // Плавная интерполяция с easing (smoothstep)
                     const easeProgress =
-                        timeResetProgress.current * timeResetProgress.current * (3 - 2 * timeResetProgress.current);
+                        timeResetProgress.current *
+                        timeResetProgress.current *
+                        (3 - 2 * timeResetProgress.current);
                     effectiveTime = timeBeforeReset.current * (1 - easeProgress);
                 }
             }
@@ -448,7 +490,12 @@ const WavesBackground = () => {
             waves.forEach((wave, waveIndex) => {
                 const dynamicSpacing =
                     110 +
-                    Math.sin(effectiveTime * 0.0025 * speedMultiplier + waveIndex + randomOffsets[waveIndex]) * 70;
+                    Math.sin(
+                        effectiveTime * 0.0025 * speedMultiplier +
+                            waveIndex +
+                            randomOffsets[waveIndex]
+                    ) *
+                        70;
                 const yOffset = (waveIndex - waves.length / 2) * dynamicSpacing;
                 drawWave(
                     ctx,

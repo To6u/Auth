@@ -1,6 +1,14 @@
-import { parsedWaveColors, wavesConfig } from '@/components/wave-bg/wave-with-text/wavesConfigWebGL';
-import type { WaveShaderProgram, LineShaderProgram, TextLine, TextAnimState } from './wave-bg.types';
+import {
+    parsedWaveColors,
+    wavesConfig,
+} from '@/components/wave-bg/wave-with-text/wavesConfigWebGL';
 import { fillLineBuffer } from './wave-bg.anim';
+import type {
+    LineShaderProgram,
+    TextAnimState,
+    TextLine,
+    WaveShaderProgram,
+} from './wave-bg.types';
 
 const FLOATS_PER_VERTEX = 8; // x, y, r, g, b, a, u, v
 
@@ -41,7 +49,8 @@ export const renderWave = (
         gl.uniform1f(program.locations.chromaticAberration, 0);
     }
 
-    const isVertical = wave.anchor === 'left' || wave.anchor === 'right' || wave.anchor === 'top-center';
+    const isVertical =
+        wave.anchor === 'left' || wave.anchor === 'right' || wave.anchor === 'top-center';
     gl.uniform1f(program.locations.vertical, isVertical ? 1.0 : 0.0);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
@@ -64,6 +73,7 @@ export const renderTextLines = (
     const idx = fillLineBuffer(lineDataBuf, lines, anim, width, height, dpr, 0, routeExitProgress);
     if (idx === 0) return;
 
+    // biome-ignore lint/correctness/useHookAtTopLevel: gl.useProgram — WebGL API, не React-хук
     gl.useProgram(program.program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, lineDataBuf.subarray(0, idx), gl.DYNAMIC_DRAW);

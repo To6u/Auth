@@ -1,4 +1,4 @@
-import { useRef, memo } from 'react';
+import { memo, useRef } from 'react';
 import { useWaveAnimation } from './useWaveAnimation';
 import './waves-canvas.css';
 

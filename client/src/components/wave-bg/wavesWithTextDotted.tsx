@@ -1,6 +1,11 @@
-import { useEffect, useRef, useCallback, memo } from 'react';
-import { wavesConfig, parsedWaveColors, WAVE_SPEED_MULTIPLIER, WAVE_WIDTH_MULTIPLIER } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import type { WaveConfig } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
+import {
+    parsedWaveColors,
+    WAVE_SPEED_MULTIPLIER,
+    WAVE_WIDTH_MULTIPLIER,
+    wavesConfig,
+} from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
 import '@/components/wave-bg/wave-with-text/waves-canvas.css';
 
 // ==================== TYPES ====================
@@ -130,8 +135,8 @@ void main(){gl_FragColor=v_color;}`;
 // ==================== UTILS ====================
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const hash = (x: number, y: number) => {
     const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
     return n - Math.floor(n);
@@ -291,9 +296,15 @@ const generateTextLines = async (): Promise<TextLine[]> => {
 
 const calcWaveY = (x: number, w: WaveConfig, t: number, h: number): number => {
     const phase = w.phase + t * w.speed * WAVE_SPEED_MULTIPLIER;
-    let y = h * 0.5 + w.verticalSpeed * Math.sin(t * 0.001) + Math.sin(x * w.frequency + phase) * w.amplitude;
+    let y =
+        h * 0.5 +
+        w.verticalSpeed * Math.sin(t * 0.001) +
+        Math.sin(x * w.frequency + phase) * w.amplitude;
     if (w.tilt) {
-        y += Math.sin(x * w.tilt.frequency + t * w.tilt.speed * WAVE_SPEED_MULTIPLIER) * w.tilt.amplitude * h;
+        y +=
+            Math.sin(x * w.tilt.frequency + t * w.tilt.speed * WAVE_SPEED_MULTIPLIER) *
+            w.tilt.amplitude *
+            h;
     }
     return y;
 };
@@ -301,7 +312,9 @@ const calcWaveY = (x: number, w: WaveConfig, t: number, h: number): number => {
 const calcWaveWidth = (x: number, w: WaveConfig, t: number): number => {
     const base = w.lineWidth * WAVE_WIDTH_MULTIPLIER;
     if (!w.widthModulation) return base;
-    const mod = Math.sin(x * w.widthModulation.frequency + t * w.widthModulation.speed * WAVE_SPEED_MULTIPLIER);
+    const mod = Math.sin(
+        x * w.widthModulation.frequency + t * w.widthModulation.speed * WAVE_SPEED_MULTIPLIER
+    );
     return base * (1 + mod * w.widthModulation.amplitude);
 };
 
@@ -375,7 +388,7 @@ const fillParticles = (
                     const perpY = nx * vortexDir;
 
                     // Vortex
-                    const vortexF = Math.pow(1 - normDist, MOUSE.vortexFalloff);
+                    const vortexF = (1 - normDist) ** MOUSE.vortexFalloff;
                     const vortex =
                         MOUSE.vortexStrength *
                         vortexF *
@@ -386,14 +399,15 @@ const fillParticles = (
                     forceY += perpY * vortex;
 
                     // Repel
-                    const repelF = Math.pow(1 - normDist, MOUSE.repelFalloff);
+                    const repelF = (1 - normDist) ** MOUSE.repelFalloff;
                     const repel = MOUSE.repelStrength * dpr * repelF * mouse.smoothActive;
                     forceX += nx * repel;
                     forceY += ny * repel;
 
                     // Turbulence
                     if (normSpeed > 0.2) {
-                        const turb = noise2D(fx, fy, time) * MOUSE.turbulence * normSpeed * radius * 0.3;
+                        const turb =
+                            noise2D(fx, fy, time) * MOUSE.turbulence * normSpeed * radius * 0.3;
                         forceX += -velDirY * turb;
                         forceY += velDirX * turb;
                     }
@@ -525,7 +539,7 @@ const WavesWithTextDotted = memo(() => {
             buf: WebGLBuffer,
             verts: Float32Array,
             count: number,
-            time: number,
+            _time: number,
             w: number,
             h: number
         ) => {
@@ -548,7 +562,14 @@ const WavesWithTextDotted = memo(() => {
     );
 
     const renderTextLines = useCallback(
-        (gl: WebGLRenderingContext, prog: ShaderProgram, buf: WebGLBuffer, w: number, h: number, time: number) => {
+        (
+            gl: WebGLRenderingContext,
+            prog: ShaderProgram,
+            buf: WebGLBuffer,
+            w: number,
+            h: number,
+            time: number
+        ) => {
             const lines = textLinesRef.current;
             const a = animRef.current;
             if (!lines.length || !a.init) return;
@@ -616,7 +637,8 @@ const WavesWithTextDotted = memo(() => {
                 y2 = y2 * scale + offY;
 
                 if (a.exitProg > 0.01) {
-                    const spread = (i % 2 === 0 ? -1 : 1) * a.exitProg * 800 * scale * (1 + a.exitProg ** 2);
+                    const spread =
+                        (i % 2 === 0 ? -1 : 1) * a.exitProg * 800 * scale * (1 + a.exitProg ** 2);
                     x1 += spread;
                     x2 += spread;
                 }
@@ -667,7 +689,12 @@ const WavesWithTextDotted = memo(() => {
                     0,
                     color[3] * chromAlpha,
                 ]);
-                idx = writeQuad(data, idx, x1, y1, x2, y2, hw, [color[0], color[1], color[2], color[3] * fade]);
+                idx = writeQuad(data, idx, x1, y1, x2, y2, hw, [
+                    color[0],
+                    color[1],
+                    color[2],
+                    color[3] * fade,
+                ]);
                 idx = writeQuad(data, idx, x1 + chromatic * dir, y1, x2 + chromatic * dir, y2, hw, [
                     0,
                     0,
@@ -707,7 +734,13 @@ const WavesWithTextDotted = memo(() => {
 
         glRef.current = gl;
 
-        const particleProg = createProgram(gl, PARTICLE_VS, PARTICLE_FS, ['a_pos', 'a_size', 'a_color'], ['u_res']);
+        const particleProg = createProgram(
+            gl,
+            PARTICLE_VS,
+            PARTICLE_FS,
+            ['a_pos', 'a_size', 'a_color'],
+            ['u_res']
+        );
         const lineProg = createProgram(gl, LINE_VS, LINE_FS, ['a_pos', 'a_color'], ['u_res']);
         if (!particleProg || !lineProg) return;
 
@@ -774,7 +807,11 @@ const WavesWithTextDotted = memo(() => {
 
             // Calculate scroll progress with smoothing
             const targetScrollProgress = Math.min(a.scrollY / (innerHeight * SCROLL.threshold), 1);
-            a.smoothScrollProgress = lerp(a.smoothScrollProgress, targetScrollProgress, SCROLL.smoothing);
+            a.smoothScrollProgress = lerp(
+                a.smoothScrollProgress,
+                targetScrollProgress,
+                SCROLL.smoothing
+            );
 
             // Disable mouse interaction when scrolled
             if (a.smoothScrollProgress > SCROLL.mouseDisableThreshold) {
@@ -788,8 +825,27 @@ const WavesWithTextDotted = memo(() => {
             // Wave 0
             const buf0 = vertBufsRef.current[0];
             if (buf0) {
-                const count = fillParticles(buf0, w, h, wavesConfig[0], 0, time, mouse, dpr, a.smoothScrollProgress);
-                renderParticles(gl, particleProgRef.current!, particleBufRef.current!, buf0, count, time, w, h);
+                const count = fillParticles(
+                    buf0,
+                    w,
+                    h,
+                    wavesConfig[0],
+                    0,
+                    time,
+                    mouse,
+                    dpr,
+                    a.smoothScrollProgress
+                );
+                renderParticles(
+                    gl,
+                    particleProgRef.current!,
+                    particleBufRef.current!,
+                    buf0,
+                    count,
+                    time,
+                    w,
+                    h
+                );
             }
 
             // Text
@@ -799,8 +855,27 @@ const WavesWithTextDotted = memo(() => {
             for (let i = 1; i < wavesConfig.length; i++) {
                 const buf = vertBufsRef.current[i];
                 if (buf) {
-                    const count = fillParticles(buf, w, h, wavesConfig[i], i, time, mouse, dpr, a.smoothScrollProgress);
-                    renderParticles(gl, particleProgRef.current!, particleBufRef.current!, buf, count, time, w, h);
+                    const count = fillParticles(
+                        buf,
+                        w,
+                        h,
+                        wavesConfig[i],
+                        i,
+                        time,
+                        mouse,
+                        dpr,
+                        a.smoothScrollProgress
+                    );
+                    renderParticles(
+                        gl,
+                        particleProgRef.current!,
+                        particleBufRef.current!,
+                        buf,
+                        count,
+                        time,
+                        w,
+                        h
+                    );
                 }
             }
 

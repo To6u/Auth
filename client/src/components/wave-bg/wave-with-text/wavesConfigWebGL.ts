@@ -38,7 +38,12 @@ export const WAVE_WIDTH_MULTIPLIER = 1;
 const parseRGBA = (rgba: string): [number, number, number, number] => {
     const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
     if (!match) return [0, 0, 0, 0];
-    return [parseInt(match[1]) / 255, parseInt(match[2]) / 255, parseInt(match[3]) / 255, parseFloat(match[4] ?? '1')];
+    return [
+        parseInt(match[1]) / 255,
+        parseInt(match[2]) / 255,
+        parseInt(match[3]) / 255,
+        parseFloat(match[4] ?? '1'),
+    ];
 };
 
 export const wavesConfig: WaveConfig[] = [

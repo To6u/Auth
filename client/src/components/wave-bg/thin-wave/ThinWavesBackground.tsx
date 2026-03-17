@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import {
-    thinWavesConfig,
-    type ThinWaveConfig,
     THIN_WAVE_SPEED_MULTIPLIER,
+    type ThinWaveConfig,
+    thinWavesConfig,
 } from '@/components/wave-bg/thin-wave/thinWavesConfig.ts';
 
 const ThinWavesBackground = () => {
@@ -37,13 +37,18 @@ const ThinWavesBackground = () => {
             ctx.rotate(Math.PI / 4);
             ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-            const verticalOffset = Math.sin(time * 0.005 * speedMultiplier + waveIndex * 0.5) * wave.verticalSpeed * 20;
+            const verticalOffset =
+                Math.sin(time * 0.005 * speedMultiplier + waveIndex * 0.5) *
+                wave.verticalSpeed *
+                20;
             const yOffset = baseYOffset + verticalOffset;
 
-            const amplitudeVariation = Math.sin(time * 0.003 * speedMultiplier + waveIndex * 0.3) * 0.3;
+            const amplitudeVariation =
+                Math.sin(time * 0.003 * speedMultiplier + waveIndex * 0.3) * 0.3;
             const liveAmplitude = wave.amplitude * (1 + amplitudeVariation);
 
-            const frequencyVariation = Math.sin(time * 0.004 * speedMultiplier + waveIndex * 0.7) * 0.15;
+            const frequencyVariation =
+                Math.sin(time * 0.004 * speedMultiplier + waveIndex * 0.7) * 0.15;
             const liveFrequency = wave.frequency * (1 + frequencyVariation);
 
             const widthVariation = Math.sin(time * 0.006 * speedMultiplier + waveIndex * 0.4) * 0.2;
@@ -57,11 +62,15 @@ const ThinWavesBackground = () => {
             ctx.moveTo(startX, canvas.height / 2 + yOffset);
 
             for (let x = startX; x < extendedWidth; x += 2) {
-                const primaryWave = Math.sin(x * liveFrequency + wave.phase + time * wave.speed * speedMultiplier);
+                const primaryWave = Math.sin(
+                    x * liveFrequency + wave.phase + time * wave.speed * speedMultiplier
+                );
                 const secondaryWave =
-                    Math.sin(x * liveFrequency * 1.5 + time * wave.speed * speedMultiplier * 0.7) * 0.3;
+                    Math.sin(x * liveFrequency * 1.5 + time * wave.speed * speedMultiplier * 0.7) *
+                    0.3;
 
-                const y = canvas.height / 2 + yOffset + (primaryWave + secondaryWave) * liveAmplitude;
+                const y =
+                    canvas.height / 2 + yOffset + (primaryWave + secondaryWave) * liveAmplitude;
                 ctx.lineTo(x, y);
             }
 
@@ -92,7 +101,8 @@ const ThinWavesBackground = () => {
 
             // Рисуем тонкие волны
             waves.forEach((wave, waveIndex) => {
-                const dynamicSpacing = 65 + Math.sin(time * 0.0025 * speedMultiplier + waveIndex) * 55;
+                const dynamicSpacing =
+                    65 + Math.sin(time * 0.0025 * speedMultiplier + waveIndex) * 55;
                 const yOffset = (waveIndex - waves.length / 2) * dynamicSpacing;
                 drawWave(wave, yOffset, waveIndex);
             });
