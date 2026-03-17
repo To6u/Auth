@@ -39,6 +39,7 @@
 
 @media (max-width: 767px) {
     .scroll-progress-indicator {
-        display: none;
+        left: -20px;
+        width: 10px;
     }
 }
