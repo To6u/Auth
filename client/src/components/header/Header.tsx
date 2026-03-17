@@ -1,4 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
+import { useAuthInfo } from '@/hooks/useAuthInfo';
 import './header.css';
 
 const NAV_ITEMS = [
@@ -11,11 +14,24 @@ const NAV_ITEMS = [
 
 type SectionId = (typeof NAV_ITEMS)[number]['id'];
 
+// Иконка гамбургера с анимацией в крест при открытии
+const BurgerIcon = ({ isOpen }: { isOpen: boolean }) => (
+    <span
+        className={`header__burger-icon${isOpen ? ' header__burger-icon--open' : ''}`}
+        aria-hidden="true"
+    >
+        <span />
+        <span />
+        <span />
+    </span>
+);
+
 const Header = () => {
     const [activeId, setActiveId] = useState<SectionId | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const { isAuthenticated, isLoading, logout } = useAuthInfo();
+    const navigate = useNavigate();
     const topsRef = useRef<number[]>([]);
-    const scrollYRef = useRef(0);
 
     useEffect(() => {
         const cacheTops = () => {
@@ -46,28 +62,42 @@ const Header = () => {
 
     // Блокируем скролл страницы когда меню открыто (включая iOS Safari)
     useEffect(() => {
-        if (isOpen) {
-            scrollYRef.current = window.scrollY;
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollYRef.current}px`;
-            document.body.style.width = '100%';
-        } else {
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
-            window.scrollTo({ top: scrollYRef.current, behavior: 'instant' });
-        }
+        if (!isOpen) return;
+
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+
+        const prevent = (e: TouchEvent) => {
+            const menu = document.getElementById('header-mobile-menu');
+            if (menu && !menu.contains(e.target as Node)) {
+                e.preventDefault();
+            }
+        };
+
+        document.addEventListener('touchmove', prevent, { passive: false });
+
         return () => {
+            document.documentElement.style.overflow = '';
             document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
+            document.removeEventListener('touchmove', prevent);
         };
     }, [isOpen]);
 
     const handleLinkClick = useCallback(() => setIsOpen(false), []);
+
+    const handleMobileLogout = useCallback(async () => {
+        setIsOpen(false);
+        try {
+            await logout();
+        } finally {
+            navigate('/login');
+        }
+    }, [logout, navigate]);
+
+    const handleMobileLogin = useCallback(() => {
+        setIsOpen(false);
+        navigate('/login');
+    }, [navigate]);
 
     return (
         <>
@@ -85,18 +115,27 @@ const Header = () => {
                 ))}
             </ul>
 
-            {/* Гамбургер кнопка — только на мобилке */}
-            <button
-                className={`header__burger${isOpen ? ' header__burger--open' : ''}`}
-                onClick={() => setIsOpen(v => !v)}
-                aria-label={isOpen ? 'Закрыть меню' : 'Открыть меню'}
-                aria-expanded={isOpen}
-            >
-                <span /><span /><span />
-            </button>
+            {/* Гамбургер — SubmitButton с иконкой бургера, только на мобилке */}
+            <div className="header__burger-wrap">
+                <SubmitButton
+                    isLoading={false}
+                    buttonText=""
+                    type="button"
+                    aria-label={isOpen ? 'Закрыть меню' : 'Открыть меню'}
+                    aria-expanded={isOpen}
+                    aria-controls="header-mobile-menu"
+                    icon={<BurgerIcon isOpen={isOpen} />}
+                    iconPosition="left"
+                    onClick={() => setIsOpen((v) => !v)}
+                />
+            </div>
 
             {/* Мобильное меню */}
-            <nav className={`header__mobile-menu${isOpen ? ' header__mobile-menu--open' : ''}`}>
+            <nav
+                id="header-mobile-menu"
+                className={`header__mobile-menu${isOpen ? ' header__mobile-menu--open' : ''}`}
+                aria-hidden={!isOpen}
+            >
                 <ul>
                     {NAV_ITEMS.map(({ id, label }) => (
                         <li key={id}>
@@ -109,6 +148,24 @@ const Header = () => {
                             </a>
                         </li>
                     ))}
+
+                    {/* Войти / Выйти как пункт меню */}
+                    {!isLoading && (
+                        <li>
+                            {isAuthenticated ? (
+                                <button
+                                    className="header__mobile-auth"
+                                    onClick={handleMobileLogout}
+                                >
+                                    Выйти
+                                </button>
+                            ) : (
+                                <button className="header__mobile-auth" onClick={handleMobileLogin}>
+                                    Войти
+                                </button>
+                            )}
+                        </li>
+                    )}
                 </ul>
             </nav>
         </>

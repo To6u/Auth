@@ -16,46 +16,65 @@
     font-weight: 900;
 }
 
-/* ── Гамбургер ───────────────────────────────────────────────────── */
+/* ── Гамбургер (SubmitButton-обёртка) ────────────────────────────── */
 
-.header__burger {
+.header__burger-wrap {
     display: none;
     position: fixed;
-    top: 24px;
-    right: 24px;
+    top: 20px;
+    right: 20px;
     z-index: 120;
-    width: 44px;
-    height: 44px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
 }
 
-.header__burger span {
+/* Переопределяем размер и форму submit-button внутри бургера */
+.header__burger-wrap .submit-button {
+    width: 52px;
+    height: 52px;
+    min-width: 0;
+    padding: 0;
+    margin-top: 0; /* сбрасываем margin-top: 32px из базового submit-button */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header__burger-wrap .submit-button .button-text {
+    gap: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Иконка бургера внутри кнопки */
+.header__burger-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 20px;
+    flex-shrink: 0;
+}
+
+.header__burger-icon span {
     display: block;
-    width: 28px;
+    width: 20px;
     height: 2px;
-    background: rgba(255, 244, 234, 0.85);
+    background: rgba(255, 244, 234, 0.9);
     border-radius: 2px;
     transform-origin: center;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 /* Анимация в крест */
-.header__burger--open span:nth-child(1) {
-    transform: translateY(8px) rotate(45deg);
+.header__burger-icon--open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
 }
-.header__burger--open span:nth-child(2) {
+.header__burger-icon--open span:nth-child(2) {
     opacity: 0;
     transform: scaleX(0);
 }
-.header__burger--open span:nth-child(3) {
-    transform: translateY(-8px) rotate(-45deg);
+.header__burger-icon--open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
 }
 
 /* ── Мобильное меню ──────────────────────────────────────────────── */
@@ -73,6 +92,8 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
 }
 
 .header__mobile-menu ul {
@@ -103,15 +124,45 @@
     color: rgba(255, 244, 234, 1);
 }
 
+/* Войти / Выйти как пункт меню */
+.header__mobile-auth {
+    font-size: 2.2rem;
+    font-weight: 200;
+    letter-spacing: 0.08em;
+    color: rgba(255, 244, 234, 0.75);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.header__mobile-auth:hover {
+    color: rgba(255, 244, 234, 1);
+}
+
 /* ── Адаптив ─────────────────────────────────────────────────────── */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .header {
+        top: 40px;
+    }
+}
 
 @media (max-width: 768px) {
     .header {
         display: none;
     }
 
-    .header__burger {
-        display: flex;
+    .header__burger-wrap {
+        display: block;
+        width: 52px;
+    }
+
+    .header__burger-wrap .submit-button {
+        margin-left: 0;
     }
 
     .header__mobile-menu {
