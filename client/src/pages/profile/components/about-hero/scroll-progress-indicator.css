@@ -37,14 +37,7 @@
     fill: rgba(255, 244, 234, 0.9);
 }
 
-@media (max-width: 768px) {
-    .scroll-progress-indicator {
-        left: -20px;
-        width: 10px;
-    }
-}
-
-@media (max-width: 480px) {
+@media (max-width: 767px) {
     .scroll-progress-indicator {
         display: none;
     }
