@@ -313,3 +313,11 @@
 .submit-button.loading .wave-4 {
     animation-duration: 4s;
 }
+
+@media (max-width: 1023px) {
+    .submit-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+}

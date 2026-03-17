@@ -1,5 +1,5 @@
-import { lerp, easeInOutCubic, pushQuad, TEXT_CONFIG, TEXT_COLORS } from './wave-bg.utils';
-import type { TextLine, TextAnimState } from './wave-bg.types';
+import type { TextAnimState, TextLine } from './wave-bg.types';
+import { easeInOutCubic, lerp, pushQuad, TEXT_COLORS, TEXT_CONFIG } from './wave-bg.utils';
 
 // ==================== CONSTANTS ====================
 
@@ -138,26 +138,36 @@ export const fillLineBuffer = (
 ): number => {
     if (lines.length === 0 || !anim.initialized) return 0;
 
-    const mobileScale = width / dpr <= 1024 ? 1.5 : 1;
+    const mobileScale = width / dpr <= 768 ? 1.8 : 1;
     const scale = (width / TEXT_CONFIG.canvasWidth) * TEXT_CONFIG.scale * mobileScale;
     const offsetX = (width - TEXT_CONFIG.canvasWidth * scale) / 2;
-    const baseOffsetY = height * TEXT_CONFIG.verticalPosition - (TEXT_CONFIG.canvasHeight * scale) / 2;
+    const baseOffsetY =
+        height * TEXT_CONFIG.verticalPosition - (TEXT_CONFIG.canvasHeight * scale) / 2;
 
     const viewportHeight = height / dpr;
-    const scrollProgress = Math.max(0, Math.min(1, anim.scrollY / (viewportHeight * ANIM_CONFIG.scrollRange)));
+    const scrollProgress = Math.max(
+        0,
+        Math.min(1, anim.scrollY / (viewportHeight * ANIM_CONFIG.scrollRange))
+    );
     anim.exitProgress = lerp(anim.exitProgress, scrollProgress, ANIM_CONFIG.exitSmoothing);
 
     const offsetY = baseOffsetY - anim.exitProgress * height * ANIM_CONFIG.exitOffsetY;
     // Минимум 3 CSS-пикселя на любом экране (на мобилке scale мал → линии невидимы)
     const lineHalfWidth = Math.max(3 * dpr, (TEXT_CONFIG.lineWidth * scale) / 2);
-    const adjustedExit = Math.max(0, (anim.exitProgress - ANIM_CONFIG.exitFadeStart) / (1 - ANIM_CONFIG.exitFadeStart));
+    const adjustedExit = Math.max(
+        0,
+        (anim.exitProgress - ANIM_CONFIG.exitFadeStart) / (1 - ANIM_CONFIG.exitFadeStart)
+    );
 
     let idx = 0;
 
     for (let index = 0; index < lines.length; index++) {
         const line = lines[index];
         const lineDelay = (index / lines.length) * ANIM_CONFIG.lineDelayRange;
-        const adjustedProgress = Math.max(0, Math.min(1, (anim.morphProgress - lineDelay) / (1 - lineDelay)));
+        const adjustedProgress = Math.max(
+            0,
+            Math.min(1, (anim.morphProgress - lineDelay) / (1 - lineDelay))
+        );
         const eased = easeInOutCubic(adjustedProgress);
 
         let x1: number, y1: number, x2: number, y2: number;
@@ -176,7 +186,9 @@ export const fillLineBuffer = (
             y2 = line.velopY2 + (line.signY2 - line.velopY2) * eased;
 
             const waveOffset =
-                Math.sin(adjustedProgress * Math.PI) * ANIM_CONFIG.waveOffsetAmplitude * (index % 2 === 0 ? 1 : -1);
+                Math.sin(adjustedProgress * Math.PI) *
+                ANIM_CONFIG.waveOffsetAmplitude *
+                (index % 2 === 0 ? 1 : -1);
             y1 += waveOffset;
             y2 += waveOffset;
         }
@@ -189,7 +201,8 @@ export const fillLineBuffer = (
         // Route exit: зеркально entry — чётные уходят влево, нечётные вправо
         if (routeExitProgress > 0.001) {
             const direction = index % 2 === 0 ? 1 : -1;
-            const slideOffset = direction * ANIM_CONFIG.entrySpread * scale * easeInOutCubic(routeExitProgress);
+            const slideOffset =
+                direction * ANIM_CONFIG.entrySpread * scale * easeInOutCubic(routeExitProgress);
             x1 -= slideOffset;
             x2 -= slideOffset;
         }
@@ -197,7 +210,8 @@ export const fillLineBuffer = (
         if (anim.exitProgress > 0.01) {
             const spreadDir = index % 2 === 0 ? -1 : 1;
             const spreadEasing = anim.exitProgress * anim.exitProgress;
-            const spreadX = spreadDir * anim.exitProgress * ANIM_CONFIG.exitSpread * scale * (1 + spreadEasing);
+            const spreadX =
+                spreadDir * anim.exitProgress * ANIM_CONFIG.exitSpread * scale * (1 + spreadEasing);
             x1 += spreadX;
             x2 += spreadX;
         }
@@ -213,7 +227,10 @@ export const fillLineBuffer = (
         } else if (effectiveY <= tp + ANIM_CONFIG.gradientZone) {
             const t = Math.max(
                 0,
-                Math.min(1, (tp + ANIM_CONFIG.gradientZone - effectiveY) / (ANIM_CONFIG.gradientZone * 2))
+                Math.min(
+                    1,
+                    (tp + ANIM_CONFIG.gradientZone - effectiveY) / (ANIM_CONFIG.gradientZone * 2)
+                )
             );
             colorBuf[0] = TEXT_COLORS.base[0] + (TEXT_COLORS.fill[0] - TEXT_COLORS.base[0]) * t;
             colorBuf[1] = TEXT_COLORS.base[1] + (TEXT_COLORS.fill[1] - TEXT_COLORS.base[1]) * t;
@@ -227,8 +244,10 @@ export const fillLineBuffer = (
         const dynamicHalfWidth =
             lineHalfWidth * (1 + Math.sin(adjustedProgress * Math.PI) * ANIM_CONFIG.halfWidthPulse);
 
-        const waveAmplitude = ANIM_CONFIG.waveAmplitudeBase + (index % 3) * ANIM_CONFIG.waveAmplitudeStep;
-        const waveFrequency = ANIM_CONFIG.waveFrequencyBase + (index % 5) * ANIM_CONFIG.waveFrequencyStep;
+        const waveAmplitude =
+            ANIM_CONFIG.waveAmplitudeBase + (index % 3) * ANIM_CONFIG.waveAmplitudeStep;
+        const waveFrequency =
+            ANIM_CONFIG.waveFrequencyBase + (index % 5) * ANIM_CONFIG.waveFrequencyStep;
         const wavePhase = time;
 
         if (adjustedExit < 0.01) {
@@ -249,7 +268,10 @@ export const fillLineBuffer = (
         }
 
         const staggerDelay = (index / lines.length) * ANIM_CONFIG.staggerRange;
-        const lineFade = Math.max(0, Math.min(1, 1 - (adjustedExit - staggerDelay) / (1 - staggerDelay)));
+        const lineFade = Math.max(
+            0,
+            Math.min(1, 1 - (adjustedExit - staggerDelay) / (1 - staggerDelay))
+        );
 
         if (lineFade < 0.01) continue;
 

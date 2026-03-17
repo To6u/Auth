@@ -1,9 +1,10 @@
-import { memo, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useScrollSection } from './hooks/useScrollSection';
+import { memo, useEffect, useRef, useState } from 'react';
+import FloatingBalls from '@/components/floating-balls/FloatingBalls';
+import { MobilePhotoStrip } from '@/components/mobile-photo-strip';
 import { useWaveEffect } from '@/hooks/useWaveEffect';
 import { NameSection, SectionOneContent, SectionThreeContent } from './components';
-import FloatingBalls from '@/components/floating-balls/FloatingBalls';
+import { useScrollSection } from './hooks/useScrollSection';
 import './about-hero.css';
 
 const imageModules = import.meta.glob('@/assets/about-images/*.{jpg,jpeg,JPEG,gif,GIF,png}', {
@@ -15,7 +16,7 @@ const imageModules = import.meta.glob('@/assets/about-images/*.{jpg,jpeg,JPEG,gi
 const variantRegex = /-\d+\.(jpg|JPEG|jpeg)$/i;
 const _entries = Object.entries(imageModules) as [string, string][];
 const _baseEntries = _entries.filter(([path]) => !variantRegex.test(path));
-const _altEntries  = _entries.filter(([path]) =>  variantRegex.test(path));
+const _altEntries = _entries.filter(([path]) => variantRegex.test(path));
 
 const PHOTOS = _baseEntries.map(([, url]) => url);
 const ALT_PHOTOS: string[][] = _baseEntries.map(([basePath]) => {
@@ -29,6 +30,29 @@ const ALT_PHOTOS: string[][] = _baseEntries.map(([basePath]) => {
 export const AboutHero = memo(() => {
     const sectionOneRef = useRef<HTMLDivElement>(null);
     const sectionThreeRef = useRef<HTMLDivElement>(null);
+    const sectionTitleRef = useRef<HTMLDivElement>(null);
+
+    const [isMobile, setIsMobile] = useState(
+        () => typeof window !== 'undefined' && window.matchMedia('(max-width: 480px)').matches
+    );
+
+    // 768px — граница где grid схлопывается в flex-column (нужно для позиции FloatingBalls)
+    const [isMobileLayout, setIsMobileLayout] = useState(
+        () => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+    );
+
+    useEffect(() => {
+        const mq480 = window.matchMedia('(max-width: 480px)');
+        const mq768 = window.matchMedia('(max-width: 768px)');
+        const h480 = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        const h768 = (e: MediaQueryListEvent) => setIsMobileLayout(e.matches);
+        mq480.addEventListener('change', h480);
+        mq768.addEventListener('change', h768);
+        return () => {
+            mq480.removeEventListener('change', h480);
+            mq768.removeEventListener('change', h768);
+        };
+    }, []);
 
     // ═══════════════════════════════════════════════════════════════
     // SCROLL PROGRESS (источники для всех анимаций)
@@ -41,7 +65,7 @@ export const AboutHero = memo(() => {
 
     const { scrollYProgress: sectionOneExitProgress } = useScroll({
         target: sectionOneRef,
-        offset: ['start 160px', 'end start'],
+        offset: ['80% start', 'end start'],
     });
 
     const { scrollYProgress: sectionThreeEnterProgress } = useScroll({
@@ -54,6 +78,86 @@ export const AboutHero = memo(() => {
         offset: ['40% start', 'end start'],
     });
 
+    // Ref для чтения isMobileLayout внутри useTransform (не реактивен, но обновляется перед каждым кадром)
+    const isMobileLayoutRef = useRef(isMobileLayout);
+    isMobileLayoutRef.current = isMobileLayout;
+
+    // Мобилка: анимация карточки завершается когда центр карточки = центр экрана
+    const { scrollYProgress: sectionOneMobileProgress } = useScroll({
+        target: sectionOneRef,
+        offset: ['start end', 'center center'],
+    });
+    const { scrollYProgress: sectionThreeMobileProgress } = useScroll({
+        target: sectionThreeRef,
+        offset: ['start end', 'start center'],
+    });
+
+    // Максимальное окно для --right heading (десктоп): от момента входа секции в верх экрана до полного выхода
+    const { scrollYProgress: headingRightEnterProgress } = useScroll({
+        target: sectionOneRef,
+        offset: ['start start', 'end start'],
+    });
+    // Мобилка: триггер привязан к самому heading — анимация при входе в поле зрения
+    const { scrollYProgress: headingRightMobileProgress } = useScroll({
+        target: sectionTitleRef,
+        offset: ['start end', 'center center'],
+    });
+
+    // На мобилке используем прогресс с остановкой на центре экрана
+    const sectionOneEnterEffective = useTransform(() =>
+        isMobileLayoutRef.current ? sectionOneMobileProgress.get() : sectionOneEnterProgress.get()
+    );
+    const sectionThreeEnterEffective = useTransform(() =>
+        isMobileLayoutRef.current
+            ? sectionThreeMobileProgress.get()
+            : sectionThreeEnterProgress.get()
+    );
+    const headingRightEffective = useTransform(() =>
+        isMobileLayoutRef.current
+            ? headingRightMobileProgress.get()
+            : headingRightEnterProgress.get()
+    );
+
+    // Мобилка: гистерезис — появление [0.6, 1.0], исчезновение [0.3, 0.1] при скролле вверх
+    const photoStripVisibleRef = useRef(false);
+
+    const photoStripOpacity = useTransform(() => {
+        const p = headingRightEffective.get();
+
+        if (!photoStripVisibleRef.current) {
+            if (p < 0.6) return 0;
+            if (p >= 0.9) photoStripVisibleRef.current = true;
+            // Плавное появление на [0.6, 1.0] — широкий диапазон
+            return Math.min(1, (p - 0.6) / 0.4);
+        } else {
+            if (p >= 0.6) return 1;
+            if (p <= 0.1) {
+                photoStripVisibleRef.current = false;
+                return 0;
+            }
+            if (p < 0.3) {
+                return (p - 0.1) / 0.2;
+            }
+            return 1;
+        }
+    });
+
+    const photoStripY = useTransform(() => {
+        const opacity = photoStripOpacity.get();
+        return (1 - opacity) * 40;
+    });
+
+    // Мобилка: исчезновение полосы фото при уходе вверх из viewport
+    const photoStripRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress: photoStripExitProgress } = useScroll({
+        target: photoStripRef,
+        offset: ['90% start', 'end start'],
+    });
+    const photoStripExitOpacity = useTransform(photoStripExitProgress, [0, 1], [1, 0]);
+    const photoStripCombinedOpacity = useTransform(
+        () => photoStripOpacity.get() * photoStripExitOpacity.get()
+    );
+
     // ═══════════════════════════════════════════════════════════════
     // WAVE EFFECTS
     // ═══════════════════════════════════════════════════════════════
@@ -61,10 +165,11 @@ export const AboutHero = memo(() => {
     // Инвертированный прогресс: максимум до входа во вьюпорт, спадает при появлении
     const sectionThreeInvertedProgress = useTransform(sectionThreeEnterProgress, (v) => 1 - v);
 
-    const { WaveFilter: WaveFilterBallsPlace, containerRef: containerRefBallsPlace } = useWaveEffect(
-        sectionThreeInvertedProgress,
-        { maxScale: 90, alwaysOn: true }
-    );
+    // Opacity для FloatingBalls «Дорога» — вынесен на верхний уровень, чтобы не нарушать rules of hooks
+    const ballsWayOpacity = useTransform(sectionThreeEnterProgress, [0, 1], [0, 1]);
+
+    const { WaveFilter: WaveFilterBallsPlace, containerRef: containerRefBallsPlace } =
+        useWaveEffect(sectionThreeInvertedProgress, { maxScale: 90, alwaysOn: true });
     const { WaveFilter: WaveFilterBallsWay, containerRef: containerRefBallsWay } = useWaveEffect(
         sectionThreeInvertedProgress,
         { maxScale: 90, alwaysOn: true }
@@ -76,7 +181,7 @@ export const AboutHero = memo(() => {
 
     const sectionOne = useScrollSection({
         enter: {
-            progress: sectionOneEnterProgress,
+            progress: sectionOneEnterEffective,
             props: { x: [-300, 0], opacity: [0, 1] },
         },
         exit: {
@@ -88,8 +193,10 @@ export const AboutHero = memo(() => {
     const sectionHeading = useScrollSection({
         enter: {
             progress: sectionOneEnterProgress,
-            range: [0.3, 1],
-            props: { scale: [0, 1], x: [600, 0], y: [200, 0], opacity: [0, 1] },
+            range: isMobile ? [0, 0.6] : [0.3, 1],
+            props: isMobile
+                ? { x: [-300, 0], opacity: [0, 1] }
+                : { scale: [0, 1], x: [600, 0], y: [200, 0], opacity: [0, 1] },
         },
         exit: {
             progress: sectionOneExitProgress,
@@ -104,8 +211,10 @@ export const AboutHero = memo(() => {
 
     const sectionTitle = useScrollSection({
         enter: {
-            progress: sectionOneExitProgress,
-            props: { scale: [0, 1], x: [-200, 0], y: [200, 0], opacity: [0, 1] },
+            progress: headingRightEffective,
+            props: isMobileLayout
+                ? { x: [300, 0], opacity: [0, 1] }
+                : { scale: [0, 1], x: [-200, 0], y: [200, 0], opacity: [0, 1] },
         },
         exit: {
             progress: sectionOneExitProgress,
@@ -115,7 +224,7 @@ export const AboutHero = memo(() => {
 
     const sectionThree = useScrollSection({
         enter: {
-            progress: sectionThreeEnterProgress,
+            progress: sectionThreeEnterEffective,
             props: { x: [600, 0], opacity: [0, 1] },
         },
         exit: {
@@ -143,7 +252,7 @@ export const AboutHero = memo(() => {
                         <SectionOneContent />
                     </motion.div>
 
-                    {/* Section Two — Heading + FloatingBalls */}
+                    {/* Section Two — Heading + FloatingBalls (десктоп: шары внутри right-колонки) */}
                     <div className="about-hero-right">
                         <motion.div
                             className="about-hero-section-heading"
@@ -153,11 +262,42 @@ export const AboutHero = memo(() => {
                             <span>немного о местности</span>
                         </motion.div>
 
-                        <motion.div style={{ opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]) }}>
-                            <WaveFilterBallsPlace />
-                            <FloatingBalls images={PHOTOS} altImages={ALT_PHOTOS} className="floating-balls-my-place" containerRef={containerRefBallsPlace} />
-                        </motion.div>
+                        {!isMobileLayout && (
+                            <motion.div
+                                style={{
+                                    opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]),
+                                    width: '100%',
+                                }}
+                            >
+                                {!isMobile && <WaveFilterBallsPlace />}
+                                <FloatingBalls
+                                    images={PHOTOS}
+                                    altImages={ALT_PHOTOS}
+                                    className="floating-balls-my-place"
+                                    containerRef={containerRefBallsPlace}
+                                    autoSwitch={isMobile}
+                                />
+                            </motion.div>
+                        )}
                     </div>
+
+                    {/* FloatingBalls — на мобилке выносится после glass-card */}
+                    {isMobileLayout && (
+                        <motion.div
+                            style={{
+                                opacity: useTransform(sectionOneEnterProgress, [0, 1], [0, 1]),
+                                width: '100%',
+                            }}
+                        >
+                            <FloatingBalls
+                                images={PHOTOS}
+                                altImages={ALT_PHOTOS}
+                                className="floating-balls-my-place"
+                                containerRef={containerRefBallsPlace}
+                                autoSwitch={isMobile}
+                            />
+                        </motion.div>
+                    )}
                 </div>
 
                 {/* Section Title — about-hero-left */}
@@ -166,22 +306,40 @@ export const AboutHero = memo(() => {
                     {/*<WaveFilterLeft />*/}
                     <div className="about-hero-left">
                         <motion.div
+                            ref={sectionTitleRef}
                             className="about-hero-section-heading about-hero-section-heading--right"
                             style={{ transformOrigin: 'left bottom', ...sectionTitle.style }}
                         >
                             <h2>Дорога длиною в жизнь</h2>
                             <span>некоторые моменты</span>
 
-                            <motion.div style={{ opacity: useTransform(sectionThreeEnterProgress, [0, 1], [0, 1]) }}>
-                                <WaveFilterBallsWay />
-                                <FloatingBalls
+                            {/* Десктоп/планшет: шары внутри sticky-заголовка — двигаются вместе с ним */}
+                            {!isMobileLayout && (
+                                <motion.div style={{ opacity: ballsWayOpacity }}>
+                                    {!isMobile && <WaveFilterBallsWay />}
+                                    <FloatingBalls
+                                        images={PHOTOS}
+                                        altImages={ALT_PHOTOS}
+                                        className="floating-balls-my-way"
+                                        containerRef={containerRefBallsWay}
+                                        autoSwitch={isMobile}
+                                    />
+                                </motion.div>
+                            )}
+                        </motion.div>
+
+                        {/* Мобилка: полоса фото снаружи заголовка */}
+                        {isMobileLayout && (
+                            <motion.div
+                                ref={photoStripRef}
+                                style={{ y: photoStripY, opacity: photoStripCombinedOpacity }}
+                            >
+                                <MobilePhotoStrip
                                     images={PHOTOS}
-                                    altImages={ALT_PHOTOS}
-                                    className="floating-balls-my-way"
-                                    containerRef={containerRefBallsWay}
+                                    className="mobile-photo-strip--way"
                                 />
                             </motion.div>
-                        </motion.div>
+                        )}
                     </div>
 
                     {/* Section Three */}
