@@ -1,5 +1,5 @@
-import { memo, useCallback, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { memo, useCallback, useRef, useState } from 'react';
 import { useTypewriter } from '@/hooks/useTypewriter';
 import { fadeInUp } from '../animations';
 import { TYPEWRITER_CONFIG, TYPEWRITER_WORDS } from '../constants';
@@ -30,7 +30,10 @@ export const NameSection = memo(() => {
                 Niyaz
             </motion.span>
 
-            <span className="typewriter" style={{ opacity: isNameInView ? 1 : 0, transition: 'opacity 0.3s' }}>
+            <span
+                className="typewriter"
+                style={{ opacity: isNameInView ? 1 : 0, transition: 'opacity 0.3s' }}
+            >
                 {typewriterText}
                 <span className="typewriter__cursor">|</span>
             </span>

@@ -79,15 +79,23 @@
     }
 }
 
+@media (max-width: 1280px) {
+    .hero__content {
+        font-size: 140px;
+        grid-gap: 180px;
+    }
+}
+
 @media (max-width: 768px) {
     .hero__content {
-        font-size: 120px;
-        grid-gap: 40px;
+        font-size: 100px;
+        grid-gap: 140px;
     }
 }
 
 @media (max-width: 480px) {
     .hero__content {
+        font-size: 72px;
         padding: 0 1rem;
     }
 }

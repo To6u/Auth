@@ -1,8 +1,8 @@
+import type { MotionValue } from 'framer-motion';
 import { memo, useRef } from 'react';
-import { type MotionValue } from 'framer-motion';
+import { ExpandableContent } from '@/components/expandable-content/ExpandableContent.tsx';
 import { PopoverTrigger } from '@/components/popover-trigger/PopoverTrigger';
 import ScrollProgressIndicator from '@/pages/profile/components/about-hero/ScrollProgressIndicator.tsx';
-import { ExpandableContent } from '@/components/expandable-content/ExpandableContent.tsx';
 
 interface SectionThreeContentProps {
     gateProgress?: MotionValue<number>;
@@ -40,14 +40,20 @@ export const SectionThreeContent = memo(({ gateProgress }: SectionThreeContentPr
                     . Учился средне. Не ботан, не раздолбай — золотая середина.
                 </p>
                 <span>Начальная школа</span>
-                <p>Ничего особенного. Раз словил тряпкой от учительницы — сам виноват, нечего ворон считать.</p>
+                <p>
+                    Ничего особенного. Раз словил тряпкой от учительницы — сам виноват, нечего ворон
+                    считать.
+                </p>
                 <p>Школа, дом, школа, дом. Повторять до пятого класса.</p>
                 <span>Старшие классы</span>
                 <p>С девятого стало интереснее. Воспоминания — цветные.</p>
                 <span>Интерес к вебу</span>
                 <p>
                     В 11 классе на информатике показали{' '}
-                    <PopoverTrigger id="popover-html" content="HyperText Markup Language — язык разметки веб-страниц">
+                    <PopoverTrigger
+                        id="popover-html"
+                        content="HyperText Markup Language — язык разметки веб-страниц"
+                    >
                         HTML
                     </PopoverTrigger>
                     . Всё, пропал. Ночами смотрел уроки по{' '}
@@ -55,11 +61,17 @@ export const SectionThreeContent = memo(({ gateProgress }: SectionThreeContentPr
                         CSS
                     </PopoverTrigger>{' '}
                     и{' '}
-                    <PopoverTrigger id="popover-php" content="PHP: Hypertext Preprocessor — серверный язык">
+                    <PopoverTrigger
+                        id="popover-php"
+                        content="PHP: Hypertext Preprocessor — серверный язык"
+                    >
                         PHP
                     </PopoverTrigger>
                     .{' '}
-                    <PopoverTrigger id="popover-js" content="JavaScript — язык для интерактивности на сайтах">
+                    <PopoverTrigger
+                        id="popover-js"
+                        content="JavaScript — язык для интерактивности на сайтах"
+                    >
                         JS
                     </PopoverTrigger>{' '}
                     не заходил — мозг отказывался. Зашёл только в универе, когда вышел первый{' '}
@@ -103,7 +115,10 @@ export const SectionThreeContent = memo(({ gateProgress }: SectionThreeContentPr
                         ПНИПУ
                     </PopoverTrigger>
                     , электротех, кафедра{' '}
-                    <PopoverTrigger id="popover-itas" content="Информационные технологии и автоматизированные системы">
+                    <PopoverTrigger
+                        id="popover-itas"
+                        content="Информационные технологии и автоматизированные системы"
+                    >
                         ИТАС
                     </PopoverTrigger>
                     , специальность{' '}
@@ -124,7 +139,8 @@ export const SectionThreeContent = memo(({ gateProgress }: SectionThreeContentPr
 
                 <span>Первая работа за деньги</span>
                 <p>
-                    Четвёртый курс. Устроился в какую-то веб-студию — название уже не вспомню. Неделя. Там был{' '}
+                    Четвёртый курс. Устроился в какую-то веб-студию — название уже не вспомню.
+                    Неделя. Там был{' '}
                     <PopoverTrigger
                         id="popover-1c"
                         content="1С:Предприятие — платформа для автоматизации бизнеса, со своим языком программирования"
@@ -135,18 +151,21 @@ export const SectionThreeContent = memo(({ gateProgress }: SectionThreeContentPr
                 </p>
 
                 <span>Ещё попытки</span>
-                <p>Пара мест не по специальности: техподдержка и веб-дизайнер. В каждом — около полугода.</p>
+                <p>
+                    Пара мест не по специальности: техподдержка и веб-дизайнер. В каждом — около
+                    полугода.
+                </p>
 
                 <span>Подтянулся</span>
                 <p>
-                    Немного прокачал оформление страниц — ну, не бомба, но и не стыдно. Год фриланса. Устал от
-                    нестабильных денег — пошёл искать найм.
+                    Немного прокачал оформление страниц — ну, не бомба, но и не стыдно. Год
+                    фриланса. Устал от нестабильных денег — пошёл искать найм.
                 </p>
 
                 <span>Собесы</span>
                 <p>
-                    Ходил, не особо успешно. Однажды сами нашли: «Будешь делать личный кабинет Ростелекома» (ага, прям
-                    так и сказали). Взяли, чему я был очень рад.{' '}
+                    Ходил, не особо успешно. Однажды сами нашли: «Будешь делать личный кабинет
+                    Ростелекома» (ага, прям так и сказали). Взяли, чему я был очень рад.{' '}
                     <PopoverTrigger
                         id="popover-react"
                         content="JavaScript-библиотека от Meta* для создания пользовательских интерфейсов"
@@ -165,10 +184,14 @@ export const SectionThreeContent = memo(({ gateProgress }: SectionThreeContentPr
 
                 <span>
                     Веб не бросал. В бакалавриате был{' '}
-                    <PopoverTrigger id="popover-cpp" content="Язык программирования общего назначения, расширение C">
+                    <PopoverTrigger
+                        id="popover-cpp"
+                        content="Язык программирования общего назначения, расширение C"
+                    >
                         C++
                     </PopoverTrigger>{' '}
-                    — не зашёл. Диплом сделал на вебе. В магистратуре — больше кода, язык на выбор. Диплом писал на{' '}
+                    — не зашёл. Диплом сделал на вебе. В магистратуре — больше кода, язык на выбор.
+                    Диплом писал на{' '}
                     <PopoverTrigger
                         id="popover-csharp"
                         content="Объектно-ориентированный язык от Microsoft, часть платформы .NET"
@@ -183,15 +206,17 @@ export const SectionThreeContent = memo(({ gateProgress }: SectionThreeContentPr
             <ExpandableContent className="about-section__content">
                 <span>Работа</span>
                 <p>
-                    Последние 5,5 лет развиваю личный кабинет. За это время вырос от выполнения задач до понимания всей
-                    кухни большой компании: от аналитики и проектирования до тестирования и релизов. Вижу продукт
-                    целиком и понимаю, как решения проходят путь от идеи до продакшена — и где они обычно дают сбой.
+                    Последние 5,5 лет развиваю личный кабинет. За это время вырос от выполнения
+                    задач до понимания всей кухни большой компании: от аналитики и проектирования до
+                    тестирования и релизов. Вижу продукт целиком и понимаю, как решения проходят
+                    путь от идеи до продакшена — и где они обычно дают сбой.
                 </p>
                 <p>
-                    Мне интересно не просто писать код, а выстраивать систему. Программист по природе всё упрощает и
-                    структурирует — я делаю это осознанно. В последнее время активно работаю с ИИ и автоматизацией
-                    разработки: ускоряю рутину, собираю процессы в понятную логику и делаю так, чтобы меньше было магии,
-                    а больше предсказуемости.
+                    Мне интересно не просто писать код, а выстраивать систему. Программист по
+                    природе всё упрощает и структурирует — я делаю это осознанно. В последнее время
+                    активно работаю с ИИ и автоматизацией разработки: ускоряю рутину, собираю
+                    процессы в понятную логику и делаю так, чтобы меньше было магии, а больше
+                    предсказуемости.
                 </p>
                 <span>Код должен работать. Остальное — лирика.</span>
             </ExpandableContent>

@@ -1,6 +1,13 @@
-import { memo, useRef, useState, useEffect, useCallback, useId, useMemo } from 'react';
+import {
+    type MotionValue,
+    motion,
+    useMotionValue,
+    useMotionValueEvent,
+    useScroll,
+    useTransform,
+} from 'framer-motion';
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent, type MotionValue } from 'framer-motion';
 import './scroll-progress-indicator.css';
 
 interface ScrollProgressIndicatorProps {
@@ -30,7 +37,11 @@ function getXOnWave(yPx: number): number {
 }
 
 export const ScrollProgressIndicator = memo(
-    ({ containerRef, headingSelector = '.about-section__title', gateProgress }: ScrollProgressIndicatorProps) => {
+    ({
+        containerRef,
+        headingSelector = '.about-section__title',
+        gateProgress,
+    }: ScrollProgressIndicatorProps) => {
         const uid = useId();
         const clipId = `track-clip-${uid}`;
 
@@ -51,7 +62,10 @@ export const ScrollProgressIndicator = memo(
         // MotionValue для высоты — clipY обновляется синхронно без зависимости от React state
         const svgHeightMV = useMotionValue(0);
 
-        const clipY = useTransform([scrollYProgress, svgHeightMV], ([scroll, height]: number[]) => scroll * height);
+        const clipY = useTransform(
+            [scrollYProgress, svgHeightMV],
+            ([scroll, height]: number[]) => scroll * height
+        );
 
         const wavePath = useMemo(() => generateWavePath(svgHeight), [svgHeight]);
 
@@ -148,7 +162,11 @@ export const ScrollProgressIndicator = memo(
                         </clipPath>
                     </defs>
 
-                    <path d={wavePath} clipPath={`url(#${clipId})`} className="scroll-progress-indicator__track-path" />
+                    <path
+                        d={wavePath}
+                        clipPath={`url(#${clipId})`}
+                        className="scroll-progress-indicator__track-path"
+                    />
 
                     <motion.path
                         d={wavePath}
@@ -191,7 +209,11 @@ const WaveDot = memo(({ cx, cy, threshold, scrollYProgress }: WaveDotProps) => {
 
     const fillOpacity = useTransform(scrollYProgress, [threshold - 0.02, threshold + 0.03], [0, 1]);
 
-    const scale = useTransform(scrollYProgress, [threshold - 0.02, threshold, threshold + 0.03], [0.5, 1.3, 1]);
+    const scale = useTransform(
+        scrollYProgress,
+        [threshold - 0.02, threshold, threshold + 0.03],
+        [0.5, 1.3, 1]
+    );
 
     return (
         <motion.g style={{ scale, opacity: dotOpacity, transformOrigin: `${cx}px ${cy}px` }}>

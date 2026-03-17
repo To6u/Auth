@@ -36,14 +36,14 @@ export const AboutHero = memo(() => {
         () => typeof window !== 'undefined' && window.matchMedia('(max-width: 480px)').matches
     );
 
-    // 768px — граница где grid схлопывается в flex-column (нужно для позиции FloatingBalls)
+    // <768px — граница где grid схлопывается в flex-column (нужно для позиции FloatingBalls)
     const [isMobileLayout, setIsMobileLayout] = useState(
-        () => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+        () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
     );
 
     useEffect(() => {
         const mq480 = window.matchMedia('(max-width: 480px)');
-        const mq768 = window.matchMedia('(max-width: 768px)');
+        const mq768 = window.matchMedia('(max-width: 767px)');
         const h480 = (e: MediaQueryListEvent) => setIsMobile(e.matches);
         const h768 = (e: MediaQueryListEvent) => setIsMobileLayout(e.matches);
         mq480.addEventListener('change', h480);

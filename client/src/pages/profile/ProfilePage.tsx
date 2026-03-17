@@ -1,15 +1,15 @@
-import { useAuthInfo } from 'client/src/hooks/useAuthInfo';
 import { LogoutIcon } from 'client/src/assets/icons';
 import { AnimatedPageWrapper } from 'client/src/components/layout/AnimatedPageWrapper';
+import { useAuthInfo } from 'client/src/hooks/useAuthInfo';
 import '@/pages/profile/profile-page.css';
-import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
-import Hero from '@/pages/profile/components/hero/Hero.tsx';
-import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
-import { Projects } from '@/pages/profile/components/projects';
-import { Contacts } from '@/pages/profile/components/contacts/Contacts';
-import Header from '@/components/header/Header.tsx';
-import { useRef, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
+import Header from '@/components/header/Header.tsx';
+import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
+import { Contacts } from '@/pages/profile/components/contacts/Contacts';
+import Hero from '@/pages/profile/components/hero/Hero.tsx';
+import { Projects } from '@/pages/profile/components/projects';
 
 export const ProfilePage = () => {
     const { isAuthenticated, isLoading, logout } = useAuthInfo();
@@ -42,8 +42,8 @@ export const ProfilePage = () => {
             {({ isExiting, triggerExit }) => (
                 <div className="page-profile">
                     {/* Auth action — shown after auth state resolves */}
-                    {!isLoading && (
-                        isAuthenticated ? (
+                    {!isLoading &&
+                        (isAuthenticated ? (
                             <SubmitButton
                                 isLoading={isExiting}
                                 buttonText=""
@@ -61,8 +61,7 @@ export const ProfilePage = () => {
                                 onClick={() => navigate('/login')}
                                 type="button"
                             />
-                        )
-                    )}
+                        ))}
 
                     <Header />
                     <Hero />

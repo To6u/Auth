@@ -7,7 +7,10 @@ export const SectionOneContent = memo(() => (
             <span>Откуда?</span>
             <p>
                 Меня зовут Нияз. Я из{' '}
-                <PopoverTrigger id="popover-barda" content="Село в Пермском крае, основано в 1740 году">
+                <PopoverTrigger
+                    id="popover-barda"
+                    content="Село в Пермском крае, основано в 1740 году"
+                >
                     Барды
                 </PopoverTrigger>
                 — села в двух часах от{' '}

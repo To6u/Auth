@@ -1,4 +1,4 @@
-import { MotionValue, useTransform } from 'framer-motion';
+import { type MotionValue, useTransform } from 'framer-motion';
 
 type ValueRange = readonly number[];
 
@@ -57,7 +57,10 @@ function usePhaseValue(
     const range = prop?.range ?? [0, 1];
     const values = prop?.values ?? [0, 0];
 
-    const inputRange = values.length === 3 ? [range[0], (range[0] + range[1]) / 2, range[1]] : [range[0], range[1]];
+    const inputRange =
+        values.length === 3
+            ? [range[0], (range[0] + range[1]) / 2, range[1]]
+            : [range[0], range[1]];
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const mv = useTransform(progress, inputRange, values as number[]);

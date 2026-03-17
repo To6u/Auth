@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import '@/pages/profile/components/hero/hero.css';
 
 const ANIMATION_DELAY = 200;

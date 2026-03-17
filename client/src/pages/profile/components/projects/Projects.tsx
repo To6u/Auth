@@ -1,7 +1,7 @@
+import { ArrowDown, ExternalLink, Github } from 'lucide-react';
 import { memo, useEffect, useRef } from 'react';
-import { ExternalLink, Github, ArrowDown } from 'lucide-react';
-import { projectsState } from '@/lib/projectsState';
 import { Logo } from '@/components/auth-form/components/Logo/Logo';
+import { projectsState } from '@/lib/projectsState';
 import './Projects.css';
 
 // ─────────────────────────────────────────────────────────────
@@ -99,20 +99,26 @@ interface Vec3 {
  * the world transform inverts it so cards approach the viewer.
  */
 const CAM_PATH: Vec3[] = [
-    { x: 0,    y: 0,   z: 0    }, // start → card-0
-    { x: -200, y: 60,  z: 800  }, // sweep left
-    { x: -320, y: 90,  z: 1500 }, // arrive card-1
-    { x: 80,   y: 10,  z: 2200 }, // sweep right
-    { x: 280,  y: -70, z: 3000 }, // arrive card-2
-    { x: 20,   y: -10, z: 3700 }, // sweep left → card-3
-    { x: -220, y: 70,  z: 4500 }, // arrive card-3
-    { x: -220, y: 70,  z: 4900 }, // ease-out tail
+    { x: 0, y: 0, z: 0 }, // start → card-0
+    { x: -200, y: 60, z: 800 }, // sweep left
+    { x: -320, y: 90, z: 1500 }, // arrive card-1
+    { x: 80, y: 10, z: 2200 }, // sweep right
+    { x: 280, y: -70, z: 3000 }, // arrive card-2
+    { x: 20, y: -10, z: 3700 }, // sweep left → card-3
+    { x: -220, y: 70, z: 4500 }, // arrive card-3
+    { x: -220, y: 70, z: 4500 }, // ease-out tail — stops at card-3
 ];
 
 function catmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number {
     const t2 = t * t;
     const t3 = t2 * t;
-    return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+    return (
+        0.5 *
+        (2 * p1 +
+            (-p0 + p2) * t +
+            (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+            (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
+    );
 }
 
 /**
@@ -178,9 +184,7 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
                 <h3 className="projects-scene__card-title">{data.title}</h3>
                 <p className="projects-scene__card-desc">{data.description}</p>
             </div>
-            <div className="projects-scene__card-image">
-                {data.logo && <Logo />}
-            </div>
+            <div className="projects-scene__card-image">{data.logo && <Logo />}</div>
         </div>
 
         <div className="projects-scene__tags">
@@ -194,13 +198,23 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
         {(data.link ?? data.github) && (
             <div className="projects-scene__links">
                 {data.link && (
-                    <a href={data.link} className="projects-scene__link" target="_blank" rel="noopener noreferrer">
+                    <a
+                        href={data.link}
+                        className="projects-scene__link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
                         <ExternalLink size={14} />
                         <span>Посмотреть в живую</span>
                     </a>
                 )}
                 {data.github && (
-                    <a href={data.github} className="projects-scene__link" target="_blank" rel="noopener noreferrer">
+                    <a
+                        href={data.github}
+                        className="projects-scene__link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
                         <Github size={14} />
                         <span>GitHub</span>
                     </a>
@@ -238,10 +252,21 @@ export const Projects = () => {
 
         let sectionTop = section.getBoundingClientRect().top + window.scrollY;
         let sectionScrollable = section.offsetHeight - window.innerHeight;
+        let xScale = Math.min(1, window.innerWidth / 1200);
+
+        function applyCardPositions(): void {
+            PROJECTS.forEach((p, i) => {
+                const el = cardRefs.current[i];
+                if (!el) return;
+                el.style.transform = `translateX(calc(-50% + ${p.wx * xScale}px)) translateY(calc(-50% + ${p.wy}px)) translateZ(${p.wz}px)`;
+            });
+        }
 
         const recalcLayout = () => {
             sectionTop = section.getBoundingClientRect().top + window.scrollY;
             sectionScrollable = section.offsetHeight - window.innerHeight;
+            xScale = Math.min(1, window.innerWidth / 1200);
+            applyCardPositions();
         };
 
         window.addEventListener('resize', recalcLayout, { passive: true });
@@ -249,7 +274,7 @@ export const Projects = () => {
         const bodyResizeObserver = new ResizeObserver(() => {
             recalcLayout();
         });
-        bodyResizeObserver.observe(document.body);
+        bodyResizeObserver.observe(sectionEl);
 
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -276,18 +301,28 @@ export const Projects = () => {
 
         // ── Nav / UI overlay visibility ──────────────────────────────────
         let lastInView: boolean | null = null;
+        let lastNavInView: boolean | null = null;
 
         function syncVisibility(): void {
             const scrollY = window.scrollY;
-            const inView = scrollY + window.innerHeight > sectionTop && scrollY < sectionTop + sectionEl.offsetHeight;
+            const inView =
+                scrollY + window.innerHeight > sectionTop &&
+                scrollY < sectionTop + sectionEl.offsetHeight;
+            // Nav-точки видны только когда пользователь реально внутри секции
+            const progress = getProgress();
+            const navInView = progress > 0.01 && progress < 0.999;
 
-            if (inView === lastInView) return;
-            lastInView = inView;
+            if (inView !== lastInView) {
+                lastInView = inView;
+                labelRef.current?.classList.toggle('visible', inView);
+                counterRef.current?.classList.toggle('visible', inView);
+                scrollHintRef.current?.classList.toggle('visible', inView);
+            }
 
-            navRef.current?.classList.toggle('visible', inView);
-            labelRef.current?.classList.toggle('visible', inView);
-            counterRef.current?.classList.toggle('visible', inView);
-            scrollHintRef.current?.classList.toggle('visible', inView);
+            if (navInView !== lastNavInView) {
+                lastNavInView = navInView;
+                navRef.current?.classList.toggle('visible', navInView);
+            }
         }
 
         // ── Per-card depth effect ────────────────────────────────────────
@@ -359,7 +394,7 @@ export const Projects = () => {
         function tick(): void {
             const progress = getProgress();
             const target = splinePoint(CAM_PATH, progress);
-            tCamX = target.x;
+            tCamX = target.x * xScale;
             tCamY = target.y;
             tCamZ = target.z;
 
@@ -419,7 +454,8 @@ export const Projects = () => {
         };
         document.addEventListener('visibilitychange', onVisibilityChange);
 
-        // Bootstrap: run once to set initial state without waiting for scroll
+        // Bootstrap: расставляем карточки с учётом xScale до первого скролла
+        applyCardPositions();
         rafId = requestAnimationFrame(tick);
 
         return () => {
@@ -457,10 +493,6 @@ export const Projects = () => {
                                     cardRefs.current[i] = el;
                                 }}
                                 className="projects-scene__card"
-                                // Initial 3D placement — data-driven, must be inline
-                                style={{
-                                    transform: `translateX(calc(-50% + ${p.wx}px)) translateY(calc(-50% + ${p.wy}px)) translateZ(${p.wz}px)`,
-                                }}
                             >
                                 <ProjectCard data={p} />
                             </div>

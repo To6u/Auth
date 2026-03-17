@@ -6,22 +6,34 @@ import './contacts.css';
 
 const TelegramIcon = () => (
     <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
     </svg>
 );
 
 const InstagramIcon = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-        <circle cx="12" cy="12" r="4"/>
-        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+    <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
     </svg>
 );
 
 const EmailIcon = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="4" width="20" height="16" rx="2"/>
-        <polyline points="2,4 12,13 22,4"/>
+    <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <polyline points="2,4 12,13 22,4" />
     </svg>
 );
 
@@ -144,19 +156,32 @@ export const Contacts = () => {
         let rafId = 0;
         let cancelled = false;
 
+        let sectionTop = section.getBoundingClientRect().top + window.scrollY;
+        let sectionHeight = section.offsetHeight;
+
+        const recalcLayout = () => {
+            sectionTop = section.getBoundingClientRect().top + window.scrollY;
+            sectionHeight = section.offsetHeight;
+        };
+
         const onScroll = () => {
-            const rect = section.getBoundingClientRect();
-            const vh = window.innerHeight;
-            const progress = (vh + rect.height - rect.bottom) / rect.height;
+            const scrolled = window.scrollY - sectionTop + window.innerHeight;
+            const progress = scrolled / sectionHeight;
             const clamped = Math.max(0, Math.min(1, progress));
             scrollTranslateY = 380 * (1 - clamped);
             bgOpacity = Math.min(1, clamped * 2);
         };
 
         const onMouseMove = (e: MouseEvent) => {
-            rawMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-            rawMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            // Нижняя часть экрана не влияет на параллакс — smootherstep [0.3→0.7]
+            const yRatio = e.clientY / window.innerHeight;
+            const t = Math.max(0, Math.min(1, (yRatio - 0.4) / 0.4));
+            const yFactor = 1 - t * t * t * (t * (t * 6 - 15) + 10);
+            rawMouseX = (e.clientX / window.innerWidth - 0.5) * 2 * yFactor;
+            rawMouseY = (yRatio - 0.5) * 2 * yFactor;
         };
+
+        let isVisible = false;
 
         const tick = () => {
             if (cancelled) return;
@@ -179,28 +204,37 @@ export const Contacts = () => {
             rafId = requestAnimationFrame(tick);
         };
 
+        const intersectionObserver = new IntersectionObserver(
+            ([entry]) => {
+                isVisible = entry.isIntersecting;
+                if (isVisible) {
+                    rafId = requestAnimationFrame(tick);
+                } else {
+                    cancelAnimationFrame(rafId);
+                }
+            },
+            { rootMargin: '100px' }
+        );
+
         onScroll();
-        rafId = requestAnimationFrame(tick);
+        intersectionObserver.observe(section);
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('mousemove', onMouseMove, { passive: true });
+        window.addEventListener('resize', recalcLayout, { passive: true });
 
         return () => {
             cancelled = true;
             cancelAnimationFrame(rafId);
+            intersectionObserver.disconnect();
             window.removeEventListener('scroll', onScroll);
             window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('resize', recalcLayout);
         };
     }, []);
 
     return (
         <section id="contacts" ref={sectionRef} className="contacts-section">
-            <img
-                ref={imgRef}
-                src={snowImg}
-                alt=""
-                aria-hidden="true"
-                className="contacts-bg-img"
-            />
+            <img ref={imgRef} src={snowImg} alt="" aria-hidden="true" className="contacts-bg-img" />
 
             <div className="contacts-inner">
                 <h2 className="contacts-heading">Соц сети</h2>

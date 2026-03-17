@@ -33,7 +33,8 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 600px;
+    width: calc(100vw - 2rem);
+    max-width: 600px;
     transform-style: preserve-3d;
     will-change: transform, opacity, filter;
     /* NO transition — smoothing via JS lerp */
@@ -239,10 +240,9 @@
 
 /* ── Section label ─────────────────────────────────────────────── */
 .projects-scene__label {
-    margin: 0 auto -20rem;
-    top: 2rem;
-    left: 2rem;
-    width: fit-content;
+    width: 100%;
+    padding: 12rem 0 0;
+    text-align: center;
     z-index: 20;
     font-size: 5rem;
     font-weight: 900;
@@ -353,13 +353,18 @@
 }
 
 /* ================================================================
+   Tablet
+   ================================================================ */
+@media (max-width: 1024px) {
+    .projects-scene__label {
+        font-size: 3.5rem;
+    }
+}
+
+/* ================================================================
    Mobile — performance concessions
    ================================================================ */
 @media (max-width: 768px) {
-    .projects-scene__card {
-        width: 320px;
-    }
-
     .projects-scene__card-body {
         padding: 20px 22px;
         gap: 12px;
@@ -376,6 +381,18 @@
         font-size: 13px;
     }
 
+    .projects-scene__card-main-content {
+        grid-template-columns: 1fr;
+    }
+
+    /* На мобилке изображение идёт в нормальный поток под текстом */
+    .projects-scene__card-image {
+        position: static;
+        width: 100%;
+        height: 160px;
+        border-radius: 20px;
+    }
+
     .projects-scene__nav {
         right: 16px;
     }
@@ -387,6 +404,20 @@
 
     .projects-scene__scroll-hint {
         bottom: 32px;
+    }
+
+    .projects-scene__label {
+        position: sticky;
+        top: 0;
+        font-size: 3rem;
+        padding: 1.5rem 0;
+        background: transparent;
+    }
+}
+
+@media (max-width: 480px) {
+    .projects-scene__label {
+        font-size: 2rem;
     }
 }
 
