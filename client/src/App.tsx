@@ -1,19 +1,19 @@
 import './App.css';
+import { AnimatePresence } from 'framer-motion';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { ProtectedRoute } from '@/components/route/ProtectedRoute';
+import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground';
+import WavesBackground from '@/components/wave-bg/WavesBackground';
 import { AuthInfoProvider } from '@/context/AuthInfoContext';
 import { LoginPage } from '@/pages/LoginPage';
-import { ProtectedRoute } from '@/components/route/ProtectedRoute';
-import WavesBackground from '@/components/wave-bg/WavesBackground';
-import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground';
-import { AnimatePresence } from 'framer-motion';
 import '@/components/layout/layout.css';
-import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
-import * as React from 'react';
+import type * as React from 'react';
 import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
 import { PageErrorFallback } from '@/components/error-boundary/PageErrorFallback.tsx';
 import { PageLoadingFallback } from '@/components/error-boundary/PageLoadingFallback.tsx';
 import { StaticBackground } from '@/components/wave-bg/StaticBackground.tsx';
+import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
 import { useMotionPreference } from '@/hooks/useMotionPreference.ts';
 
 // Lazy-loaded pages — не попадают в initial bundle
@@ -35,7 +35,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 
 function AnimatedRoutes() {
     const location = useLocation();
-    const { prefersReducedMotion, isTabletOrMobile } = useMotionPreference();
+    const { prefersReducedMotion } = useMotionPreference();
 
     return (
         <>
@@ -47,7 +47,10 @@ function AnimatedRoutes() {
                             <Route
                                 path="/"
                                 element={
-                                    <ErrorBoundary fallback={<PageErrorFallback />} name="ProfilePage">
+                                    <ErrorBoundary
+                                        fallback={<PageErrorFallback />}
+                                        name="ProfilePage"
+                                    >
                                         <Suspense fallback={<PageLoadingFallback />}>
                                             <PageWrapper>
                                                 <ProfilePage />
@@ -61,7 +64,10 @@ function AnimatedRoutes() {
                             <Route
                                 path="/login"
                                 element={
-                                    <ErrorBoundary fallback={<PageErrorFallback />} name="LoginPage">
+                                    <ErrorBoundary
+                                        fallback={<PageErrorFallback />}
+                                        name="LoginPage"
+                                    >
                                         <PageWrapper>
                                             <LoginPage />
                                         </PageWrapper>
@@ -73,7 +79,10 @@ function AnimatedRoutes() {
                             <Route
                                 path="/dashboard"
                                 element={
-                                    <ErrorBoundary fallback={<PageErrorFallback />} name="DashboardPage">
+                                    <ErrorBoundary
+                                        fallback={<PageErrorFallback />}
+                                        name="DashboardPage"
+                                    >
                                         <Suspense fallback={<PageLoadingFallback />}>
                                             <PageWrapper>
                                                 <ProtectedRoute>
@@ -94,10 +103,10 @@ function AnimatedRoutes() {
             </div>
 
             {/*
-              * prefers-reduced-motion: reduce → статичный CSS-градиент, 0 canvas (a11y)
-              * mobile (< 768px)             → только ThinWavesBackground (фон + лёгкие волны)
-              * desktop                      → все три canvas (текущее поведение)
-              */}
+             * prefers-reduced-motion: reduce → статичный CSS-градиент, 0 canvas (a11y)
+             * mobile (< 768px)             → только ThinWavesBackground (фон + лёгкие волны)
+             * desktop                      → все три canvas (текущее поведение)
+             */}
             {prefersReducedMotion ? (
                 <StaticBackground />
             ) : (
@@ -111,10 +120,7 @@ function AnimatedRoutes() {
                     </ErrorBoundary>
 
                     <ErrorBoundary fallback={null} name="WavesWithText">
-                        <WavesWithText
-                            showText={location.pathname !== '/login'}
-                            isStatic={isTabletOrMobile}
-                        />
+                        <WavesWithText showText={location.pathname !== '/login'} />
                     </ErrorBoundary>
                 </>
             )}
