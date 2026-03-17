@@ -263,6 +263,17 @@
 
 /* Responsive */
 @media (max-width: 767px) {
+    .about-hero-my-place .floating-balls-my-place {
+        position: unset;
+        transform: translateX(0);
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        border-radius: 0;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
     .about-name > span:not(.typewriter) {
         font-size: 5rem;
         line-height: 4rem;
@@ -389,17 +400,6 @@
 
     .about-hero-section-heading span {
         font-size: 1rem;
-    }
-
-    .about-hero-my-place .floating-balls-my-place {
-        position: unset;
-        transform: translateX(0);
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-        border-radius: 0;
-        user-select: none;
-        -webkit-user-select: none;
-        -webkit-tap-highlight-color: transparent;
     }
 
     .about-hero-my-way {
