@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { logger } from '../utils/logger';
 
@@ -14,11 +14,7 @@ export interface AuthRequest extends Request {
 /**
  * Middleware для проверки JWT токена
  */
-export const authenticate = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-) => {
+export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         // Читаем токен из httpOnly cookie (недоступна для JS)
         const token: string | undefined = req.cookies?.token;
@@ -56,11 +52,7 @@ export const authenticate = (
 /**
  * Optional auth - не блокирует запрос, но добавляет user если токен валиден
  */
-export const optionalAuth = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-) => {
+export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const token: string | undefined = req.cookies?.token;
 

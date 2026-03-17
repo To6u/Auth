@@ -1,14 +1,14 @@
 import 'dotenv/config';
-import express, { Express, Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { registerDevRoutes } from './dev-routes';
+import cors from 'cors';
+import express, { type Express, type NextFunction, type Request, type Response } from 'express';
+import helmet from 'helmet';
 import { apiLimiter } from './config/rate-limit.config';
+import { registerDevRoutes } from './dev-routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
-import { logger } from './utils/logger';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
+import { logger } from './utils/logger';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
@@ -24,9 +24,7 @@ app.use(cookieParser());
 
 // 🌐 CORS
 const corsOptions = {
-    origin: NODE_ENV === 'production'
-        ? ['https://yourdomain.com']
-        : 'http://localhost:5173',   // Vite dev server — wildcard несовместим с credentials: true
+    origin: NODE_ENV === 'production' ? ['https://yourdomain.com'] : 'http://localhost:5173', // Vite dev server — wildcard несовместим с credentials: true
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

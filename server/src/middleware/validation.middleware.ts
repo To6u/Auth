@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { ZodType, ZodError } from 'zod';
+import type { NextFunction, Request, Response } from 'express';
+import { ZodError, type ZodType } from 'zod';
 
 // Middleware для валидации
 export const validateRequest = <T>(schema: ZodType<T, any, any>) => {
@@ -11,7 +11,7 @@ export const validateRequest = <T>(schema: ZodType<T, any, any>) => {
             if (error instanceof ZodError) {
                 res.status(400).json({
                     error: 'Ошибка валидации',
-                    details: error.errors.map((err) => ({
+                    details: error.issues.map((err) => ({
                         field: err.path.join('.'),
                         message: err.message,
                     })),

@@ -1,5 +1,5 @@
-import { Express } from 'express';
-import db from "./db";
+import type { Express } from 'express';
+import db from './db';
 
 /**
  * Development-only routes
@@ -36,7 +36,7 @@ export const registerDevRoutes = (app: Express) => {
             const result = stmt.run(email);
             res.json({
                 message: 'User deleted',
-                changes: result.changes
+                changes: result.changes,
             });
         } catch (error) {
             res.status(500).json({ error: 'Database error' });
@@ -50,7 +50,7 @@ export const registerDevRoutes = (app: Express) => {
             const result = stmt.run();
             res.json({
                 message: 'All users deleted',
-                changes: result.changes
+                changes: result.changes,
             });
         } catch (error) {
             res.status(500).json({ error: 'Database error' });

@@ -1,6 +1,6 @@
-import winston from 'winston';
 import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import winston from 'winston';
 
 // Создаём папку logs если её нет
 const logsDir = join(process.cwd(), 'logs');
@@ -39,10 +39,7 @@ export const logger = winston.createLogger({
 if (process.env.NODE_ENV !== 'production') {
     logger.add(
         new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            ),
+            format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
         })
     );
 }

@@ -1,12 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { logger } from '../utils/logger';
 
-export const errorHandler = (
-    err: Error,
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     // Логируем ошибку
     logger.error({
         message: err.message,
@@ -18,9 +13,7 @@ export const errorHandler = (
 
     // В production не показываем детали ошибки
     const message =
-        process.env.NODE_ENV === 'production'
-            ? 'Внутренняя ошибка сервера'
-            : err.message;
+        process.env.NODE_ENV === 'production' ? 'Внутренняя ошибка сервера' : err.message;
 
     res.status(500).json({
         error: message,

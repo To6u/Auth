@@ -1,12 +1,9 @@
+import type { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
-import { Request, Response, NextFunction } from 'express';
 
 // Схемы валидации
 export const registerSchema = z.object({
-    email: z
-        .string()
-        .email('Некорректный email')
-        .min(1, 'Email обязателен'),
+    email: z.string().email('Некорректный email').min(1, 'Email обязателен'),
     password: z
         .string()
         .min(6, 'Пароль должен быть минимум 6 символов')
@@ -14,13 +11,8 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-    email: z
-        .string()
-        .email('Некорректный email')
-        .min(1, 'Email обязателен'),
-    password: z
-        .string()
-        .min(1, 'Пароль обязателен'),
+    email: z.string().email('Некорректный email').min(1, 'Email обязателен'),
+    password: z.string().min(1, 'Пароль обязателен'),
 });
 
 // Middleware для валидации
@@ -33,7 +25,7 @@ export const validateRequest = <T>(schema: z.ZodSchema<T>) => {
             if (error instanceof z.ZodError) {
                 return res.status(400).json({
                     error: 'Ошибка валидации',
-                    details: error.errors.map((err) => ({
+                    details: error.issues.map((err) => ({
                         field: err.path.join('.'),
                         message: err.message,
                     })),
