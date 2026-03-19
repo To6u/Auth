@@ -35,7 +35,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 
 function AnimatedRoutes() {
     const location = useLocation();
-    const { prefersReducedMotion } = useMotionPreference();
+    const { prefersReducedMotion, isTabletOrMobile } = useMotionPreference();
 
     return (
         <>
@@ -120,7 +120,10 @@ function AnimatedRoutes() {
                     </ErrorBoundary>
 
                     <ErrorBoundary fallback={null} name="WavesWithText">
-                        <WavesWithText showText={location.pathname !== '/login'} />
+                        <WavesWithText
+                            showText={location.pathname !== '/login'}
+                            isStatic={isTabletOrMobile}
+                        />
                     </ErrorBoundary>
                 </>
             )}

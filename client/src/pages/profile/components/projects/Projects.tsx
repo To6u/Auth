@@ -288,6 +288,7 @@ export const Projects = () => {
         let rafId = 0;
         let lastActiveIndex = -1;
         let scrollTimer: ReturnType<typeof setTimeout> | undefined;
+        let lastScrollY = window.scrollY;
 
         const LERP = 0.09;
         const THRESHOLD = 0.1;
@@ -433,6 +434,12 @@ export const Projects = () => {
 
         // ── Scroll handler ───────────────────────────────────────────────
         function onScroll(): void {
+            const currentScrollY = window.scrollY;
+            const scrollingUp = currentScrollY < lastScrollY;
+            lastScrollY = currentScrollY;
+
+            scrollHintRef.current?.classList.toggle('projects-scene__scroll-hint--up', scrollingUp);
+
             const progress = getProgress();
             projectsState.camProgress = progress;
             projectsState.active = progress > 0.01 && progress < 0.999;

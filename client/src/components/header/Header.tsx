@@ -14,6 +14,42 @@ const NAV_ITEMS = [
 
 type SectionId = (typeof NAV_ITEMS)[number]['id'];
 
+const LoginIcon = () => (
+    <svg
+        aria-hidden="true"
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <polyline points="10 17 15 12 10 7" />
+        <line x1="15" y1="12" x2="3" y2="12" />
+    </svg>
+);
+
+const LogoutIcon = () => (
+    <svg
+        aria-hidden="true"
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+);
+
 // Иконка гамбургера с анимацией в крест при открытии
 const BurgerIcon = ({ isOpen }: { isOpen: boolean }) => (
     <span
@@ -29,9 +65,12 @@ const BurgerIcon = ({ isOpen }: { isOpen: boolean }) => (
 const Header = () => {
     const [activeId, setActiveId] = useState<SectionId | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [isPastHero, setIsPastHero] = useState(false);
+    const [isDesktopOpen, setIsDesktopOpen] = useState(false);
     const { isAuthenticated, isLoading, logout } = useAuthInfo();
     const navigate = useNavigate();
     const topsRef = useRef<number[]>([]);
+    const desktopBurgerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const cacheTops = () => {
@@ -50,7 +89,11 @@ const Header = () => {
         };
 
         cacheTops();
-        const onScroll = () => setActiveId(getActive());
+        const onScroll = () => {
+            setActiveId(getActive());
+            const threshold = topsRef.current[1] ?? window.innerHeight;
+            setIsPastHero(window.scrollY >= threshold);
+        };
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('resize', cacheTops, { passive: true });
         onScroll();
@@ -60,7 +103,7 @@ const Header = () => {
         };
     }, []);
 
-    // Блокируем скролл страницы когда меню открыто (включая iOS Safari)
+    // Блокируем скролл страницы когда мобильное меню открыто (включая iOS Safari)
     useEffect(() => {
         if (!isOpen) return;
 
@@ -83,6 +126,18 @@ const Header = () => {
         };
     }, [isOpen]);
 
+    // Закрываем десктоп dropdown по клику снаружи
+    useEffect(() => {
+        if (!isDesktopOpen) return;
+        const onOutside = (e: MouseEvent) => {
+            if (desktopBurgerRef.current && !desktopBurgerRef.current.contains(e.target as Node)) {
+                setIsDesktopOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', onOutside);
+        return () => document.removeEventListener('mousedown', onOutside);
+    }, [isDesktopOpen]);
+
     const handleLinkClick = useCallback(() => setIsOpen(false), []);
 
     const handleMobileLogout = useCallback(async () => {
@@ -99,10 +154,24 @@ const Header = () => {
         navigate('/login');
     }, [navigate]);
 
+    const handleDesktopLogout = useCallback(async () => {
+        setIsDesktopOpen(false);
+        try {
+            await logout();
+        } finally {
+            navigate('/login');
+        }
+    }, [logout, navigate]);
+
+    const handleDesktopLogin = useCallback(() => {
+        setIsDesktopOpen(false);
+        navigate('/login');
+    }, [navigate]);
+
     return (
         <>
             {/* Десктоп nav */}
-            <ul className="header">
+            <ul className={`header${isPastHero ? ' header--hidden' : ''}`}>
                 {NAV_ITEMS.map(({ id, label }) => (
                     <li key={id}>
                         <a
@@ -114,6 +183,64 @@ const Header = () => {
                     </li>
                 ))}
             </ul>
+
+            {/* Десктоп burger + dropdown (только после скролла первого блока) */}
+            <div
+                ref={desktopBurgerRef}
+                className={`header__desktop-burger${isPastHero ? ' header__desktop-burger--visible' : ''}`}
+            >
+                <SubmitButton
+                    isLoading={false}
+                    buttonText=""
+                    type="button"
+                    aria-label={isDesktopOpen ? 'Закрыть меню' : 'Открыть меню'}
+                    aria-expanded={isDesktopOpen}
+                    icon={<BurgerIcon isOpen={isDesktopOpen} />}
+                    iconPosition="left"
+                    onClick={() => setIsDesktopOpen((v) => !v)}
+                />
+
+                <nav
+                    className={`header__desktop-dropdown${isDesktopOpen ? ' header__desktop-dropdown--open' : ''}`}
+                    aria-hidden={!isDesktopOpen}
+                    aria-label="Навигация"
+                >
+                    <ul>
+                        {NAV_ITEMS.map(({ id, label }) => (
+                            <li key={id}>
+                                <a
+                                    href={`#${id}`}
+                                    className={activeId === id ? 'header__link--active' : undefined}
+                                    onClick={() => setIsDesktopOpen(false)}
+                                >
+                                    {label}
+                                </a>
+                            </li>
+                        ))}
+                        {!isLoading && (
+                            <li className="header__desktop-dropdown-divider">
+                                {isAuthenticated ? (
+                                    <button
+                                        className="header__desktop-dropdown-auth"
+                                        onClick={handleDesktopLogout}
+                                    >
+                                        <LogoutIcon />
+                                        Выйти
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="header__desktop-dropdown-auth"
+                                        onClick={handleDesktopLogin}
+                                    >
+                                        <LoginIcon />
+                                        Войти
+                                    </button>
+                                )}
+                            </li>
+                        )}
+                    </ul>
+                </nav>
+            </div>
 
             {/* Гамбургер — SubmitButton с иконкой бургера, только на мобилке */}
             <div className="header__burger-wrap">
@@ -157,10 +284,12 @@ const Header = () => {
                                     className="header__mobile-auth"
                                     onClick={handleMobileLogout}
                                 >
+                                    <LogoutIcon />
                                     Выйти
                                 </button>
                             ) : (
                                 <button className="header__mobile-auth" onClick={handleMobileLogin}>
+                                    <LoginIcon />
                                     Войти
                                 </button>
                             )}

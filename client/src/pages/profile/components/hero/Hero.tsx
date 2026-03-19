@@ -23,6 +23,11 @@ const Hero = () => {
 
     const opacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
 
+    const leftXVw = useTransform(leftX, (v) => `${v}vw`);
+    const leftYVh = useTransform(leftY, (v) => `${v}vh`);
+    const rightXVw = useTransform(rightX, (v) => `${v}vw`);
+    const rightYVh = useTransform(rightY, (v) => `${v}vh`);
+
     useEffect(() => {
         const timer = setTimeout(() => setIsVisible(true), ANIMATION_DELAY);
         return () => clearTimeout(timer);
@@ -34,21 +39,13 @@ const Hero = () => {
                 <div className="hero__letters">
                     <motion.span
                         className="letter letter--pulse"
-                        style={{
-                            x: useTransform(leftX, (v) => `${v}vw`),
-                            y: useTransform(leftY, (v) => `${v}vh`),
-                            opacity,
-                        }}
+                        style={{ x: leftXVw, y: leftYVh, opacity }}
                     >
                         D
                     </motion.span>
                     <motion.span
                         className="letter letter--pulse"
-                        style={{
-                            x: useTransform(rightX, (v) => `${v}vw`),
-                            y: useTransform(rightY, (v) => `${v}vh`),
-                            opacity,
-                        }}
+                        style={{ x: rightXVw, y: rightYVh, opacity }}
                     >
                         E
                     </motion.span>
@@ -56,21 +53,13 @@ const Hero = () => {
                 <div className="hero__letters">
                     <motion.span
                         className="letter letter--pulse"
-                        style={{
-                            x: useTransform(leftX, (v) => `${v}vw`),
-                            y: useTransform(leftY, (v) => `${v}vh`),
-                            opacity,
-                        }}
+                        style={{ x: leftXVw, y: leftYVh, opacity }}
                     >
                         E
                     </motion.span>
                     <motion.span
                         className="letter letter--pulse"
-                        style={{
-                            x: useTransform(rightX, (v) => `${v}vw`),
-                            y: useTransform(rightY, (v) => `${v}vh`),
-                            opacity,
-                        }}
+                        style={{ x: rightXVw, y: rightYVh, opacity }}
                     >
                         R
                     </motion.span>

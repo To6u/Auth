@@ -15,9 +15,26 @@ const ThinWavesBackground = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        // Логические размеры (CSS px) — используются во всём drawing-коде
+        let logW = canvas.offsetWidth;
+        let logH = canvas.offsetHeight;
+
+        // Кеш градиентов — инвалидируется при resize
+        let bgGradient: CanvasGradient | null = null;
+        const waveGradients: (CanvasGradient | null)[] = new Array(thinWavesConfig.length).fill(
+            null
+        );
+
         const resizeCanvas = () => {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            const dpr = Math.min(devicePixelRatio, 2);
+            logW = canvas.offsetWidth;
+            logH = canvas.offsetHeight;
+            canvas.width = logW * dpr;
+            canvas.height = logH * dpr;
+            ctx.scale(dpr, dpr);
+            // Градиенты привязаны к размерам — инвалидируем
+            bgGradient = null;
+            waveGradients.fill(null);
         };
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -27,15 +44,14 @@ const ThinWavesBackground = () => {
 
         let animationId: number;
         let time = 0;
+        let isVisible = !document.hidden;
 
         const drawWave = (wave: ThinWaveConfig, baseYOffset: number, waveIndex: number) => {
-            if (!ctx || !canvas) return;
-
             ctx.save();
 
-            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.translate(logW / 2, logH / 2);
             ctx.rotate(Math.PI / 4);
-            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+            ctx.translate(-logW / 2, -logH / 2);
 
             const verticalOffset =
                 Math.sin(time * 0.005 * speedMultiplier + waveIndex * 0.5) *
@@ -56,10 +72,10 @@ const ThinWavesBackground = () => {
 
             ctx.beginPath();
 
-            const extendedWidth = canvas.width * 1.5;
-            const startX = -canvas.width * 0.25;
+            const extendedWidth = logW * 1.5;
+            const startX = -logW * 0.25;
 
-            ctx.moveTo(startX, canvas.height / 2 + yOffset);
+            ctx.moveTo(startX, logH / 2 + yOffset);
 
             for (let x = startX; x < extendedWidth; x += 2) {
                 const primaryWave = Math.sin(
@@ -69,16 +85,18 @@ const ThinWavesBackground = () => {
                     Math.sin(x * liveFrequency * 1.5 + time * wave.speed * speedMultiplier * 0.7) *
                     0.3;
 
-                const y =
-                    canvas.height / 2 + yOffset + (primaryWave + secondaryWave) * liveAmplitude;
+                const y = logH / 2 + yOffset + (primaryWave + secondaryWave) * liveAmplitude;
                 ctx.lineTo(x, y);
             }
 
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, wave.gradientColors[0]);
-            gradient.addColorStop(1, wave.gradientColors[1]);
+            if (!waveGradients[waveIndex]) {
+                const g = ctx.createLinearGradient(0, 0, logW, logH);
+                g.addColorStop(0, wave.gradientColors[0]);
+                g.addColorStop(1, wave.gradientColors[1]);
+                waveGradients[waveIndex] = g;
+            }
 
-            ctx.strokeStyle = gradient;
+            ctx.strokeStyle = waveGradients[waveIndex]!;
             ctx.lineWidth = liveWidth;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
@@ -88,18 +106,17 @@ const ThinWavesBackground = () => {
         };
 
         const animate = () => {
-            if (!ctx || !canvas) return;
+            ctx.clearRect(0, 0, logW, logH);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Фоновый градиент — кешируем, пересоздаём только после resize
+            if (!bgGradient) {
+                bgGradient = ctx.createLinearGradient(0, 0, logW, logH);
+                bgGradient.addColorStop(0, '#2c3e50');
+                bgGradient.addColorStop(1, '#34495e');
+            }
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, logW, logH);
 
-            // Рисуем градиентный фон ТОЛЬКО в компоненте тонких волн
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#2c3e50');
-            gradient.addColorStop(1, '#34495e');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Рисуем тонкие волны
             waves.forEach((wave, waveIndex) => {
                 const dynamicSpacing =
                     65 + Math.sin(time * 0.0025 * speedMultiplier + waveIndex) * 55;
@@ -111,10 +128,21 @@ const ThinWavesBackground = () => {
             animationId = requestAnimationFrame(animate);
         };
 
+        const onVisibilityChange = () => {
+            isVisible = !document.hidden;
+            if (isVisible) {
+                animationId = requestAnimationFrame(animate);
+            } else {
+                cancelAnimationFrame(animationId);
+            }
+        };
+
+        document.addEventListener('visibilitychange', onVisibilityChange);
         animate();
 
         return () => {
             window.removeEventListener('resize', resizeCanvas);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
             cancelAnimationFrame(animationId);
         };
     }, []);

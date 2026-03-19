@@ -25,10 +25,15 @@ export const useFormValidation = (viewMode: ViewMode, showPasswordFields: boolea
     const [errors, setErrors] = useState<FormErrors>(INITIAL_ERRORS);
     const [touched, setTouched] = useState<TouchedFields>(INITIAL_TOUCHED);
 
-    // Ref для чтения touched в handleChange без включения объекта в deps
+    // Ref для чтения touched/formData в handleChange/handleBlur без включения объектов в deps
     const touchedRef = useRef(touched);
     useEffect(() => {
         touchedRef.current = touched;
+    });
+
+    const formDataRef = useRef(formData);
+    useEffect(() => {
+        formDataRef.current = formData;
     });
 
     const handleChange = useCallback(
@@ -38,45 +43,52 @@ export const useFormValidation = (viewMode: ViewMode, showPasswordFields: boolea
             setFormData((prev) => ({ ...prev, [name]: value }));
 
             if (touchedRef.current[name as keyof TouchedFields]) {
-                const validator = getFieldValidator(name, formData.password);
+                const validator = getFieldValidator(name, formDataRef.current.password);
                 const error = validator(value);
                 setErrors((prev) => ({ ...prev, [name]: error }));
 
                 // Re-validate confirmPassword когда меняется password
-                if (name === 'password' && viewMode === 'register' && formData.confirmPassword) {
+                if (
+                    name === 'password' &&
+                    viewMode === 'register' &&
+                    formDataRef.current.confirmPassword
+                ) {
                     setErrors((prev) => ({
                         ...prev,
-                        confirmPassword: validateConfirmPassword(formData.confirmPassword!, value),
+                        confirmPassword: validateConfirmPassword(
+                            formDataRef.current.confirmPassword!,
+                            value
+                        ),
                     }));
                 }
 
                 // Re-validate confirmNewPassword когда меняется newPassword
-                if (name === 'newPassword' && formData.confirmNewPassword) {
+                if (name === 'newPassword' && formDataRef.current.confirmNewPassword) {
                     setErrors((prev) => ({
                         ...prev,
                         confirmNewPassword: validateConfirmPassword(
-                            formData.confirmNewPassword!,
+                            formDataRef.current.confirmNewPassword!,
                             value
                         ),
                     }));
                 }
             }
         },
-        [formData.password, formData.confirmPassword, formData.confirmNewPassword, viewMode]
+        [viewMode]
     );
 
-    const handleBlur = useCallback(
-        (e: React.FocusEvent<HTMLInputElement>) => {
-            const { name, value } = e.target;
+    const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
 
-            setTouched((prev) => ({ ...prev, [name]: true }));
+        setTouched((prev) => ({ ...prev, [name]: true }));
 
-            const validator = getFieldValidator(name, formData.password || formData.newPassword);
-            const error = validator(value);
-            setErrors((prev) => ({ ...prev, [name]: error }));
-        },
-        [formData.password, formData.newPassword]
-    );
+        const validator = getFieldValidator(
+            name,
+            formDataRef.current.password || formDataRef.current.newPassword
+        );
+        const error = validator(value);
+        setErrors((prev) => ({ ...prev, [name]: error }));
+    }, []);
 
     const validateForm = useCallback((): boolean => {
         const config = MODE_CONFIGS[viewMode];
