@@ -76,6 +76,11 @@
     border-radius: 0 0 0 80%;
 }
 
+.about-hero-my-place .floating-balls {
+    left: 35%;
+    width: 60vw;
+}
+
 .about-hero-my-way {
     padding-top: 250px;
 }
@@ -227,7 +232,7 @@
     }
 
     .about-hero-my-way {
-        grid-template-columns: auto 55% ;
+        grid-template-columns: auto 55%;
         grid-column-gap: 4rem;
         padding: 0;
     }
@@ -403,6 +408,5 @@
     }
 
     .about-hero-my-way {
-
     }
 }
