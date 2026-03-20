@@ -1,7 +1,9 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useRef } from 'react';
 import FloatingBalls from '@/components/floating-balls/FloatingBalls';
 import { MobilePhotoStrip } from '@/components/mobile-photo-strip';
+import { useBreakpoints } from '@/hooks/useBreakpoints';
+import { useElementProgress } from '@/hooks/useElementProgress';
 import { useWaveEffect } from '@/hooks/useWaveEffect';
 import { NameSection, SectionOneContent, SectionThreeContent } from './components';
 import { useScrollSection } from './hooks/useScrollSection';
@@ -32,76 +34,65 @@ export const AboutHero = memo(() => {
     const sectionThreeRef = useRef<HTMLDivElement>(null);
     const sectionTitleRef = useRef<HTMLDivElement>(null);
 
-    const [isMobile, setIsMobile] = useState(
-        () => typeof window !== 'undefined' && window.matchMedia('(max-width: 480px)').matches
-    );
-
-    // <768px — граница где grid схлопывается в flex-column (нужно для позиции FloatingBalls)
-    const [isMobileLayout, setIsMobileLayout] = useState(
-        () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
-    );
-
-    useEffect(() => {
-        const mq480 = window.matchMedia('(max-width: 480px)');
-        const mq768 = window.matchMedia('(max-width: 767px)');
-        const h480 = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-        const h768 = (e: MediaQueryListEvent) => setIsMobileLayout(e.matches);
-        mq480.addEventListener('change', h480);
-        mq768.addEventListener('change', h768);
-        return () => {
-            mq480.removeEventListener('change', h480);
-            mq768.removeEventListener('change', h768);
-        };
-    }, []);
+    // <480px — мобилка, <768px — граница grid→flex-column
+    const { isMobile, isMobileLayout } = useBreakpoints();
 
     // ═══════════════════════════════════════════════════════════════
     // SCROLL PROGRESS (источники для всех анимаций)
     // ═══════════════════════════════════════════════════════════════
 
-    const { scrollYProgress: sectionOneEnterProgress } = useScroll({
-        target: sectionOneRef,
-        offset: ['40% end', 'start 20%'],
-    });
+    // Один useScroll для scrollY — передаётся во все useElementProgress
+    const { scrollY } = useScroll();
 
-    const { scrollYProgress: sectionOneExitProgress } = useScroll({
-        target: sectionOneRef,
-        offset: ['80% start', 'end start'],
-    });
-
-    const { scrollYProgress: sectionThreeEnterProgress } = useScroll({
-        target: sectionThreeRef,
-        offset: ['start end', 'start 20%'],
-    });
-
-    const { scrollYProgress: sectionThreeExitProgress } = useScroll({
-        target: sectionThreeRef,
-        offset: ['40% start', 'end start'],
-    });
+    const sectionOneEnterProgress = useElementProgress(
+        sectionOneRef,
+        ['40% end', 'start 20%'],
+        scrollY
+    );
+    const sectionOneExitProgress = useElementProgress(
+        sectionOneRef,
+        ['80% start', 'end start'],
+        scrollY
+    );
+    const sectionThreeEnterProgress = useElementProgress(
+        sectionThreeRef,
+        ['start end', 'start 20%'],
+        scrollY
+    );
+    const sectionThreeExitProgress = useElementProgress(
+        sectionThreeRef,
+        ['40% start', 'end start'],
+        scrollY
+    );
 
     // Ref для чтения isMobileLayout внутри useTransform (не реактивен, но обновляется перед каждым кадром)
     const isMobileLayoutRef = useRef(isMobileLayout);
     isMobileLayoutRef.current = isMobileLayout;
 
     // Мобилка: анимация карточки завершается когда центр карточки = центр экрана
-    const { scrollYProgress: sectionOneMobileProgress } = useScroll({
-        target: sectionOneRef,
-        offset: ['start end', 'center center'],
-    });
-    const { scrollYProgress: sectionThreeMobileProgress } = useScroll({
-        target: sectionThreeRef,
-        offset: ['start end', 'start center'],
-    });
+    const sectionOneMobileProgress = useElementProgress(
+        sectionOneRef,
+        ['start end', 'center center'],
+        scrollY
+    );
+    const sectionThreeMobileProgress = useElementProgress(
+        sectionThreeRef,
+        ['start end', 'start center'],
+        scrollY
+    );
 
     // Максимальное окно для --right heading (десктоп): от момента входа секции в верх экрана до полного выхода
-    const { scrollYProgress: headingRightEnterProgress } = useScroll({
-        target: sectionOneRef,
-        offset: ['start start', 'end start'],
-    });
+    const headingRightEnterProgress = useElementProgress(
+        sectionOneRef,
+        ['start start', 'end start'],
+        scrollY
+    );
     // Мобилка: триггер привязан к самому heading — анимация при входе в поле зрения
-    const { scrollYProgress: headingRightMobileProgress } = useScroll({
-        target: sectionTitleRef,
-        offset: ['start end', 'center center'],
-    });
+    const headingRightMobileProgress = useElementProgress(
+        sectionTitleRef,
+        ['start end', 'center center'],
+        scrollY
+    );
 
     // На мобилке используем прогресс с остановкой на центре экрана
     const sectionOneEnterEffective = useTransform(() =>

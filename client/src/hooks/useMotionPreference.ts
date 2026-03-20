@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BREAKPOINTS } from '@/hooks/useBreakpoints';
 
 interface MotionPreference {
     /** Пользователь включил "Уменьшить движение" в системе */
@@ -21,12 +22,12 @@ export const useMotionPreference = (): MotionPreference => {
         () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
     );
     const [isTabletOrMobile, setIsTabletOrMobile] = useState(
-        () => window.matchMedia('(max-width: 1024px)').matches
+        () => window.matchMedia(BREAKPOINTS.tabletOrMobile).matches
     );
 
     useEffect(() => {
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-        const tabletQuery = window.matchMedia('(max-width: 1024px)');
+        const tabletQuery = window.matchMedia(BREAKPOINTS.tabletOrMobile);
 
         const handleMotionChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
         const handleTabletChange = (e: MediaQueryListEvent) => setIsTabletOrMobile(e.matches);
