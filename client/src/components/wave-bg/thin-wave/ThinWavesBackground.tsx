@@ -37,7 +37,7 @@ const ThinWavesBackground = memo(() => {
             waveGradients.fill(null);
         };
         resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas, { passive: true });
 
         const waves = thinWavesConfig;
         const speedMultiplier = THIN_WAVE_SPEED_MULTIPLIER / 10;
@@ -45,6 +45,9 @@ const ThinWavesBackground = memo(() => {
         let animationId: number;
         let time = 0;
         let isVisible = !document.hidden;
+        const IDLE_TIMEOUT = 20_000;
+        let lastActivity = performance.now();
+        let idlePaused = false;
 
         const drawWave = (wave: ThinWaveConfig, baseYOffset: number, waveIndex: number) => {
             ctx.save();
@@ -106,6 +109,10 @@ const ThinWavesBackground = memo(() => {
         };
 
         const animate = () => {
+            if (performance.now() - lastActivity > IDLE_TIMEOUT) {
+                idlePaused = true;
+                return;
+            }
             ctx.clearRect(0, 0, logW, logH);
 
             // Фоновый градиент — кешируем, пересоздаём только после resize
@@ -131,18 +138,34 @@ const ThinWavesBackground = memo(() => {
         const onVisibilityChange = () => {
             isVisible = !document.hidden;
             if (isVisible) {
+                lastActivity = performance.now();
+                idlePaused = false;
                 animationId = requestAnimationFrame(animate);
             } else {
                 cancelAnimationFrame(animationId);
             }
         };
 
+        const onActivity = () => {
+            lastActivity = performance.now();
+            if (idlePaused && isVisible) {
+                idlePaused = false;
+                animationId = requestAnimationFrame(animate);
+            }
+        };
+
         document.addEventListener('visibilitychange', onVisibilityChange);
+        window.addEventListener('mousemove', onActivity, { passive: true });
+        window.addEventListener('scroll', onActivity, { passive: true });
+        window.addEventListener('touchstart', onActivity, { passive: true });
         animate();
 
         return () => {
             window.removeEventListener('resize', resizeCanvas);
             document.removeEventListener('visibilitychange', onVisibilityChange);
+            window.removeEventListener('mousemove', onActivity);
+            window.removeEventListener('scroll', onActivity);
+            window.removeEventListener('touchstart', onActivity);
             cancelAnimationFrame(animationId);
         };
     }, []);
