@@ -1,6 +1,7 @@
-import { ArrowDown, ExternalLink, Github } from 'lucide-react';
-import { memo, useEffect, useRef } from 'react';
+import { ArrowDown, ExternalLink, Github, X } from 'lucide-react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Logo } from '@/components/auth-form/components/Logo/Logo';
+import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
 import { projectsState } from '@/lib/projectsState';
 import './Projects.css';
 
@@ -47,7 +48,7 @@ const PROJECTS: Project[] = [
         id: '2',
         title: 'Моя страница',
         description:
-            'Портфолио с 3D-сценой на Three.js, WebGL-волнами, scroll-анимациями на Framer Motion и Canvas 2D. Постоянно дорабатываю.',
+            'Портфолио с 3D-сценой на Three.js, WebGL-волнами, scroll-анимациями на Framer Motion и Canvas 2D.\nПостоянно дорабатываю.',
         tags: ['React', 'Three.js', 'WebGL', 'Canvas'],
         status: 'wip',
         year: 'декабрь 2025 - ...',
@@ -216,6 +217,7 @@ ProjectCard.displayName = 'ProjectCard';
 // ─────────────────────────────────────────────────────────────
 
 export const Projects = () => {
+    const [expandedId, setExpandedId] = useState<string | null>(null);
     const sectionRef = useRef<HTMLElement>(null);
     const worldRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -362,7 +364,7 @@ export const Projects = () => {
                 }
             });
 
-            // Counter + nav dots — only touch the DOM when index changes
+            // Counter + nav dots + авто-открытие — только при смене активной карточки
             if (activeIndex !== lastActiveIndex) {
                 lastActiveIndex = activeIndex;
 
@@ -372,6 +374,20 @@ export const Projects = () => {
 
                 navDotRefs.current.forEach((dot, i) => {
                     dot?.classList.toggle('active', i === activeIndex);
+                });
+
+                cardRefs.current.forEach((el, i) => {
+                    if (!el) return;
+                    const isActive = i === activeIndex;
+                    // inline style — React не перезаписывает эти свойства при ре-рендере
+                    el.style.pointerEvents = isActive ? 'auto' : 'none';
+                    el.style.cursor = isActive ? 'pointer' : 'default';
+                    const body = el.querySelector<HTMLElement>('.projects-scene__card-body');
+                    if (body) {
+                        body.style.outline = isActive
+                            ? '20px solid rgba(255, 244, 234, 0.02)'
+                            : 'none';
+                    }
                 });
             }
         }
@@ -484,8 +500,27 @@ export const Projects = () => {
                                 ref={(el) => {
                                     cardRefs.current[i] = el;
                                 }}
-                                className="projects-scene__card"
+                                className={`projects-scene__card${expandedId === p.id ? ' projects-scene__card--expanded' : ''}`}
+                                onClick={() => setExpandedId((cur) => (cur === p.id ? null : p.id))}
                             >
+                                {/* Кнопка закрыть — внутри card, над card-body, управляется CSS через --expanded */}
+                                <div
+                                    className="projects-scene__close-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setExpandedId(null);
+                                    }}
+                                >
+                                    <SubmitButton
+                                        isLoading={false}
+                                        buttonText="Закрыть"
+                                        type="button"
+                                        icon={<X size={14} />}
+                                        iconPosition="left"
+                                        aria-label="Закрыть карточку"
+                                        onClick={() => setExpandedId(null)}
+                                    />
+                                </div>
                                 <ProjectCard data={p} />
                             </div>
                         ))}

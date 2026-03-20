@@ -15,7 +15,6 @@
     position: sticky;
     top: 0;
     height: 100vh;
-    overflow: hidden;
     perspective: 1500px;
     perspective-origin: 50% 50%;
 }
@@ -37,7 +36,21 @@
     max-width: 600px;
     transform-style: preserve-3d;
     will-change: transform, opacity, filter;
-    /* NO transition — smoothing via JS lerp */
+    /* height анимируется CSS, transform — JS lerp */
+    transition: height 0.4s ease;
+    max-height: 80vh;
+}
+
+/* Открытая карточка — только высота */
+.projects-scene__card--expanded {
+    height: calc(100vh - 4rem);
+}
+
+.projects-scene__card--expanded .projects-scene__card-body {
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 /* ── Card body — glass surface (backdrop-filter intentionally here,
@@ -161,6 +174,7 @@
     font-size: 14px;
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.48);
+    white-space: pre-line;
 }
 
 /* ── Tag list ──────────────────────────────────────────────────── */
@@ -323,6 +337,32 @@
         transform: rotate(180deg) translateY(4px);
     }
 }
+
+/* ── Кнопка закрыть — внутри card, снаружи card-body ──────────── */
+.projects-scene__close-btn {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.projects-scene__card--expanded .projects-scene__close-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.projects-scene__close-btn .submit-button {
+    margin-top: 0;
+    width: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    right: -9rem;
+    top: 1rem;
+    font-weight: 500;
+}
+
 
 /* ── Fixed navigation dots ─────────────────────────────────────── */
 .projects-scene__nav {
