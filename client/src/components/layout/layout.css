@@ -7,3 +7,7 @@
     position: relative;
     min-height: 100vh;
 }
+
+.animated-page-wrapper {
+    position: relative;
+}

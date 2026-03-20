@@ -16,6 +16,10 @@
     z-index: 3;
 }
 
+html {
+    position: relative;
+}
+
 body,
 html {
     overflow-x: clip;

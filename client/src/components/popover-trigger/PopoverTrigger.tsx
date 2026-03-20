@@ -9,7 +9,7 @@ interface PopoverTriggerProps {
 
 export const PopoverTrigger = ({ id, children, content }: PopoverTriggerProps) => {
     const triggerRef = useRef<HTMLElement>(null);
-    const popoverRef = useRef<HTMLDivElement>(null);
+    const popoverRef = useRef<HTMLSpanElement>(null);
 
     const updatePosition = () => {
         const trigger = triggerRef.current;
@@ -36,9 +36,9 @@ export const PopoverTrigger = ({ id, children, content }: PopoverTriggerProps) =
             <b ref={triggerRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 {children}
             </b>
-            <div ref={popoverRef} popover="manual" id={id} className="popover-trigger">
+            <span ref={popoverRef} popover="manual" id={id} className="popover-trigger">
                 {content}
-            </div>
+            </span>
         </>
     );
 };
