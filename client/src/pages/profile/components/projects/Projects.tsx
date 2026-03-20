@@ -34,8 +34,8 @@ const PROJECTS: Project[] = [
         id: '1',
         title: 'Форма входа',
         description:
-            'Три режима — вход, регистрация, сброс пароля — в едином интерфейсе. Переключение между ними анимировано через Framer Motion с пружинной физикой. Валидация — real-time на blur, серверная через Zod.',
-        tags: ['React', 'TypeScript', 'WebGL', 'D3.js'],
+            'JWT-аутентификация через httpOnly cookie, bcrypt с 12 раундами, rate limiting. Три режима в едином интерфейсе с анимациями на Framer Motion. Валидация на blur + серверная через Zod.',
+        tags: ['React', 'TypeScript', 'Express', 'SQLite'],
         status: 'live',
         year: '2024',
         wx: 0,
@@ -46,8 +46,9 @@ const PROJECTS: Project[] = [
     {
         id: '2',
         title: 'Моя страница',
-        description: 'Пополняю, поддерживаю и улучшаю партфолио.',
-        tags: ['React JS', 'WebGL', 'CSS 3D', 'Canvas'],
+        description:
+            'Портфолио с 3D-сценой на Three.js, WebGL-волнами, scroll-анимациями на Framer Motion и Canvas 2D. Постоянно дорабатываю.',
+        tags: ['React', 'Three.js', 'WebGL', 'Canvas'],
         status: 'wip',
         year: 'декабрь 2025 - ...',
         wx: -320,
@@ -61,8 +62,8 @@ const PROJECTS: Project[] = [
         description:
             'Личное пространство для задач и привычек. Список дел с приоритетами и дедлайнами, трекер привычек с визуализацией прогресса.',
         tags: ['React', 'TypeScript', 'SQLite'],
-        status: 'wip',
-        year: '2025 - ...',
+        status: 'archived',
+        year: 'апрель 2026',
         wx: 280,
         wy: -70,
         wz: -3000,
