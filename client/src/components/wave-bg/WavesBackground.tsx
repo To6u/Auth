@@ -27,13 +27,20 @@ const throttle = <T extends (...args: never[]) => unknown>(
 
 const useMousePosition = (canvasRef: React.RefObject<HTMLCanvasElement | null>) => {
     const mousePos = useRef({ x: -1000, y: -1000 });
+    const rectRef = useRef<DOMRect | null>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
+        const updateRect = () => {
+            rectRef.current = canvas.getBoundingClientRect();
+        };
+        updateRect();
+
         const handleMouseMove = (e: MouseEvent) => {
-            const rect = canvas.getBoundingClientRect();
+            const rect = rectRef.current;
+            if (!rect) return;
             mousePos.current = {
                 x: e.clientX - rect.left,
                 y: e.clientY - rect.top,
@@ -43,9 +50,11 @@ const useMousePosition = (canvasRef: React.RefObject<HTMLCanvasElement | null>) 
         // ОПТИМИЗАЦИЯ: throttle до 16ms (~60fps)
         const throttledMouseMove = throttle(handleMouseMove, 16);
 
+        window.addEventListener('resize', updateRect, { passive: true });
         document.addEventListener('mousemove', throttledMouseMove as EventListener);
 
         return () => {
+            window.removeEventListener('resize', updateRect);
             document.removeEventListener('mousemove', throttledMouseMove as EventListener);
         };
     }, [canvasRef]);
@@ -138,6 +147,7 @@ class GradientCache {
         const key = `${width}:${height}:${color1}:${color2}`;
 
         if (!this.cache.has(key)) {
+            if (this.cache.size >= 50) this.cache.clear();
             const gradient = ctx.createLinearGradient(0, 0, width, height);
             gradient.addColorStop(0, color1);
             gradient.addColorStop(1, color2);
@@ -194,12 +204,6 @@ const WavesBackground = memo(() => {
         isMouseInsideCanvas: boolean,
         currentMouseInfluence: number
     ) => {
-        ctx.save();
-
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(Math.PI / 4);
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
         const waveTime = time + randomOffsets[waveIndex];
         const baseSpeed = wave.speed * speedMultiplier;
 
@@ -352,7 +356,7 @@ const WavesBackground = memo(() => {
             color2
         );
 
-        if (glowAmount > 0.1) {
+        if (glowAmount > 0.5) {
             const shadowColor = color1.replace(/[\d.]+\)$/, '0.6)');
             ctx.shadowColor = shadowColor;
             ctx.shadowBlur = glowAmount * 40;
@@ -366,7 +370,6 @@ const WavesBackground = memo(() => {
         ctx.fill();
 
         ctx.shadowBlur = 0;
-        ctx.restore();
     };
 
     useEffect(() => {
@@ -389,6 +392,10 @@ const WavesBackground = memo(() => {
         const frameInterval = 1000 / targetFPS;
         let lastDrawTime = 0;
 
+        const IDLE_TIMEOUT_BG = 30_000;
+        let lastActivityBg = performance.now();
+        let idlePausedBg = false;
+
         const handleVisibilityChange = () => {
             if (document.hidden) {
                 cancelAnimationFrame(animationId);
@@ -396,6 +403,8 @@ const WavesBackground = memo(() => {
                 gradientCache.current.clear();
             } else {
                 lastFrameTime = performance.now();
+                lastActivityBg = performance.now();
+                idlePausedBg = false;
                 mouseInfluenceStrength.current = 0;
                 smoothMousePos.current = { x: -1000, y: -1000 };
                 // Сбрасываем состояние сброса времени
@@ -407,6 +416,12 @@ const WavesBackground = memo(() => {
 
         const animate = () => {
             if (!ctx || !canvas) return;
+
+            if (performance.now() - lastActivityBg > IDLE_TIMEOUT_BG) {
+                idlePausedBg = true;
+                return;
+            }
+            idlePausedBg = false;
 
             const currentTime = performance.now();
 
@@ -483,6 +498,11 @@ const WavesBackground = memo(() => {
                 }
             }
 
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(Math.PI / 4);
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
             waves.forEach((wave, waveIndex) => {
                 const dynamicSpacing =
                     110 +
@@ -507,6 +527,8 @@ const WavesBackground = memo(() => {
                 );
             });
 
+            ctx.restore();
+
             // Обновляем время только если не в процессе сброса
             if (!isResettingTime.current) {
                 time += cappedDelta / 16.67;
@@ -515,13 +537,24 @@ const WavesBackground = memo(() => {
             animationId = requestAnimationFrame(animate);
         };
 
+        const onActivityBg = () => {
+            lastActivityBg = performance.now();
+            if (idlePausedBg) {
+                idlePausedBg = false;
+                lastFrameTime = performance.now();
+                animationId = requestAnimationFrame(animate);
+            }
+        };
+
         animate();
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('mousemove', onActivityBg, { passive: true });
 
         return () => {
             cancelAnimationFrame(animationId);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('mousemove', onActivityBg);
             gradientCache.current.clear(); // Очищаем кэш при размонтировании
         };
     }, [randomOffsets, speedMultiplier]);
