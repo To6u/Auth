@@ -32,6 +32,9 @@
     top: 60px;
     right: 70px;
     z-index: 20;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
@@ -46,96 +49,53 @@
     width: 100px;
     margin-top: 0;
     margin-left: 0;
-    top: 40px;
-    right: 40px;
+    z-index: 1;
 }
 
-/* Dropdown */
-.header__desktop-dropdown {
-    position: absolute;
-    top: 100px;
-    right: -30px;
-    min-width: 160px;
-    background: rgb(13 13 42 / 13%);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-radius: 56px;
-    corner-shape: squircle;
-    padding: 1rem;
-    opacity: 0;
-    transform: translateY(-6px) scale(0.97);
-    pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    transform-origin: top right;
+/* Вертикальная nav — анимация через grid-template-rows, z-index выше кнопки */
+.header__desktop-nav {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease, margin-top 0.3s ease;
 }
 
-.header__desktop-dropdown--open {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
+.header__desktop-nav--open {
+    grid-template-rows: 1fr;
+    margin-top: 120px;
 }
 
-.header__desktop-dropdown ul {
+.header__desktop-nav > ul {
+    overflow: hidden;
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
     gap: 2px;
 }
 
-.header__desktop-dropdown a {
+.header__desktop-nav a {
     display: block;
-    padding: 8px 14px;
-    border-radius: 10px;
+    padding: 6px 0;
     font-size: 0.875rem;
     font-weight: 200;
     letter-spacing: 0.06em;
     color: rgba(255, 244, 234, 0.7);
     text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: color 0.15s ease;
     white-space: nowrap;
 }
 
-.header__desktop-dropdown a:hover,
-.header__desktop-dropdown a.header__link--active {
-    background: rgba(255, 244, 234, 0.08);
+.header__desktop-nav a:hover,
+.header__desktop-nav a.header__link--active {
     color: rgba(255, 244, 234, 1);
 }
 
-.header__desktop-dropdown a.header__link--active {
+.header__desktop-nav a.header__link--active {
     font-weight: 700;
-}
-
-/* Auth пункт с разделителем */
-.header__desktop-dropdown-divider {
-    margin-top: 4px;
-    padding-top: 4px;
-    border-top: 1px solid rgba(255, 244, 234, 0.08);
-}
-
-.header__desktop-dropdown-auth {
-    display: flex;
-    align-items: center;
-    gap: 0.45em;
-    width: 100%;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: 0.875rem;
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    color: rgba(255, 244, 234, 0.7);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s ease, color 0.15s ease;
-    white-space: nowrap;
-}
-
-.header__desktop-dropdown-auth:hover {
-    background: rgba(255, 244, 234, 0.08);
-    color: rgba(255, 244, 234, 1);
 }
 
 /* ── Гамбургер (SubmitButton-обёртка) ────────────────────────────── */
@@ -272,7 +232,7 @@
 
 @media (min-width: 769px) {
     .header__desktop-burger {
-        display: block;
+        display: flex;
     }
 }
 

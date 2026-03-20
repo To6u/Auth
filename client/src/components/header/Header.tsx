@@ -126,17 +126,10 @@ const Header = () => {
         };
     }, [isOpen]);
 
-    // Закрываем десктоп dropdown по клику снаружи
+    // Автооткрываем меню когда появляется бургер (после скролла hero)
     useEffect(() => {
-        if (!isDesktopOpen) return;
-        const onOutside = (e: MouseEvent) => {
-            if (desktopBurgerRef.current && !desktopBurgerRef.current.contains(e.target as Node)) {
-                setIsDesktopOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', onOutside);
-        return () => document.removeEventListener('mousedown', onOutside);
-    }, [isDesktopOpen]);
+        if (isPastHero) setIsDesktopOpen(true);
+    }, [isPastHero]);
 
     const handleLinkClick = useCallback(() => setIsOpen(false), []);
 
@@ -154,7 +147,7 @@ const Header = () => {
         navigate('/login');
     }, [navigate]);
 
-return (
+    return (
         <>
             {/* Десктоп nav */}
             <ul className={`header${isPastHero ? ' header--hidden' : ''}`}>
@@ -187,7 +180,7 @@ return (
                 />
 
                 <nav
-                    className={`header__desktop-dropdown${isDesktopOpen ? ' header__desktop-dropdown--open' : ''}`}
+                    className={`header__desktop-nav${isDesktopOpen ? ' header__desktop-nav--open' : ''}`}
                     aria-hidden={!isDesktopOpen}
                     aria-label="Навигация"
                 >
@@ -197,7 +190,6 @@ return (
                                 <a
                                     href={`#${id}`}
                                     className={activeId === id ? 'header__link--active' : undefined}
-                                    onClick={() => setIsDesktopOpen(false)}
                                 >
                                     {label}
                                 </a>
