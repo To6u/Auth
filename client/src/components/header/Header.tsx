@@ -154,21 +154,7 @@ const Header = () => {
         navigate('/login');
     }, [navigate]);
 
-    const handleDesktopLogout = useCallback(async () => {
-        setIsDesktopOpen(false);
-        try {
-            await logout();
-        } finally {
-            navigate('/login');
-        }
-    }, [logout, navigate]);
-
-    const handleDesktopLogin = useCallback(() => {
-        setIsDesktopOpen(false);
-        navigate('/login');
-    }, [navigate]);
-
-    return (
+return (
         <>
             {/* Десктоп nav */}
             <ul className={`header${isPastHero ? ' header--hidden' : ''}`}>
@@ -217,27 +203,6 @@ const Header = () => {
                                 </a>
                             </li>
                         ))}
-                        {!isLoading && (
-                            <li className="header__desktop-dropdown-divider">
-                                {isAuthenticated ? (
-                                    <button
-                                        className="header__desktop-dropdown-auth"
-                                        onClick={handleDesktopLogout}
-                                    >
-                                        <LogoutIcon />
-                                        Выйти
-                                    </button>
-                                ) : (
-                                    <button
-                                        className="header__desktop-dropdown-auth"
-                                        onClick={handleDesktopLogin}
-                                    >
-                                        <LoginIcon />
-                                        Войти
-                                    </button>
-                                )}
-                            </li>
-                        )}
                     </ul>
                 </nav>
             </div>
