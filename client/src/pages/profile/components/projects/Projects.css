@@ -45,11 +45,6 @@
       to avoid the WebKit preserve-3d + backdrop-filter compositor bug) ── */
 .projects-scene__card-body {
     position: relative;
-    background: linear-gradient(135deg, rgba(40, 40, 50, 0.95) 0%, rgba(25, 25, 35, 0.85) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     border-radius: 60px;
     corner-shape: squircle;
     padding: 28px 32px;
@@ -134,10 +129,8 @@
     overflow: hidden;
     border-radius: 40px;
     corner-shape: squircle;
-    background: linear-gradient(135deg, rgba(40, 40, 50, 0.95) 0%, rgba(25, 25, 35, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.4),
+            0 8px 32px rgba(0, 0, 0, 0.04),
             inset 0 1px 0 rgba(255, 255, 255, 0.08);
     position: absolute;
     top: 10px;
