@@ -184,12 +184,11 @@ function AnimatedRoutes() {
                         </ErrorBoundary>
                     )}
 
-                    <ErrorBoundary fallback={null} name="WavesWithText">
-                        <WavesWithText
-                            showText={location.pathname !== '/login'}
-                            isStatic={isTabletOrMobile}
-                        />
-                    </ErrorBoundary>
+                    {!isTabletOrMobile && (
+                        <ErrorBoundary fallback={null} name="WavesWithText">
+                            <WavesWithText showText={location.pathname !== '/login'} />
+                        </ErrorBoundary>
+                    )}
                 </>
             )}
         </>
