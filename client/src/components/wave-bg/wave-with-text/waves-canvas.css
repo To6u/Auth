@@ -10,3 +10,8 @@
     transform: translateZ(0);
     will-change: transform;
 }
+
+/* Blur применяется через CSS (GPU compositing) вместо ctx.filter (software rasterization) */
+.waves-canvas--bg {
+    filter: blur(6px);
+}

@@ -368,7 +368,7 @@ export const Projects = () => {
                 }
 
                 el.style.opacity = String(opacity);
-                el.style.filter = blurPx > 0 ? `blur(${blurPx.toFixed(2)}px)` : 'none';
+                el.style.filter = blurPx > 0 ? `blur(${Math.round(blurPx)}px)` : 'none';
 
                 const absZ = Math.abs(effectiveZ);
                 if (absZ < minAbsZ) {

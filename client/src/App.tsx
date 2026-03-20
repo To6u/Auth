@@ -115,9 +115,11 @@ function AnimatedRoutes() {
                         <ThinWavesBackground />
                     </ErrorBoundary>
 
-                    <ErrorBoundary fallback={null} name="WavesBackground">
-                        <WavesBackground />
-                    </ErrorBoundary>
+                    {!isTabletOrMobile && (
+                        <ErrorBoundary fallback={null} name="WavesBackground">
+                            <WavesBackground />
+                        </ErrorBoundary>
+                    )}
 
                     <ErrorBoundary fallback={null} name="WavesWithText">
                         <WavesWithText

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
     WAVE_SPEED_MULTIPLIER,
     type WaveConfig,
@@ -152,7 +152,7 @@ class GradientCache {
     }
 }
 
-const WavesBackground = () => {
+const WavesBackground = memo(() => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const mousePos = useMousePosition(canvasRef);
 
@@ -172,13 +172,14 @@ const WavesBackground = () => {
     // ОПТИМИЗАЦИЯ 3: Кэш градиентов
     const gradientCache = useRef(new GradientCache());
 
-    // ОПТИМИЗАЦИЯ 4: Переиспользуемые массивы точек
+    // ОПТИМИЗАЦИЯ 4: Pre-allocated typed arrays для точек (нет GC в hot path)
+    // 2048 точек × 2 координаты — хватает для любого разрешения при step=5
     const pointsPool = useRef<{
-        topPoints: Array<{ x: number; y: number }>;
-        bottomPoints: Array<{ x: number; y: number }>;
+        topBuf: Float32Array;
+        bottomBuf: Float32Array;
     }>({
-        topPoints: [],
-        bottomPoints: [],
+        topBuf: new Float32Array(2048 * 2),
+        bottomBuf: new Float32Array(2048 * 2),
     });
 
     const drawWave = (
@@ -194,11 +195,6 @@ const WavesBackground = () => {
         currentMouseInfluence: number
     ) => {
         ctx.save();
-
-        // НОВОЕ: Применяем blur если указан в конфиге
-        if (wave.blur && wave.blur > 0) {
-            ctx.filter = `blur(${wave.blur}px)`;
-        }
 
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate(Math.PI / 4);
@@ -231,11 +227,10 @@ const WavesBackground = () => {
         const secondaryShapeType = (waveIndex + 1) % 8;
         const shapeTransition = (Math.sin(waveTime * 0.002 * speedMultiplier + waveIndex) + 1) / 2;
 
-        // ОПТИМИЗАЦИЯ 5: Переиспользуем массивы
-        const topPoints = pointsPool.current.topPoints;
-        const bottomPoints = pointsPool.current.bottomPoints;
-        topPoints.length = 0;
-        bottomPoints.length = 0;
+        // ОПТИМИЗАЦИЯ 5: Typed arrays без аллокаций в hot path
+        const topBuf = pointsPool.current.topBuf;
+        const bottomBuf = pointsPool.current.bottomBuf;
+        let ptCount = 0;
 
         // ОПТИМИЗАЦИЯ 6: Увеличиваем step с 3 до 5 (меньше итераций)
         const step = 5;
@@ -308,22 +303,23 @@ const WavesBackground = () => {
                 morphNode3 +
                 mouseDeformation;
 
-            topPoints.push({ x, y: centerY - currentWidth });
-            bottomPoints.push({ x, y: centerY + currentWidth });
+            const i2 = ptCount * 2;
+            topBuf[i2] = x;
+            topBuf[i2 + 1] = centerY - currentWidth;
+            bottomBuf[i2] = x;
+            bottomBuf[i2 + 1] = centerY + currentWidth;
+            ptCount++;
         }
 
         ctx.beginPath();
 
-        topPoints.forEach((point, index) => {
-            if (index === 0) {
-                ctx.moveTo(point.x, point.y);
-            } else {
-                ctx.lineTo(point.x, point.y);
-            }
-        });
+        ctx.moveTo(topBuf[0], topBuf[1]);
+        for (let i = 1; i < ptCount; i++) {
+            ctx.lineTo(topBuf[i * 2], topBuf[i * 2 + 1]);
+        }
 
-        for (let i = bottomPoints.length - 1; i >= 0; i--) {
-            ctx.lineTo(bottomPoints[i].x, bottomPoints[i].y);
+        for (let i = ptCount - 1; i >= 0; i--) {
+            ctx.lineTo(bottomBuf[i * 2], bottomBuf[i * 2 + 1]);
         }
 
         ctx.closePath();
@@ -530,7 +526,7 @@ const WavesBackground = () => {
         };
     }, [randomOffsets, speedMultiplier]);
 
-    return <canvas ref={canvasRef} className="waves-canvas"></canvas>;
-};
+    return <canvas ref={canvasRef} className="waves-canvas waves-canvas--bg"></canvas>;
+});
 
 export default WavesBackground;

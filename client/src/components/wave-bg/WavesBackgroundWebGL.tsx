@@ -35,6 +35,9 @@ interface MouseState {
     smoothActive: number;
 }
 
+const IDLE_TIMEOUT_MS = 3000;
+const LOW_FPS_INTERVAL = 1000 / 15; // ~66ms — 15 fps при простое
+
 // Настройки притяжения к курсору
 const MOUSE_CONFIG = {
     radius: 500, // Радиус влияния (px)
@@ -392,11 +395,15 @@ const WavesBackgroundWebGL = memo(() => {
         const resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(document.body);
 
+        let lastMouseMoveTime = Date.now();
+        let lowFpsTimer: ReturnType<typeof setTimeout> | null = null;
+
         // Обработчики мыши — на window, т.к. canvas имеет z-index: -1
         const handleMouseMove = (e: MouseEvent) => {
             mouseRef.current.x = e.clientX;
             mouseRef.current.y = e.clientY;
             mouseRef.current.active = true;
+            lastMouseMoveTime = Date.now();
         };
 
         const handleMouseLeave = () => {
@@ -464,13 +471,25 @@ const WavesBackgroundWebGL = memo(() => {
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
             });
 
-            animationFrameRef.current = requestAnimationFrame(animate);
+            const isIdle = Date.now() - lastMouseMoveTime > IDLE_TIMEOUT_MS;
+            if (isIdle) {
+                lowFpsTimer = setTimeout(() => {
+                    animationFrameRef.current = requestAnimationFrame(animate);
+                }, LOW_FPS_INTERVAL);
+            } else {
+                animationFrameRef.current = requestAnimationFrame(animate);
+            }
         };
 
         animationFrameRef.current = requestAnimationFrame(animate);
 
         return () => {
             isUnmountedRef.current = true;
+
+            if (lowFpsTimer !== null) {
+                clearTimeout(lowFpsTimer);
+                lowFpsTimer = null;
+            }
 
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);

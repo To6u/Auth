@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import {
     THIN_WAVE_SPEED_MULTIPLIER,
     type ThinWaveConfig,
     thinWavesConfig,
 } from '@/components/wave-bg/thin-wave/thinWavesConfig.ts';
 
-const ThinWavesBackground = () => {
+const ThinWavesBackground = memo(() => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -77,7 +77,7 @@ const ThinWavesBackground = () => {
 
             ctx.moveTo(startX, logH / 2 + yOffset);
 
-            for (let x = startX; x < extendedWidth; x += 2) {
+            for (let x = startX; x < extendedWidth; x += 4) {
                 const primaryWave = Math.sin(
                     x * liveFrequency + wave.phase + time * wave.speed * speedMultiplier
                 );
@@ -148,6 +148,6 @@ const ThinWavesBackground = () => {
     }, []);
 
     return <canvas ref={canvasRef} className="thin-waves-canvas"></canvas>;
-};
+});
 
 export default ThinWavesBackground;
