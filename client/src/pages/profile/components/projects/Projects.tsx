@@ -57,29 +57,15 @@ const PROJECTS: Project[] = [
     },
     {
         id: '3',
-        title: 'Motion Design System',
+        title: 'Дашборд пользователя',
         description:
-            'Component library with scroll-driven animations, physics springs and GPU-accelerated transitions.',
-        tags: ['React', 'Framer Motion', 'TypeScript'],
-        status: 'archived',
-        year: '2026',
+            'Личное пространство для задач и привычек. Список дел с приоритетами и дедлайнами, трекер привычек с визуализацией прогресса.',
+        tags: ['React', 'TypeScript', 'SQLite'],
+        status: 'wip',
+        year: '2025 - ...',
         wx: 280,
         wy: -70,
         wz: -3000,
-        github: '#',
-    },
-    {
-        id: '4',
-        title: 'Motion Design System',
-        description:
-            'Component library with scroll-driven animations, physics springs and GPU-accelerated transitions.',
-        tags: ['React', 'Framer Motion', 'TypeScript'],
-        status: 'archived',
-        year: '2026',
-        wx: -220,
-        wy: 70,
-        wz: -4500,
-        github: '#',
     },
 ];
 
@@ -104,9 +90,7 @@ const CAM_PATH: Vec3[] = [
     { x: -320, y: 90, z: 1500 }, // arrive card-1
     { x: 80, y: 10, z: 2200 }, // sweep right
     { x: 280, y: -70, z: 3000 }, // arrive card-2
-    { x: 20, y: -10, z: 3700 }, // sweep left → card-3
-    { x: -220, y: 70, z: 4500 }, // arrive card-3
-    { x: -220, y: 70, z: 4500 }, // ease-out tail — stops at card-3
+    { x: 280, y: -70, z: 3000 }, // ease-out tail — stops at card-2
 ];
 
 function catmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number {
