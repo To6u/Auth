@@ -15,88 +15,21 @@
     pointer-events: auto;
 }
 
-.header--hidden {
-    opacity: 0;
-    pointer-events: none;
+/* После скролла hero — вертикальный список справа сверху */
+.header--scrolled {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    top: 120px;
+    grid-gap: 2rem;
 }
 
 .header__link--active {
     font-weight: 900;
 }
 
-/* ── Десктоп burger + dropdown ───────────────────────────────────── */
-
-.header__desktop-burger {
-    display: none;
-    position: fixed;
-    top: 60px;
-    right: 70px;
-    z-index: 20;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 12px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.header__desktop-burger--visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.header__desktop-burger .submit-button {
-    width: 100px;
-    margin-top: 0;
-    margin-left: 0;
-    z-index: 1;
-}
-
-/* Вертикальная nav — анимация через grid-template-rows, z-index выше кнопки */
-.header__desktop-nav {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.3s ease, margin-top 0.3s ease;
-}
-
-.header__desktop-nav--open {
-    grid-template-rows: 1fr;
-    margin-top: 120px;
-}
-
-.header__desktop-nav > ul {
-    overflow: hidden;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-}
-
-.header__desktop-nav a {
-    display: block;
-    padding: 6px 0;
-    font-size: 0.875rem;
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    color: rgba(255, 244, 234, 0.7);
-    text-decoration: none;
-    transition: color 0.15s ease;
-    white-space: nowrap;
-}
-
-.header__desktop-nav a:hover,
-.header__desktop-nav a.header__link--active {
-    color: rgba(255, 244, 234, 1);
-}
-
-.header__desktop-nav a.header__link--active {
-    font-weight: 700;
-}
+/* ── Десктоп burger + dropdown (удалён) ──────────────────────────── */
 
 /* ── Гамбургер (SubmitButton-обёртка) ────────────────────────────── */
 
@@ -230,29 +163,20 @@
 
 /* ── Адаптив ─────────────────────────────────────────────────────── */
 
-@media (min-width: 769px) {
-    .header__desktop-burger {
-        display: flex;
-    }
-}
-
 @media (min-width: 768px) and (max-width: 1023px) {
     .header {
         top: 40px;
+        right: 40px;
     }
 
-    .header__desktop-burger {
-        top: 30px;
+    .header--scrolled {
+        top: 100px;
         right: 40px;
     }
 }
 
 @media (max-width: 768px) {
     .header {
-        display: none;
-    }
-
-    .header__desktop-burger {
         display: none;
     }
 

@@ -66,11 +66,9 @@ const Header = () => {
     const [activeId, setActiveId] = useState<SectionId | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [isPastHero, setIsPastHero] = useState(false);
-    const [isDesktopOpen, setIsDesktopOpen] = useState(false);
     const { isAuthenticated, isLoading, logout } = useAuthInfo();
     const navigate = useNavigate();
     const topsRef = useRef<number[]>([]);
-    const desktopBurgerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const cacheTops = () => {
@@ -126,11 +124,6 @@ const Header = () => {
         };
     }, [isOpen]);
 
-    // Автооткрываем меню когда появляется бургер (после скролла hero)
-    useEffect(() => {
-        if (isPastHero) setIsDesktopOpen(true);
-    }, [isPastHero]);
-
     const handleLinkClick = useCallback(() => setIsOpen(false), []);
 
     const handleMobileLogout = useCallback(async () => {
@@ -149,8 +142,8 @@ const Header = () => {
 
     return (
         <>
-            {/* Десктоп nav */}
-            <ul className={`header${isPastHero ? ' header--hidden' : ''}`}>
+            {/* Десктоп nav — горизонтальный до скролла hero, вертикальный после */}
+            <ul className={`header${isPastHero ? ' header--scrolled' : ''}`}>
                 {NAV_ITEMS.map(({ id, label }) => (
                     <li key={id}>
                         <a
@@ -162,42 +155,6 @@ const Header = () => {
                     </li>
                 ))}
             </ul>
-
-            {/* Десктоп burger + dropdown (только после скролла первого блока) */}
-            <div
-                ref={desktopBurgerRef}
-                className={`header__desktop-burger${isPastHero ? ' header__desktop-burger--visible' : ''}`}
-            >
-                <SubmitButton
-                    isLoading={false}
-                    buttonText=""
-                    type="button"
-                    aria-label={isDesktopOpen ? 'Закрыть меню' : 'Открыть меню'}
-                    aria-expanded={isDesktopOpen}
-                    icon={<BurgerIcon isOpen={isDesktopOpen} />}
-                    iconPosition="left"
-                    onClick={() => setIsDesktopOpen((v) => !v)}
-                />
-
-                <nav
-                    className={`header__desktop-nav${isDesktopOpen ? ' header__desktop-nav--open' : ''}`}
-                    aria-hidden={!isDesktopOpen}
-                    aria-label="Навигация"
-                >
-                    <ul>
-                        {NAV_ITEMS.map(({ id, label }) => (
-                            <li key={id}>
-                                <a
-                                    href={`#${id}`}
-                                    className={activeId === id ? 'header__link--active' : undefined}
-                                >
-                                    {label}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            </div>
 
             {/* Гамбургер — SubmitButton с иконкой бургера, только на мобилке */}
             <div className="header__burger-wrap">
