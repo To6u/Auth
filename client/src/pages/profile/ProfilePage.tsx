@@ -1,6 +1,6 @@
-import { LogoutIcon } from 'client/src/assets/icons';
-import { AnimatedPageWrapper } from 'client/src/components/layout/AnimatedPageWrapper';
-import { useAuthInfo } from 'client/src/hooks/useAuthInfo';
+import { LogoutIcon } from '@/assets/icons';
+import { AnimatedPageWrapper } from '@/components/layout/AnimatedPageWrapper';
+import { useAuthInfo } from '@/hooks/useAuthInfo';
 import '@/pages/profile/profile-page.css';
 import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';

@@ -6,7 +6,7 @@ import { Logo } from '@/components/auth-form/components';
 
 const ANIMATE_IDLE = { opacity: 1, x: 0, filter: 'blur(0px)' };
 const ANIMATE_EXIT = { opacity: 0, x: -100, filter: 'blur(10px)' };
-const TRANSITION = { duration: 0.6, ease: 'easeInOut' };
+const TRANSITION = { duration: 0.6, ease: 'easeInOut' as const };
 
 const AuthContainer = () => {
     const [isExiting, setIsExiting] = useState(false);
