@@ -8,22 +8,85 @@ import { AuthInfoProvider } from '@/context/AuthInfoContext';
 import { LoginPage } from '@/pages/LoginPage';
 import '@/components/layout/layout.css';
 import type * as React from 'react';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
 import { PageErrorFallback } from '@/components/error-boundary/PageErrorFallback.tsx';
 import { PageLoadingFallback } from '@/components/error-boundary/PageLoadingFallback.tsx';
 import { StaticBackground } from '@/components/wave-bg/StaticBackground.tsx';
 import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
 import { useMotionPreference } from '@/hooks/useMotionPreference.ts';
+import LogoAZ from '@/components/logo/LogoAZ.tsx';
+
+// Запускаем загрузку модуля сразу — чтобы AppLoader мог отследить готовность
+const _profileModulePromise = import('@/pages/profile/ProfilePage.tsx');
+// Флаг: показывать loader только при первом входе в сессии.
+// Module-level — сбрасывается только при полной перезагрузке страницы (не SPA-навигации).
+// В dev при HMR App.tsx сбрасывается автоматически; если нет — открой DevTools и сделай hard reload.
+let _loaderDone = false;
 
 // Lazy-loaded pages — не попадают в initial bundle
-const ProfilePage = lazy(() =>
-    import('@/pages/profile/ProfilePage.tsx').then((m) => ({ default: m.ProfilePage }))
-);
+const ProfilePage = lazy(() => _profileModulePromise.then((m) => ({ default: m.ProfilePage })));
 
 const DashboardPage = lazy(() =>
     import('@/pages/dashboard/DashboardPage.tsx').then((m) => ({ default: m.DashboardPage }))
 );
+
+/**
+ * Полноэкранный overlay с лого-анимацией.
+ * Исчезает ТОЛЬКО по окончании полного цикла анимации (animationiteration)
+ * при условии что модуль страницы уже загружен.
+ */
+function AppLoader() {
+    const [fading, setFading] = useState(false);
+    const [gone, setGone] = useState(_loaderDone);
+    const state = useRef({ moduleReady: false, animationDone: false, fading: false });
+
+    const triggerFade = useCallback(() => {
+        if (!state.current.fading) {
+            state.current.fading = true;
+            setFading(true);
+            setTimeout(() => {
+                _loaderDone = true;
+                setGone(true);
+            }, 900);
+        }
+    }, []);
+
+    useEffect(() => {
+        _profileModulePromise.then(() => {
+            state.current.moduleReady = true;
+            // Модуль загрузился после окончания анимации — запускаем сразу
+            if (state.current.animationDone) triggerFade();
+        });
+    }, [triggerFade]);
+
+    const handleTransitionEnd = useCallback(() => {
+        _loaderDone = true;
+        setGone(true);
+    }, []);
+
+    const handleAnimationEnd = useCallback(() => {
+        state.current.animationDone = true;
+        // Анимация закончилась и модуль уже готов — запускаем сразу
+        if (state.current.moduleReady) triggerFade();
+    }, [triggerFade]);
+
+    if (gone) return null;
+
+    return (
+        <div
+            className="app-loader"
+            style={{
+                opacity: fading ? 0 : 1,
+                transition: fading ? 'opacity 0.8s ease' : 'none',
+                pointerEvents: fading ? 'none' : 'auto',
+            }}
+            onTransitionEnd={handleTransitionEnd}
+        >
+            <LogoAZ fading={fading} onAnimationEnd={handleAnimationEnd} />
+        </div>
+    );
+}
 
 // Компонент-обёртка для страниц
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -135,11 +198,14 @@ function AnimatedRoutes() {
 
 function App() {
     return (
-        <BrowserRouter>
-            <AuthInfoProvider>
-                <AnimatedRoutes />
-            </AuthInfoProvider>
-        </BrowserRouter>
+        <>
+            <AppLoader />
+            <BrowserRouter>
+                <AuthInfoProvider>
+                    <AnimatedRoutes />
+                </AuthInfoProvider>
+            </BrowserRouter>
+        </>
     );
 }
 

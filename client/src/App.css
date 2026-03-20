@@ -1,4 +1,5 @@
 :root {
+    --bg-png-opacity: 0.95;
     background: linear-gradient(
             57deg,
             hsl(246, 73%, 10%) 0%,
@@ -7,7 +8,33 @@
             hsl(264, 80%, 12%) 100%
         )
         fixed;
-    background-blend-mode: overlay;
+    background-blend-mode: luminosity;
+}
+
+/* gradiient-2.png — постоянный нижний BG на страницах профиля и логина */
+html:has(.page-home),
+html:has(.page-login) {
+    background-blend-mode: luminosity;
+    background:
+        linear-gradient(
+                57deg,
+                hsla(246, 73%, 10%) 0%,
+                hsla(223, 76%, 21%, 0.2) 36%,
+                hsla(213, 85%, 11%, 0.5) 75%,
+                hsla(264, 80%, 12%) 100%
+            )
+            fixed;
+}
+
+html:has(.page-home)::before,
+html:has(.page-login)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url('./assets/gradiient-2.png') center / cover no-repeat;
+    opacity: var(--bg-png-opacity);
+    z-index: -1;
+    pointer-events: none;
 }
 
 [class^='page-'] {
@@ -30,4 +57,60 @@ html {
 
 p {
     font-size: 1.4rem;
+}
+
+/* AppLoader и PageLoadingFallback — фон через CSS, не JS-импорт */
+.app-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(
+            57deg,
+            hsla(246, 73%, 10%) 0%,
+            hsla(223, 76%, 21%, 0.2) 36%,
+            hsla(213, 85%, 11%, 0.5) 75%,
+            hsla(264, 80%, 12%) 100%
+        );
+}
+
+.app-loader::before,
+.page-loading-fallback::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url('./assets/gradiient-2.png') center / cover no-repeat;
+    opacity: var(--bg-png-opacity);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.page-loading-fallback {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(
+            57deg,
+            hsla(246, 73%, 10%) 0%,
+            hsla(223, 76%, 21%, 0.2) 36%,
+            hsla(213, 85%, 11%, 0.5) 75%,
+            hsla(264, 80%, 12%) 100%
+        );
+    animation: fallbackFadeIn 0.3s ease;
+}
+
+@keyframes fallbackFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }

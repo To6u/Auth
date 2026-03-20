@@ -1,21 +1,15 @@
+import LogoAZ from '@/components/logo/LogoAZ.tsx';
+
 /**
- * Fallback для <Suspense> во время lazy-загрузки страницы.
- * Намеренно минималистичный — без спиннеров и мерцания,
- * фон уже есть от canvas-компонентов.
+ * Fallback для <Suspense> — перекрывает весь экран пока страница не готова.
+ * Основной лоадер — AppLoader в App.tsx (анимация + fade-out).
+ * Этот компонент — запасной сценарий при повторных Suspense-фоллбэках.
+ * Фон задан через CSS-класс (App.css) чтобы PNG не попадал в initial JS-bundle.
  */
 export function PageLoadingFallback() {
     return (
-        <div
-            style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'rgba(255,255,255,0.4)',
-                fontSize: '14px',
-            }}
-        >
-            Загрузка...
+        <div className="page-loading-fallback">
+            <LogoAZ />
         </div>
     );
 }
