@@ -256,9 +256,10 @@ export function useBouncingBalls({
         document.addEventListener('visibilitychange', handleVisibility);
 
         const tick = (timestamp: number) => {
-            rafRef.current = requestAnimationFrame(tick);
-
-            if (timestamp - lastFrameTime < FRAME_MS) return;
+            if (timestamp - lastFrameTime < FRAME_MS) {
+                rafRef.current = requestAnimationFrame(tick);
+                return;
+            }
             const delta = (timestamp - lastFrameTime) / 1000;
             lastFrameTime = timestamp;
 
@@ -413,14 +414,17 @@ export function useBouncingBalls({
             applyRepulsion(balls, hoveredId);
 
             if (zIndexDirty) {
-                sorted = [...balls].sort((a, b) => a.zIndex - b.zIndex);
-                sortedRef.current = sorted;
+                balls.sort((a, b) => a.zIndex - b.zIndex);
+                sorted = balls;
+                sortedRef.current = balls;
                 zIndexDirty = false;
             }
 
             for (const ball of sorted) {
                 drawBall(ctx, ball, images, altImages);
             }
+
+            rafRef.current = requestAnimationFrame(tick);
         };
 
         const resizeObserver = new ResizeObserver((entries) => {
