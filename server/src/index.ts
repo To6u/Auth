@@ -15,6 +15,10 @@ const PORT = process.env.PORT || 3001;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 
+if (NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET не задан — production запуск прерван');
+}
+
 // 🔐 Security: Helmet
 app.use(helmet());
 
