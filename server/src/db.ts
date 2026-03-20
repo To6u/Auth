@@ -6,6 +6,9 @@ const DB_PATH = process.env.DB_PATH || join(process.cwd(), 'auth.db');
 
 const db = new Database(DB_PATH);
 
+db.pragma('journal_mode = WAL');
+db.pragma('synchronous = NORMAL');
+
 db.exec(`
     CREATE TABLE IF NOT EXISTS users (
                                          id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -54,7 +54,9 @@ router.post('/login', authLimiter, validateRequest(loginSchema), async (req, res
         const { email, password } = req.body;
 
         // Ищем пользователя
-        const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
+        const stmt = db.prepare(
+            'SELECT id, email, password, created_at FROM users WHERE email = ?'
+        );
         const user = stmt.get(email) as any;
 
         if (!user) {
