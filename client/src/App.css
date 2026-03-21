@@ -68,11 +68,11 @@ p {
     align-items: center;
     justify-content: center;
     background:
-        linear-gradient(
-            57deg,
-            hsla(246, 73%, 10%) 0%,
-            hsla(223, 76%, 21%, 0.2) 36%,
-            hsla(213, 85%, 11%, 0.5) 75%,
+        radial-gradient(
+            ellipse at 50% 50%,
+            hsla(223, 76%, 21%, 0.4) 0%,
+            hsla(213, 85%, 11%, 0.5) 40%,
+            hsla(246, 73%, 10%) 70%,
             hsla(264, 80%, 12%) 100%
         );
 }
