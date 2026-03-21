@@ -111,7 +111,7 @@ function useCardTilt() {
 
 type CardProps = (typeof SOCIAL_CARDS)[number];
 
-const SocialCard = ({ label, handle, href, Icon, color }: CardProps) => {
+const SocialCard = ({ label, handle, href }: Omit<CardProps, 'Icon' | 'color'>) => {
     const ref = useCardTilt();
 
     return (
@@ -122,9 +122,6 @@ const SocialCard = ({ label, handle, href, Icon, color }: CardProps) => {
             rel="noopener noreferrer"
             className="contacts-card"
         >
-            <span className="contacts-card__icon" style={{ color }}>
-                <Icon />
-            </span>
             <span className="contacts-card__label">{label}</span>
             <span className="contacts-card__handle">{handle}</span>
         </a>
