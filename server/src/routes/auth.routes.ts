@@ -10,6 +10,14 @@ const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Prepared statements — компилируются один раз при старте модуля
+const stmtFindIdByEmail = db.prepare('SELECT id FROM users WHERE email = ?');
+const stmtFindUserForLogin = db.prepare(
+    'SELECT id, email, password, created_at FROM users WHERE email = ?'
+);
+const stmtInsertUser = db.prepare('INSERT INTO users (email, password) VALUES (?, ?)');
+const stmtUpdatePassword = db.prepare('UPDATE users SET password = ? WHERE email = ?');
+
 /**
  * POST /api/auth/register
  * Регистрация нового пользователя
@@ -19,7 +27,7 @@ router.post('/register', authLimiter, validateRequest(registerSchema), async (re
         const { email, password } = req.body;
 
         // Проверка существования пользователя
-        const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+        const existingUser = stmtFindIdByEmail.get(email);
 
         if (existingUser) {
             return res.status(400).json({
@@ -31,8 +39,7 @@ router.post('/register', authLimiter, validateRequest(registerSchema), async (re
         const hashedPassword = await bcrypt.hash(password, 12);
 
         // Сохраняем пользователя
-        const stmt = db.prepare('INSERT INTO users (email, password) VALUES (?, ?)');
-        const result = stmt.run(email, hashedPassword);
+        const result = stmtInsertUser.run(email, hashedPassword);
 
         logger.info(`Новый пользователь зарегистрирован: ${email}`);
 
@@ -54,10 +61,14 @@ router.post('/login', authLimiter, validateRequest(loginSchema), async (req, res
         const { email, password } = req.body;
 
         // Ищем пользователя
-        const stmt = db.prepare(
-            'SELECT id, email, password, created_at FROM users WHERE email = ?'
-        );
-        const user = stmt.get(email) as any;
+        const user = stmtFindUserForLogin.get(email) as
+            | {
+                  id: number;
+                  email: string;
+                  password: string;
+                  created_at: string;
+              }
+            | undefined;
 
         if (!user) {
             logger.warn(`Неудачная попытка входа: пользователь не найден - ${email}`);
@@ -114,8 +125,7 @@ router.post('/check-email', authLimiter, async (req, res, next) => {
         }
 
         // Проверяем существование пользователя
-        const stmt = db.prepare('SELECT id FROM users WHERE email = ?');
-        const user = stmt.get(email) as { id: number } | undefined;
+        const user = stmtFindIdByEmail.get(email) as { id: number } | undefined;
 
         if (!user) {
             logger.warn(`Попытка восстановления пароля для несуществующего email: ${email}`);
@@ -150,8 +160,7 @@ router.post('/reset-password', authLimiter, async (req, res, next) => {
         }
 
         // Проверяем существование пользователя
-        const checkStmt = db.prepare('SELECT id FROM users WHERE email = ?');
-        const user = checkStmt.get(email) as { id: number } | undefined;
+        const user = stmtFindIdByEmail.get(email) as { id: number } | undefined;
 
         if (!user) {
             return res.status(404).json({ error: 'Пользователь не найден' });
@@ -161,8 +170,7 @@ router.post('/reset-password', authLimiter, async (req, res, next) => {
         const hashedPassword = await bcrypt.hash(newPassword, 12);
 
         // Обновляем пароль
-        const updateStmt = db.prepare('UPDATE users SET password = ? WHERE email = ?');
-        updateStmt.run(hashedPassword, email);
+        stmtUpdatePassword.run(hashedPassword, email);
 
         logger.info(`Пароль успешно сброшен для: ${email}`);
 

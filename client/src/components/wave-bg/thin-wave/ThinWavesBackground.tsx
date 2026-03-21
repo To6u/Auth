@@ -38,6 +38,8 @@ const ThinWavesBackground = memo(() => {
         };
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas, { passive: true });
+        const ro = new ResizeObserver(resizeCanvas);
+        ro.observe(canvas);
 
         const waves = thinWavesConfig;
         const speedMultiplier = THIN_WAVE_SPEED_MULTIPLIER / 10;
@@ -162,6 +164,7 @@ const ThinWavesBackground = memo(() => {
 
         return () => {
             window.removeEventListener('resize', resizeCanvas);
+            ro.disconnect();
             document.removeEventListener('visibilitychange', onVisibilityChange);
             window.removeEventListener('mousemove', onActivity);
             window.removeEventListener('scroll', onActivity);

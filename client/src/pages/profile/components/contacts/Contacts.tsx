@@ -1,7 +1,4 @@
 import { useEffect, useRef } from 'react';
-import snowImg from '@/assets/Snow1.png';
-import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
-import AsciiRain from './AsciiRain.tsx';
 import './contacts.css';
 
 // ── Иконки ──────────────────────────────────────────────────────────────────
@@ -81,7 +78,6 @@ function useCardTilt() {
 
         const onMove = (e: MouseEvent) => {
             const rect = el.getBoundingClientRect();
-            // Нормализованная позиция -1..1 внутри карточки
             const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
             const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
             el.style.transform = [
@@ -131,111 +127,11 @@ const SocialCard = ({ label, handle, href, Icon, color }: CardProps) => {
     );
 };
 
-// ── Lerp-параметры фонового изображения ─────────────────────────────────────
-
-const MOUSE_LERP = 0.06;
-const BG_TILT_X = 8;
-const BG_TILT_Y = 12;
-const BG_PARALLAX_X = 20;
-
 // ── Компонент ────────────────────────────────────────────────────────────────
 
 export const Contacts = () => {
-    const sectionRef = useRef<HTMLElement>(null);
-    const imgRef = useRef<HTMLImageElement>(null);
-
-    useEffect(() => {
-        const section = sectionRef.current;
-        const img = imgRef.current;
-        if (!section || !img) return;
-
-        let scrollTranslateY = 380;
-        let bgOpacity = 0;
-        let rawMouseX = 0;
-        let rawMouseY = 0;
-        let smoothMouseX = 0;
-        let smoothMouseY = 0;
-        let rafId = 0;
-        let cancelled = false;
-
-        let sectionTop = section.getBoundingClientRect().top + window.scrollY;
-        let sectionHeight = section.offsetHeight;
-
-        const recalcLayout = () => {
-            sectionTop = section.getBoundingClientRect().top + window.scrollY;
-            sectionHeight = section.offsetHeight;
-        };
-
-        const onScroll = () => {
-            const scrolled = window.scrollY - sectionTop + window.innerHeight;
-            const progress = scrolled / sectionHeight;
-            const clamped = Math.max(0, Math.min(1, progress));
-            scrollTranslateY = 380 * (1 - clamped);
-            bgOpacity = Math.min(1, clamped * 2);
-        };
-
-        const onMouseMove = (e: MouseEvent) => {
-            // Нижняя часть экрана не влияет на параллакс — smootherstep [0.3→0.7]
-            const yRatio = e.clientY / window.innerHeight;
-            const t = Math.max(0, Math.min(1, (yRatio - 0.4) / 0.4));
-            const yFactor = 1 - t * t * t * (t * (t * 6 - 15) + 10);
-            rawMouseX = (e.clientX / window.innerWidth - 0.5) * 2 * yFactor;
-            rawMouseY = (yRatio - 0.5) * 2 * yFactor;
-        };
-
-        let isVisible = false;
-
-        const tick = () => {
-            if (cancelled) return;
-            smoothMouseX += (rawMouseX - smoothMouseX) * MOUSE_LERP;
-            smoothMouseY += (rawMouseY - smoothMouseY) * MOUSE_LERP;
-
-            const tiltY = smoothMouseX * BG_TILT_Y;
-            const tiltX = smoothMouseY * -BG_TILT_X;
-            const offsetX = smoothMouseX * BG_PARALLAX_X;
-
-            img.style.transform = [
-                `translateX(calc(-50% + ${offsetX.toFixed(2)}px))`,
-                `translateY(${scrollTranslateY.toFixed(2)}px)`,
-                `perspective(800px)`,
-                `rotateX(${tiltX.toFixed(3)}deg)`,
-                `rotateY(${tiltY.toFixed(3)}deg)`,
-            ].join(' ');
-            img.style.opacity = bgOpacity.toFixed(3);
-
-            rafId = requestAnimationFrame(tick);
-        };
-
-        const intersectionObserver = new IntersectionObserver(
-            ([entry]) => {
-                isVisible = entry.isIntersecting;
-                if (isVisible) {
-                    rafId = requestAnimationFrame(tick);
-                } else {
-                    cancelAnimationFrame(rafId);
-                }
-            },
-            { rootMargin: '100px' }
-        );
-
-        onScroll();
-        intersectionObserver.observe(section);
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('mousemove', onMouseMove, { passive: true });
-        window.addEventListener('resize', recalcLayout, { passive: true });
-
-        return () => {
-            cancelled = true;
-            cancelAnimationFrame(rafId);
-            intersectionObserver.disconnect();
-            window.removeEventListener('scroll', onScroll);
-            window.removeEventListener('mousemove', onMouseMove);
-            window.removeEventListener('resize', recalcLayout);
-        };
-    }, []);
-
     return (
-        <section id="contacts" ref={sectionRef} className="contacts-section">
+        <section id="contacts" className="contacts-section">
             <div className="contacts-aurora" aria-hidden="true">
                 <div className="contacts-aurora__blob contacts-aurora__blob--1" />
                 <div className="contacts-aurora__blob contacts-aurora__blob--2" />
@@ -243,11 +139,6 @@ export const Contacts = () => {
                 <div className="contacts-aurora__blob contacts-aurora__blob--4" />
                 <div className="contacts-aurora__blob contacts-aurora__blob--5" />
             </div>
-            <img ref={imgRef} src={snowImg} alt="" aria-hidden="true" className="contacts-bg-img" />
-
-            <ErrorBoundary fallback={null} name="AsciiRain">
-                <AsciiRain />
-            </ErrorBoundary>
 
             <div className="contacts-inner">
                 <h2 className="contacts-heading">Соц сети</h2>

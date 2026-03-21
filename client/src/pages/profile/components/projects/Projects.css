@@ -35,7 +35,7 @@
     width: calc(100vw - 2rem);
     max-width: 600px;
     transform-style: preserve-3d;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
     /* height анимируется CSS, transform — JS lerp */
     transition: height 0.4s ease;
     max-height: 80vh;
