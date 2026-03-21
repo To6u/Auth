@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import snowImg from '@/assets/Snow1.png';
+import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
+import AsciiRain from './AsciiRain.tsx';
 import './contacts.css';
 
 // ── Иконки ──────────────────────────────────────────────────────────────────
@@ -242,6 +244,10 @@ export const Contacts = () => {
                 <div className="contacts-aurora__blob contacts-aurora__blob--5" />
             </div>
             <img ref={imgRef} src={snowImg} alt="" aria-hidden="true" className="contacts-bg-img" />
+
+            <ErrorBoundary fallback={null} name="AsciiRain">
+                <AsciiRain />
+            </ErrorBoundary>
 
             <div className="contacts-inner">
                 <h2 className="contacts-heading">Соц сети</h2>

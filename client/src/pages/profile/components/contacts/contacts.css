@@ -119,6 +119,16 @@
 
 /* ── /Aurora ─────────────────────────────────────────────────────── */
 
+.contacts-ascii-canvas {
+    position: absolute;
+    left: 50%;
+    bottom: 4%;
+    transform: translateX(-50%);
+    height: 58%;
+    aspect-ratio: 1;
+    pointer-events: none;
+}
+
 .contacts-bg-img {
     position: absolute;
     left: 50%;

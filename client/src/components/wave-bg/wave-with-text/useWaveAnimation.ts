@@ -298,8 +298,8 @@ export const useWaveAnimation = (
                 if (buf0 && counts[0]) {
                     renderWave(
                         gl,
-                        waveProgram,
-                        waveBuffer,
+                        waveProgram!,
+                        waveBuffer!,
                         buf0,
                         counts[0],
                         0,
@@ -331,8 +331,8 @@ export const useWaveAnimation = (
                     if (!buf || !counts[i]) continue;
                     renderWave(
                         gl,
-                        waveProgram,
-                        waveBuffer,
+                        waveProgram!,
+                        waveBuffer!,
                         buf,
                         counts[i],
                         i,
