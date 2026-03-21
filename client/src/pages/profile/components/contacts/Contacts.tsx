@@ -234,6 +234,13 @@ export const Contacts = () => {
 
     return (
         <section id="contacts" ref={sectionRef} className="contacts-section">
+            <div className="contacts-aurora" aria-hidden="true">
+                <div className="contacts-aurora__blob contacts-aurora__blob--1" />
+                <div className="contacts-aurora__blob contacts-aurora__blob--2" />
+                <div className="contacts-aurora__blob contacts-aurora__blob--3" />
+                <div className="contacts-aurora__blob contacts-aurora__blob--4" />
+                <div className="contacts-aurora__blob contacts-aurora__blob--5" />
+            </div>
             <img ref={imgRef} src={snowImg} alt="" aria-hidden="true" className="contacts-bg-img" />
 
             <div className="contacts-inner">
