@@ -125,7 +125,7 @@
     bottom: 4%;
     transform: translateX(-50%);
     height: 58%;
-    aspect-ratio: 1;
+    aspect-ratio: 3 / 4;
     pointer-events: none;
 }
 

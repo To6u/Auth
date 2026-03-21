@@ -118,6 +118,7 @@ const AsciiRain = memo(() => {
         let rafId = 0;
         let activeCols: number[] = [];
         let numRows = 0;
+        let dpr = 1;
         const droplets: Droplet[] = [];
 
         const drawStatic = (cssW: number, cssH: number) => {
@@ -126,7 +127,7 @@ const AsciiRain = memo(() => {
         };
 
         const resize = () => {
-            const dpr = Math.min(window.devicePixelRatio, 2);
+            dpr = Math.min(window.devicePixelRatio, 2);
             const cssW = canvas.clientWidth;
             const cssH = canvas.clientHeight;
             canvas.width = cssW * dpr;
@@ -163,6 +164,10 @@ const AsciiRain = memo(() => {
 
         // ── Дождь ────────────────────────────────────────────────────
 
+        const GLITCH_INTERVAL = 8000;
+        const GLITCH_DURATION = 350;
+        let lastGlitchTime = -GLITCH_INTERVAL;
+
         const spawn = (): Droplet => {
             const col = activeCols[Math.floor(Math.random() * activeCols.length)];
             const length = 6 + Math.floor(Math.random() * 14);
@@ -175,7 +180,7 @@ const AsciiRain = memo(() => {
             };
         };
 
-        const animate = () => {
+        const animate = (now: number) => {
             if (cancelled) return;
 
             const cssW = canvas.clientWidth;
@@ -213,6 +218,31 @@ const AsciiRain = memo(() => {
                     if (headRow - d.length > numRows) {
                         droplets.splice(i, 1);
                     }
+                }
+            }
+
+            // ── Глитч каждые 8 секунд ────────────────────────────────
+            if (now - lastGlitchTime > GLITCH_INTERVAL) {
+                lastGlitchTime = now;
+            }
+            if (now - lastGlitchTime < GLITCH_DURATION) {
+                const numStripes = 3 + Math.floor(Math.random() * 5);
+                for (let s = 0; s < numStripes; s++) {
+                    if (Math.random() < 0.4) continue;
+                    const sy = Math.random() * cssH;
+                    const sh = CHAR_H * (1 + Math.floor(Math.random() * 3));
+                    const dx = (Math.random() - 0.5) * CHAR_W * 8;
+                    ctx.drawImage(
+                        offscreen,
+                        0,
+                        sy * dpr,
+                        offscreen.width,
+                        sh * dpr,
+                        dx,
+                        sy,
+                        cssW,
+                        sh
+                    );
                 }
             }
 
