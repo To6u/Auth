@@ -79,7 +79,6 @@ function AppLoader() {
             style={{
                 opacity: fading ? 0 : 1,
                 transition: fading ? 'opacity 0.8s ease' : 'none',
-                pointerEvents: fading ? 'none' : 'auto',
             }}
             onTransitionEnd={handleTransitionEnd}
         >
@@ -184,9 +183,13 @@ function AnimatedRoutes() {
                         </ErrorBoundary>
                     )}
 
-                    {!isTabletOrMobile && (
+                    {isTabletOrMobile ? (
                         <ErrorBoundary fallback={null} name="WavesWithText">
-                            <WavesWithText showText={location.pathname !== '/login'} />
+                            <WavesWithText showText={location.pathname === '/'} isStatic noWaves />
+                        </ErrorBoundary>
+                    ) : (
+                        <ErrorBoundary fallback={null} name="WavesWithText">
+                            <WavesWithText showText={location.pathname === '/'} />
                         </ErrorBoundary>
                     )}
                 </>

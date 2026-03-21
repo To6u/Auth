@@ -19,7 +19,8 @@ import {
 export const useWaveAnimation = (
     canvasRef: RefObject<HTMLCanvasElement | null>,
     showTextRef: RefObject<boolean>,
-    isStatic = false
+    isStatic = false,
+    noWaves = false
 ): void => {
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -43,14 +44,14 @@ export const useWaveAnimation = (
 
         gl.getExtension('OES_standard_derivatives');
 
-        const waveProgram = createWaveProgram(gl);
+        const waveProgram = noWaves ? null : createWaveProgram(gl);
         const lineProgram = createLineProgram(gl);
-        if (!waveProgram || !lineProgram) return;
+        if ((!waveProgram && !noWaves) || !lineProgram) return;
 
-        const waveBuffer = gl.createBuffer();
+        const waveBuffer = noWaves ? null : gl.createBuffer();
         const lineBuffer = gl.createBuffer();
 
-        if (!waveBuffer || !lineBuffer) {
+        if ((!waveBuffer && !noWaves) || !lineBuffer) {
             console.error('Failed to create WebGL buffers');
             return;
         }
@@ -95,7 +96,9 @@ export const useWaveAnimation = (
             // Буфер должен покрывать и горизонталь (w) и вертикаль (h) —
             // вертикальные волны итерируются по высоте, на мобилке h >> w
             const bufSize = Math.ceil(Math.max(w, h) / step + 1) * 2 * 2;
-            vertexBuffers = wavesConfig.map(() => new Float32Array(bufSize));
+            if (!noWaves) {
+                vertexBuffers = wavesConfig.map(() => new Float32Array(bufSize));
+            }
 
             const maxLines = 200;
             lineDataBuf = new Float32Array(maxLines * ANIM_BUFFER_MULTIPLIER);
@@ -245,68 +248,101 @@ export const useWaveAnimation = (
                 }
             }
 
-            // Compute all waves
-            const counts = new Array<number>(wavesConfig.length).fill(0);
-            for (let i = 0; i < wavesConfig.length; i++) {
-                const buf = vertexBuffers[i];
-                if (!buf) continue;
-                const waveConf = wavesConfig[i];
+            if (!noWaves) {
+                // Compute all waves
+                const counts = new Array<number>(wavesConfig.length).fill(0);
+                for (let i = 0; i < wavesConfig.length; i++) {
+                    const buf = vertexBuffers[i];
+                    if (!buf) continue;
+                    const waveConf = wavesConfig[i];
 
-                if (
-                    waveConf.anchor === 'left' ||
-                    waveConf.anchor === 'right' ||
-                    waveConf.anchor === 'top-center'
-                ) {
-                    counts[i] = fillWaveVerticesVertical(
-                        buf,
-                        width,
-                        height,
-                        waveConf,
-                        time,
-                        step,
-                        effectiveMouse,
-                        dpr,
-                        anim.waveScrollProgress,
-                        projectsState.camProgress,
-                        waveConf.anchor as 'left' | 'right' | 'top-center',
+                    if (
+                        waveConf.anchor === 'left' ||
+                        waveConf.anchor === 'right' ||
+                        waveConf.anchor === 'top-center'
+                    ) {
+                        counts[i] = fillWaveVerticesVertical(
+                            buf,
+                            width,
+                            height,
+                            waveConf,
+                            time,
+                            step,
+                            effectiveMouse,
+                            dpr,
+                            anim.waveScrollProgress,
+                            projectsState.camProgress,
+                            waveConf.anchor as 'left' | 'right' | 'top-center',
+                            phaseAccumulator,
+                            anim.contactsProgress
+                        );
+                    } else {
+                        counts[i] = fillWaveVertices(
+                            buf,
+                            width,
+                            height,
+                            waveConf,
+                            time,
+                            step,
+                            effectiveMouse,
+                            dpr,
+                            anim.waveScrollProgress,
+                            projectsState.camProgress,
+                            phaseAccumulator
+                        );
+                    }
+                }
+
+                // Render wave 0
+                const buf0 = vertexBuffers[0];
+                if (buf0 && counts[0]) {
+                    renderWave(
+                        gl,
+                        waveProgram,
+                        waveBuffer,
+                        buf0,
+                        counts[0],
+                        0,
                         phaseAccumulator,
-                        anim.contactsProgress
-                    );
-                } else {
-                    counts[i] = fillWaveVertices(
-                        buf,
                         width,
-                        height,
-                        waveConf,
-                        time,
-                        step,
-                        effectiveMouse,
-                        dpr,
-                        anim.waveScrollProgress,
-                        projectsState.camProgress,
-                        phaseAccumulator
+                        height
                     );
                 }
-            }
 
-            // Render wave 0
-            const buf0 = vertexBuffers[0];
-            if (buf0 && counts[0]) {
-                renderWave(
-                    gl,
-                    waveProgram,
-                    waveBuffer,
-                    buf0,
-                    counts[0],
-                    0,
-                    phaseAccumulator,
-                    width,
-                    height
-                );
-            }
+                // Render text between wave 0 and waves 1-2
+                if (isTextVisible) {
+                    renderTextLines(
+                        gl,
+                        lineProgram,
+                        lineBuffer,
+                        lineDataBuf,
+                        textLines,
+                        anim,
+                        width,
+                        height,
+                        dpr,
+                        routeExitProgress
+                    );
+                }
 
-            // Render text between wave 0 and waves 1-2
-            if (isTextVisible) {
+                // Render waves 1-2
+                for (let i = 1; i < wavesConfig.length; i++) {
+                    const buf = vertexBuffers[i];
+                    if (!buf || !counts[i]) continue;
+                    renderWave(
+                        gl,
+                        waveProgram,
+                        waveBuffer,
+                        buf,
+                        counts[i],
+                        i,
+                        phaseAccumulator,
+                        width,
+                        height
+                    );
+                }
+            } else if (isTextVisible) {
+                // Только текст — волны не рендерим
                 renderTextLines(
                     gl,
                     lineProgram,
@@ -318,23 +354,6 @@ export const useWaveAnimation = (
                     height,
                     dpr,
                     routeExitProgress
-                );
-            }
-
-            // Render waves 1-2
-            for (let i = 1; i < wavesConfig.length; i++) {
-                const buf = vertexBuffers[i];
-                if (!buf || !counts[i]) continue;
-                renderWave(
-                    gl,
-                    waveProgram,
-                    waveBuffer,
-                    buf,
-                    counts[i],
-                    i,
-                    phaseAccumulator,
-                    width,
-                    height
                 );
             }
 
@@ -390,9 +409,9 @@ export const useWaveAnimation = (
             window.removeEventListener('touchmove', onTouch);
             resizeObserver.disconnect();
 
-            gl.deleteProgram(waveProgram.program);
+            if (waveProgram) gl.deleteProgram(waveProgram.program);
             gl.deleteProgram(lineProgram.program);
-            gl.deleteBuffer(waveBuffer);
+            if (waveBuffer) gl.deleteBuffer(waveBuffer);
             gl.deleteBuffer(lineBuffer);
 
             if (canvasRef.current) {
