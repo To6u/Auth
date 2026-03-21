@@ -6,6 +6,9 @@ const CHAR_H = 14;
 const FONT = `11px 'Courier New', monospace`;
 const CHARS = '@%#*+=-:.';
 const MAX_DROPLETS = 60;
+// ── Глитч ────────────────────────────────────────────────────────────────────
+const GLITCH_INTERVAL = 8000;
+const GLITCH_DURATION = 350;
 
 const ASCII_LINES = asciiRaw.split('\n');
 
@@ -75,7 +78,8 @@ function renderStaticShape(
     const offCtx = offscreen.getContext('2d');
     if (!offCtx) return;
 
-    offCtx.scale(dpr, dpr);
+    // canvas.width присваивание сбрасывает трансформ — setTransform явно задаёт масштаб
+    offCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     offCtx.font = FONT;
 
     const numCols = Math.floor(cssW / CHAR_W);
@@ -102,7 +106,8 @@ function renderStaticShape(
 
 const AsciiRain = memo(() => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const offscreenRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
+    // Lazy init в useEffect — не вызываем document API при рендере (SSR-safe, StrictMode-safe)
+    const offscreenRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -111,7 +116,10 @@ const AsciiRain = memo(() => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        // Lazy init offscreen canvas
+        offscreenRef.current ??= document.createElement('canvas');
         const offscreen = offscreenRef.current;
+
         const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         let cancelled = false;
@@ -132,7 +140,8 @@ const AsciiRain = memo(() => {
             const cssH = canvas.clientHeight;
             canvas.width = cssW * dpr;
             canvas.height = cssH * dpr;
-            ctx.scale(dpr, dpr);
+            // canvas.width сбрасывает трансформ — явно задаём вместо накопительного scale()
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.font = FONT;
 
             const numCols = Math.floor(cssW / CHAR_W);
@@ -164,8 +173,6 @@ const AsciiRain = memo(() => {
 
         // ── Дождь ────────────────────────────────────────────────────
 
-        const GLITCH_INTERVAL = 8000;
-        const GLITCH_DURATION = 350;
         let lastGlitchTime = -GLITCH_INTERVAL;
 
         const spawn = (): Droplet => {
@@ -232,17 +239,10 @@ const AsciiRain = memo(() => {
                     const sy = Math.random() * cssH;
                     const sh = CHAR_H * (1 + Math.floor(Math.random() * 3));
                     const dx = (Math.random() - 0.5) * CHAR_W * 8;
-                    ctx.drawImage(
-                        offscreen,
-                        0,
-                        sy * dpr,
-                        offscreen.width,
-                        sh * dpr,
-                        dx,
-                        sy,
-                        cssW,
-                        sh
-                    );
+                    // Клампим src-координаты чтобы не выйти за пределы offscreen при dpr>1
+                    const srcY = Math.min(sy * dpr, offscreen.height - 1);
+                    const srcH = Math.min(sh * dpr, offscreen.height - srcY);
+                    ctx.drawImage(offscreen, 0, srcY, offscreen.width, srcH, dx, sy, cssW, sh);
                 }
             }
 

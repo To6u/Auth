@@ -249,6 +249,9 @@ export const useWaveAnimation = (
             }
 
             if (!noWaves) {
+                // noWaves=false гарантирует ненулевые программу и буфер
+                const wp = waveProgram!;
+                const wb = waveBuffer!;
                 // Compute all waves
                 const counts = new Array<number>(wavesConfig.length).fill(0);
                 for (let i = 0; i < wavesConfig.length; i++) {
@@ -296,17 +299,7 @@ export const useWaveAnimation = (
                 // Render wave 0
                 const buf0 = vertexBuffers[0];
                 if (buf0 && counts[0]) {
-                    renderWave(
-                        gl,
-                        waveProgram!,
-                        waveBuffer!,
-                        buf0,
-                        counts[0],
-                        0,
-                        phaseAccumulator,
-                        width,
-                        height
-                    );
+                    renderWave(gl, wp, wb, buf0, counts[0], 0, phaseAccumulator, width, height);
                 }
 
                 // Render text between wave 0 and waves 1-2
@@ -329,17 +322,7 @@ export const useWaveAnimation = (
                 for (let i = 1; i < wavesConfig.length; i++) {
                     const buf = vertexBuffers[i];
                     if (!buf || !counts[i]) continue;
-                    renderWave(
-                        gl,
-                        waveProgram!,
-                        waveBuffer!,
-                        buf,
-                        counts[i],
-                        i,
-                        phaseAccumulator,
-                        width,
-                        height
-                    );
+                    renderWave(gl, wp, wb, buf, counts[i], i, phaseAccumulator, width, height);
                 }
             } else if (isTextVisible) {
                 // Только текст — волны не рендерим
