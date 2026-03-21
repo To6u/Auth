@@ -119,6 +119,31 @@
 
 /* ── /Aurora ─────────────────────────────────────────────────────── */
 
+.contacts-ascii-canvas {
+    position: absolute;
+    left: 50%;
+    bottom: 4%;
+    transform: translateX(-50%);
+    height: 58%;
+    aspect-ratio: 3 / 4;
+    pointer-events: none;
+}
+
+.contacts-bg-img {
+    position: absolute;
+    left: 50%;
+    /* Верхний край привязан к 25% высоты секции — точка сужения волны */
+    top: 25%;
+    height: 80%;
+    width: auto;
+    object-fit: cover;
+    transform-origin: center top;
+    transform: translateX(-50%) translateY(380px);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    user-select: none;
+}
 
 .contacts-inner {
     position: relative;
