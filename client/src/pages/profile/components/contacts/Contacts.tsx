@@ -172,6 +172,8 @@ export const Contacts = () => {
         };
 
         const onMouseMove = (e: MouseEvent) => {
+            lastActivityTime = performance.now();
+            if (!rafId && isVisible && !cancelled) rafId = requestAnimationFrame(tick);
             // Нижняя часть экрана не влияет на параллакс — smootherstep [0.3→0.7]
             const yRatio = e.clientY / window.innerHeight;
             const t = Math.max(0, Math.min(1, (yRatio - 0.4) / 0.4));
@@ -180,10 +182,16 @@ export const Contacts = () => {
             rawMouseY = (yRatio - 0.5) * 2 * yFactor;
         };
 
+        const IDLE_TIMEOUT_CONTACTS = 5_000;
+        let lastActivityTime = performance.now();
         let isVisible = false;
 
         const tick = () => {
             if (cancelled) return;
+            if (performance.now() - lastActivityTime > IDLE_TIMEOUT_CONTACTS) {
+                rafId = 0;
+                return;
+            }
             smoothMouseX += (rawMouseX - smoothMouseX) * MOUSE_LERP;
             smoothMouseY += (rawMouseY - smoothMouseY) * MOUSE_LERP;
 
@@ -247,7 +255,7 @@ export const Contacts = () => {
             </ErrorBoundary>
 
             <div className="contacts-inner">
-                <h2 className="contacts-heading">Соц сети</h2>
+                <h2 className="contacts-heading">Связь</h2>
                 <div className="contacts-cards">
                     {SOCIAL_CARDS.map((card) => (
                         <SocialCard key={card.id} {...card} />

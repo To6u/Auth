@@ -2,6 +2,7 @@ import { ArrowDown, ExternalLink, Github, X } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
 import { Logo } from '@/components/auth-form/components/Logo/Logo';
 import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
+import { LoginAsciiPreview } from '@/components/login-ascii-preview/LoginAsciiPreview';
 import { projectsState } from '@/lib/projectsState';
 import './Projects.css';
 
@@ -24,6 +25,7 @@ interface Project {
     link?: string;
     github?: string;
     logo?: boolean;
+    asciiPreview?: boolean;
     changelog?: { text: string; date: string }[];
 }
 
@@ -36,7 +38,7 @@ const PROJECTS: Project[] = [
         id: '1',
         title: 'Форма входа',
         description:
-            'JWT-аутентификация через httpOnly cookie, bcrypt с 12 раундами, rate limiting. Три режима в едином интерфейсе с анимациями на Framer Motion. Валидация на blur + серверная через Zod.\n\nСтек: React 19, TypeScript, Express 5, SQLite (better-sqlite3), Framer Motion.\n\nОсобенности реализации:\n— Единый FormContainer обрабатывает login / register / forgot-password\n— Токен живёт 24 часа, обновляется при каждом запросе\n— Защита от брутфорса: 10 попыток / 15 минут на IP\n— Валидация на blur (клиент) + Zod (сервер)\n— Анимации переходов через Framer Motion layout animations\n— Пароли хранятся в bcrypt-хэшах с 12 раундами соли\n— httpOnly cookie исключает XSS-доступ к токену\n— CORS настроен с конкретным origin, credentials: include\n— Rate limiting через express-rate-limit на auth-роутах\n— Helmet добавляет security-заголовки на все ответы\n\nАрхитектура:\nСервер — Express 5 с async error handling, SQLite через better-sqlite3 (синхронный, без callback hell). Все SQL-запросы через prepared statements — никакой конкатенации строк.\n\nЭто тестовый текст для проверки внутреннего скролла раскрытой карточки. Если видишь эту строку — скролл работает корректно и 3D-сцена не двигается пока листаешь внутри карточки. После того как доскроллишь до конца — следующий скролл переведёт камеру к следующей карточке.',
+            'Три режима в одном: вход, регистрация, восстановление пароля. Переходы между ними — плавные, без перезагрузки страницы.\n\nПароль хэшируется, токен хранится в httpOnly cookie — из JavaScript недоступен. Брутфорс ограничен: 10 попыток за 15 минут.',
         tags: ['React', 'TypeScript', 'Express', 'SQLite'],
         status: 'live',
         year: '2024',
@@ -44,6 +46,7 @@ const PROJECTS: Project[] = [
         wy: 0,
         wz: 0,
         link: '/login',
+        asciiPreview: true,
     },
     {
         id: '2',
@@ -185,7 +188,10 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
                     <h3 className="projects-scene__card-title">{data.title}</h3>
                     <p className="projects-scene__card-desc">{data.description}</p>
                 </div>
-                <div className="projects-scene__card-image">{data.logo && <Logo />}</div>
+                <div className="projects-scene__card-image">
+                    {data.logo && <Logo />}
+                    {data.asciiPreview && <LoginAsciiPreview />}
+                </div>
             </div>
 
             <div className="projects-scene__tags">
@@ -428,7 +434,9 @@ export const Projects = () => {
                 const body = cardBodyEls[i];
                 if (body) {
                     const inFocus = i === activeIndex && (opacities[i] ?? 0) >= 0.9;
-                    body.style.outline = inFocus ? '8px solid rgba(74, 222, 128, 0.45)' : 'none';
+                    body.style.boxShadow = inFocus
+                        ? '0 0 0 3px rgba(74, 222, 128, 0.5)'
+                        : '0 0 0 0 rgba(74, 222, 128, 0)';
                 }
             });
 

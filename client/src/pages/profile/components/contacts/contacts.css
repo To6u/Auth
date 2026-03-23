@@ -44,7 +44,13 @@
 .contacts-aurora__blob--1 {
     width: 120px;
     height: 100vh;
-    background: linear-gradient(to bottom, transparent 0%, rgba(41, 182, 246, 0.55) 35%, rgba(41, 182, 246, 0.55) 65%, transparent 100%);
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(41, 182, 246, 0.55) 35%,
+        rgba(41, 182, 246, 0.55) 65%,
+        transparent 100%
+    );
     filter: blur(45px);
     transform: translate(-50%, -50%);
     animation: aurora-spin 55s linear infinite;
@@ -54,7 +60,13 @@
 .contacts-aurora__blob--2 {
     width: 140px;
     height: 100vh;
-    background: linear-gradient(to bottom, transparent 0%, rgba(102, 187, 106, 0.5) 35%, rgba(102, 187, 106, 0.5) 65%, transparent 100%);
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(102, 187, 106, 0.5) 35%,
+        rgba(102, 187, 106, 0.5) 65%,
+        transparent 100%
+    );
     filter: blur(55px);
     transform: translate(-50%, -50%);
     animation: aurora-spin-reverse 72s -14.4s linear infinite;
@@ -64,7 +76,13 @@
 .contacts-aurora__blob--3 {
     width: 100px;
     height: 100vh;
-    background: linear-gradient(to bottom, transparent 0%, rgba(171, 71, 188, 0.6) 35%, rgba(171, 71, 188, 0.6) 65%, transparent 100%);
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(171, 71, 188, 0.6) 35%,
+        rgba(171, 71, 188, 0.6) 65%,
+        transparent 100%
+    );
     filter: blur(40px);
     transform: translate(-50%, -50%);
     animation: aurora-spin 42s -16.8s linear infinite;
@@ -74,7 +92,13 @@
 .contacts-aurora__blob--4 {
     width: 160px;
     height: 100vh;
-    background: linear-gradient(to bottom, transparent 0%, rgba(192, 220, 50, 0.4) 35%, rgba(192, 220, 50, 0.4) 65%, transparent 100%);
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(192, 220, 50, 0.4) 35%,
+        rgba(192, 220, 50, 0.4) 65%,
+        transparent 100%
+    );
     filter: blur(60px);
     transform: translate(-50%, -50%);
     animation: aurora-spin-reverse 85s -51s linear infinite;
@@ -84,20 +108,34 @@
 .contacts-aurora__blob--5 {
     width: 110px;
     height: 100vh;
-    background: linear-gradient(to bottom, transparent 0%, rgba(236, 64, 122, 0.45) 35%, rgba(236, 64, 122, 0.45) 65%, transparent 100%);
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(236, 64, 122, 0.45) 35%,
+        rgba(236, 64, 122, 0.45) 65%,
+        transparent 100%
+    );
     filter: blur(50px);
     transform: translate(-50%, -50%);
     animation: aurora-spin 63s -50.4s linear infinite;
 }
 
 @keyframes aurora-spin {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) rotate(360deg); }
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
 }
 
 @keyframes aurora-spin-reverse {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) rotate(-360deg); }
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(-360deg);
+    }
 }
 
 @media (max-width: 768px) {
@@ -106,9 +144,15 @@
         display: none;
     }
 
-    .contacts-aurora__blob--1 { filter: blur(30px); }
-    .contacts-aurora__blob--3 { filter: blur(25px); }
-    .contacts-aurora__blob--5 { filter: blur(30px); }
+    .contacts-aurora__blob--1 {
+        filter: blur(30px);
+    }
+    .contacts-aurora__blob--3 {
+        filter: blur(25px);
+    }
+    .contacts-aurora__blob--5 {
+        filter: blur(30px);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -169,17 +213,16 @@
 
 .contacts-cards {
     display: flex;
+    flex-direction: row;
     gap: 20px;
-    flex-wrap: wrap;
     justify-content: center;
 }
 
 .contacts-card {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 12px;
-    width: 140px;
     padding: 28px 20px;
     border-radius: 20px;
     text-decoration: none;
@@ -207,6 +250,7 @@
 }
 
 .contacts-card__label {
+    font-family: 'Ganxy', serif;
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;

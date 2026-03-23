@@ -20,8 +20,19 @@ const _entries = Object.entries(imageModules) as [string, string][];
 const _baseEntries = _entries.filter(([path]) => !variantRegex.test(path));
 const _altEntries = _entries.filter(([path]) => variantRegex.test(path));
 
-const PHOTOS = _baseEntries.map(([, url]) => url);
-const ALT_PHOTOS: string[][] = _baseEntries.map(([basePath]) => {
+const _bardaBaseEntries = _baseEntries.filter(([path]) => /\/barda\d/.test(path));
+const PHOTOS = _bardaBaseEntries.map(([, url]) => url);
+const ALT_PHOTOS: string[][] = _bardaBaseEntries.map(([basePath]) => {
+    const stem = basePath.replace(/\.(jpg|JPEG|jpeg)$/i, '');
+    return _altEntries
+        .filter(([altPath]) => altPath.replace(variantRegex, '') === stem)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([, url]) => url);
+});
+
+const _myBaseEntries = _baseEntries.filter(([path]) => /\/my\d/.test(path));
+const MY_PHOTOS = _myBaseEntries.map(([, url]) => url);
+const MY_ALT_PHOTOS: string[][] = _myBaseEntries.map(([basePath]) => {
     const stem = basePath.replace(/\.(jpg|JPEG|jpeg)$/i, '');
     return _altEntries
         .filter(([altPath]) => altPath.replace(variantRegex, '') === stem)
@@ -310,8 +321,8 @@ export const AboutHero = memo(() => {
                                 <motion.div style={{ opacity: ballsWayOpacity }}>
                                     {!isMobile && <WaveFilterBallsWay />}
                                     <FloatingBalls
-                                        images={PHOTOS}
-                                        altImages={ALT_PHOTOS}
+                                        images={MY_PHOTOS}
+                                        altImages={MY_ALT_PHOTOS}
                                         className="floating-balls-my-way"
                                         containerRef={containerRefBallsWay}
                                         autoSwitch={isMobile}
@@ -327,7 +338,8 @@ export const AboutHero = memo(() => {
                                 style={{ y: photoStripY, opacity: photoStripCombinedOpacity }}
                             >
                                 <MobilePhotoStrip
-                                    images={PHOTOS}
+                                    images={MY_PHOTOS}
+                                    altImages={MY_ALT_PHOTOS}
                                     className="mobile-photo-strip--way"
                                 />
                             </motion.div>

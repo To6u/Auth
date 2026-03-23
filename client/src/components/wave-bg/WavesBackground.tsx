@@ -62,14 +62,25 @@ const useMousePosition = (canvasRef: React.RefObject<HTMLCanvasElement | null>) 
     return mousePos;
 };
 
-const useCanvasResize = (canvasRef: React.RefObject<HTMLCanvasElement | null>) => {
+const useCanvasResize = (
+    canvasRef: React.RefObject<HTMLCanvasElement | null>,
+    dprRef: React.MutableRefObject<number>
+) => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
         const resizeCanvas = () => {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            dprRef.current = dpr;
+            const cssW = canvas.offsetWidth;
+            const cssH = canvas.offsetHeight;
+            canvas.width = cssW * dpr;
+            canvas.height = cssH * dpr;
+            canvas.style.width = `${cssW}px`;
+            canvas.style.height = `${cssH}px`;
+            const ctx = canvas.getContext('2d');
+            if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         };
 
         resizeCanvas();
@@ -87,7 +98,7 @@ const useCanvasResize = (canvasRef: React.RefObject<HTMLCanvasElement | null>) =
             window.removeEventListener('resize', handleResize);
             clearTimeout(resizeTimeout);
         };
-    }, [canvasRef]);
+    }, [canvasRef, dprRef]);
 };
 
 const modifyColor = (color: string, bright: number, glow: number): string => {
@@ -164,9 +175,10 @@ class GradientCache {
 
 const WavesBackground = memo(() => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const dprRef = useRef(1);
     const mousePos = useMousePosition(canvasRef);
 
-    useCanvasResize(canvasRef);
+    useCanvasResize(canvasRef, dprRef);
 
     const [randomOffsets] = useState(() => wavesConfig.map(() => Math.random() * Math.PI * 2));
 
@@ -224,8 +236,10 @@ const WavesBackground = memo(() => {
         const widthVariation = Math.sin(waveTime * 0.006 * speedMultiplier + waveIndex * 0.4) * 0.2;
         const baseWidth = wave.lineWidth * (1 + widthVariation);
 
-        const extendedWidth = canvas.width * 1.5;
-        const startX = -canvas.width * 0.25;
+        const cssW = canvas.width / dprRef.current;
+        const cssH = canvas.height / dprRef.current;
+        const extendedWidth = cssW * 1.5;
+        const startX = -cssW * 0.25;
 
         const shapeType = waveIndex % 8;
         const secondaryShapeType = (waveIndex + 1) % 8;
@@ -242,7 +256,7 @@ const WavesBackground = memo(() => {
         // ОПТИМИЗАЦИЯ 7: Предрасчёт констант
         const maxMouseInfluenceRadius = 300 * currentMouseInfluence;
         const maxColorInfluenceRadius = 150 * currentMouseInfluence;
-        const waveY = canvas.height / 2 + yOffset;
+        const waveY = cssH / 2 + yOffset;
 
         for (let x = startX; x < extendedWidth; x += step) {
             const progress = (x - startX) / (extendedWidth - startX);
@@ -299,7 +313,7 @@ const WavesBackground = memo(() => {
             }
 
             const centerY =
-                canvas.height / 2 +
+                cssH / 2 +
                 yOffset +
                 (primaryWave + secondaryWave) * liveAmplitude * localPulse +
                 morphNode1 +
@@ -328,7 +342,7 @@ const WavesBackground = memo(() => {
 
         ctx.closePath();
 
-        const waveCenterY = canvas.height / 2 + yOffset;
+        const waveCenterY = cssH / 2 + yOffset;
         const distToMouse = Math.abs(waveCenterY - rotatedMouseY);
 
         let brightness = 1;
@@ -348,13 +362,7 @@ const WavesBackground = memo(() => {
         const color2 = modifyColor(wave.gradientColors[1], brightness, glowAmount);
 
         // ОПТИМИЗАЦИЯ 9: Используем кэш градиентов
-        const gradient = gradientCache.current.get(
-            ctx,
-            canvas.width,
-            canvas.height,
-            color1,
-            color2
-        );
+        const gradient = gradientCache.current.get(ctx, cssW, cssH, color1, color2);
 
         if (glowAmount > 0.5) {
             const shadowColor = color1.replace(/[\d.]+\)$/, '0.6)');
@@ -437,16 +445,20 @@ const WavesBackground = memo(() => {
 
             const cappedDelta = Math.min(deltaTime, 100);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const dpr = dprRef.current;
+            const cssW = canvas.width / dpr;
+            const cssH = canvas.height / dpr;
 
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
+            ctx.clearRect(0, 0, cssW, cssH);
+
+            const centerX = cssW / 2;
+            const centerY = cssH / 2;
 
             const isMouseInsideCanvas =
                 mousePos.current.x >= 0 &&
                 mousePos.current.y >= 0 &&
-                mousePos.current.x <= canvas.width &&
-                mousePos.current.y <= canvas.height;
+                mousePos.current.x <= cssW &&
+                mousePos.current.y <= cssH;
 
             const mouseLerpSpeed = isMouseInsideCanvas ? 0.15 : 0.08;
             smoothMousePos.current.x +=
@@ -499,9 +511,9 @@ const WavesBackground = memo(() => {
             }
 
             ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.translate(cssW / 2, cssH / 2);
             ctx.rotate(Math.PI / 4);
-            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+            ctx.translate(-cssW / 2, -cssH / 2);
 
             waves.forEach((wave, waveIndex) => {
                 const dynamicSpacing =

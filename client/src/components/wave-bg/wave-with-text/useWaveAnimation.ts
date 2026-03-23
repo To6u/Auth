@@ -74,6 +74,10 @@ export const useWaveAnimation = (
         let routeExitProgress = showTextRef.current ? 0 : 1;
         let prevTime = 0;
         let phaseAccumulator = 0;
+        // Throttle до 30fps когда пользователь в секции проектов и не скроллит.
+        // Вдвое снижает количество GL draw calls — главный источник нагрузки вентилятора.
+        let lastThrottledFrameTime = 0;
+        const PROJECTS_FRAME_INTERVAL = 1000 / 30;
         // Плавный parallax-сдвиг canvas по X — lerp к target чтобы не было резкого прыжка
         // при входе/выходе из блока проектов (projectsState.active toggle).
         let canvasOffsetX = 0;
@@ -168,6 +172,16 @@ export const useWaveAnimation = (
             }
             isIdlePaused = false;
 
+            // Throttle до 30fps внутри секции проектов когда нет активного скролла.
+            // Во время скролла (projectsState.isScrolling) пропускаем throttle — нужна плавность.
+            if (projectsState.active && !projectsState.isScrolling) {
+                if (time - lastThrottledFrameTime < PROJECTS_FRAME_INTERVAL) {
+                    animFrame = requestAnimationFrame(animate);
+                    return;
+                }
+                lastThrottledFrameTime = time;
+            }
+
             const delta = prevTime === 0 ? 16 : Math.min(time - prevTime, 50);
             prevTime = time;
             const targetSpeedFactor = projectsState.isScrolling
@@ -226,9 +240,10 @@ export const useWaveAnimation = (
             // При скролле к контактам восстанавливаем влияние мыши
             const mouseInfluenceFactor = Math.max(baseMouseInfluence, anim.contactsProgress);
 
+            // В секции проектов мышь не влияет на волны — снижает нагрузку на CPU
             const effectiveMouse: MouseState = {
                 ...mouse,
-                smoothActive: mouse.smoothActive * mouseInfluenceFactor,
+                smoothActive: projectsState.active ? 0 : mouse.smoothActive * mouseInfluenceFactor,
             };
 
             gl.clear(gl.COLOR_BUFFER_BIT);

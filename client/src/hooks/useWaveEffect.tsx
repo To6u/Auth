@@ -1,5 +1,5 @@
 import { type MotionValue, useMotionValueEvent } from 'framer-motion';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef } from 'react';
 
 interface UseWaveEffectOptions {
     maxScale?: number;
@@ -31,8 +31,8 @@ export const useWaveEffect = (
     const displacementRef = useRef<SVGFEDisplacementMapElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const [isVisible, setIsVisible] = useState(false);
-    const [isPageVisible, setIsPageVisible] = useState(true);
+    const isVisibleRef = useRef(false);
+    const isPageVisibleRef = useRef(true);
 
     const isHoveredRef = useRef(false);
     const scrollScaleRef = useRef(0);
@@ -42,23 +42,55 @@ export const useWaveEffect = (
 
     // Page Visibility API
     useEffect(() => {
-        const handleVisibility = () => setIsPageVisible(!document.hidden);
+        const handleVisibility = () => {
+            isPageVisibleRef.current = !document.hidden;
+            if (!isPageVisibleRef.current) {
+                cancelAnimationFrame(animationRef.current);
+                isAnimatingRef.current = false;
+                if (alwaysOn) {
+                    currentScaleRef.current = 0;
+                    const container = containerRef.current;
+                    const displacement = displacementRef.current;
+                    if (container) container.style.filter = 'none';
+                    if (displacement) displacement.setAttribute('scale', '0');
+                }
+            } else if (alwaysOn && isVisibleRef.current) {
+                scrollScaleRef.current = maxScale;
+                startAnimation();
+            }
+        };
         document.addEventListener('visibilitychange', handleVisibility);
         return () => document.removeEventListener('visibilitychange', handleVisibility);
-    }, []);
+    }, [alwaysOn, maxScale, startAnimation]);
 
     // IntersectionObserver
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
 
-        const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), {
-            rootMargin: '100px',
-        });
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                isVisibleRef.current = entry.isIntersecting;
+                if (!isVisibleRef.current) {
+                    cancelAnimationFrame(animationRef.current);
+                    isAnimatingRef.current = false;
+                    if (alwaysOn) {
+                        currentScaleRef.current = 0;
+                        const displacement = displacementRef.current;
+                        if (container) container.style.filter = 'none';
+                        if (displacement) displacement.setAttribute('scale', '0');
+                    }
+                } else if (alwaysOn && isPageVisibleRef.current) {
+                    scrollScaleRef.current = maxScale;
+                    startAnimation();
+                }
+            },
+            { rootMargin: '100px' }
+        );
 
         observer.observe(container);
         return () => observer.disconnect();
-    }, []);
+    }, [alwaysOn, maxScale, startAnimation]);
 
     const startAnimation = useCallback(() => {
         if (isAnimatingRef.current) return;
@@ -98,34 +130,6 @@ export const useWaveEffect = (
         animationRef.current = requestAnimationFrame(animate);
     }, [hoverTransitionSpeed, filterId]);
 
-    // alwaysOn: включаем/выключаем фильтр при изменении видимости
-    useEffect(() => {
-        if (!alwaysOn) return;
-
-        if (isVisible && isPageVisible) {
-            scrollScaleRef.current = maxScale;
-            startAnimation();
-        } else {
-            cancelAnimationFrame(animationRef.current);
-            isAnimatingRef.current = false;
-            currentScaleRef.current = 0;
-            scrollScaleRef.current = maxScale;
-            const container = containerRef.current;
-            const displacement = displacementRef.current;
-            if (container) container.style.filter = 'none';
-            if (displacement) displacement.setAttribute('scale', '0');
-        }
-    }, [alwaysOn, isVisible, isPageVisible, maxScale, startAnimation]);
-
-    // Cleanup при выходе из viewport или скрытии вкладки (для scroll-режима)
-    useEffect(() => {
-        if (alwaysOn) return;
-        if (!isVisible || !isPageVisible) {
-            cancelAnimationFrame(animationRef.current);
-            isAnimatingRef.current = false;
-        }
-    }, [alwaysOn, isVisible, isPageVisible]);
-
     // Hover tracking
     useEffect(() => {
         const container = containerRef.current;
@@ -133,12 +137,12 @@ export const useWaveEffect = (
 
         const handleEnter = () => {
             isHoveredRef.current = true;
-            if (isVisible && isPageVisible) startAnimation();
+            if (isVisibleRef.current && isPageVisibleRef.current) startAnimation();
         };
 
         const handleLeave = () => {
             isHoveredRef.current = false;
-            if (isVisible && isPageVisible) startAnimation();
+            if (isVisibleRef.current && isPageVisibleRef.current) startAnimation();
         };
 
         container.addEventListener('mouseenter', handleEnter);
@@ -148,11 +152,11 @@ export const useWaveEffect = (
             container.removeEventListener('mouseenter', handleEnter);
             container.removeEventListener('mouseleave', handleLeave);
         };
-    }, [isVisible, isPageVisible, startAnimation]);
+    }, [startAnimation]);
 
     // Scroll listener — игнорируем в alwaysOn режиме
     useMotionValueEvent(scaleProgress, 'change', (latest) => {
-        if (alwaysOn || !isVisible || !isPageVisible) return;
+        if (alwaysOn || !isVisibleRef.current || !isPageVisibleRef.current) return;
 
         const scale = latest > threshold ? latest * maxScale : 0;
         const prevScale = scrollScaleRef.current;

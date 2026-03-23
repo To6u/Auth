@@ -9,6 +9,10 @@ const MAX_DROPLETS = 60;
 // ── Глитч ────────────────────────────────────────────────────────────────────
 const GLITCH_INTERVAL = 8000;
 const GLITCH_DURATION = 350;
+// ── Throttle / idle ──────────────────────────────────────────────────────────
+const FPS_CAP = 30;
+const FRAME_MS = 1000 / FPS_CAP;
+const IDLE_TIMEOUT = 30_000;
 
 const ASCII_LINES = asciiRaw.split('\n');
 
@@ -174,6 +178,10 @@ const AsciiRain = memo(() => {
         // ── Дождь ────────────────────────────────────────────────────
 
         let lastGlitchTime = -GLITCH_INTERVAL;
+        let lastFrameTime = 0;
+        let lastActivityTime = performance.now();
+        let isPageVisible = !document.hidden;
+        let idlePaused = false;
 
         const spawn = (): Droplet => {
             const col = activeCols[Math.floor(Math.random() * activeCols.length)];
@@ -189,6 +197,16 @@ const AsciiRain = memo(() => {
 
         const animate = (now: number) => {
             if (cancelled) return;
+            if (!isPageVisible || now - lastActivityTime > IDLE_TIMEOUT) {
+                idlePaused = true;
+                rafId = 0;
+                return;
+            }
+            if (now - lastFrameTime < FRAME_MS) {
+                rafId = requestAnimationFrame(animate);
+                return;
+            }
+            lastFrameTime = now;
 
             const cssW = canvas.clientWidth;
             const cssH = canvas.clientHeight;
@@ -249,6 +267,26 @@ const AsciiRain = memo(() => {
             rafId = requestAnimationFrame(animate);
         };
 
+        const onVisibilityChange = () => {
+            isPageVisible = !document.hidden;
+            if (isPageVisible && idlePaused) {
+                idlePaused = false;
+                lastActivityTime = performance.now();
+                rafId = requestAnimationFrame(animate);
+            } else if (!isPageVisible) {
+                cancelAnimationFrame(rafId);
+                rafId = 0;
+            }
+        };
+
+        const onActivity = () => {
+            lastActivityTime = performance.now();
+            if (idlePaused && isPageVisible) {
+                idlePaused = false;
+                rafId = requestAnimationFrame(animate);
+            }
+        };
+
         const io = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
@@ -261,12 +299,18 @@ const AsciiRain = memo(() => {
             { rootMargin: '100px' }
         );
         io.observe(canvas);
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        window.addEventListener('mousemove', onActivity, { passive: true });
+        window.addEventListener('scroll', onActivity, { passive: true });
 
         return () => {
             cancelled = true;
             cancelAnimationFrame(rafId);
             ro.disconnect();
             io.disconnect();
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+            window.removeEventListener('mousemove', onActivity);
+            window.removeEventListener('scroll', onActivity);
         };
     }, []);
 

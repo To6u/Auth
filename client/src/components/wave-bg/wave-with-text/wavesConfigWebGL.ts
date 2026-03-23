@@ -31,7 +31,7 @@ export interface ParsedWaveColors {
     tint: [number, number, number, number];
 }
 
-export const WAVE_SPEED_MULTIPLIER = 0.5;
+export const WAVE_SPEED_MULTIPLIER = 0.3;
 export const WAVE_WIDTH_MULTIPLIER = 1;
 
 // Парсинг rgba строки в нормализованный массив

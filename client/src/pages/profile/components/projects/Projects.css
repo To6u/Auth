@@ -44,7 +44,7 @@
 
 /* Открытая карточка */
 .projects-scene__card--expanded {
-    height: 50vh;
+    height: fit-content;
     max-height: 50vh;
     display: flex;
     flex-direction: column;
@@ -103,10 +103,12 @@
     border-radius: 60px;
     corner-shape: squircle;
     background: rgba(246, 234, 198, 0.11);
-    /* Ограничиваем высоту в закрытом состоянии — контент не вытекает за viewport */
-    max-height: 30vh;
+    /* Ограничиваем высоту в закрытом состояАии — контент не вытекает за viewport */
+    max-height: 28vh;
     overflow: hidden;
-    border: 10px solid transparent;
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+    transition: box-shadow 0.5s ease;
+    border: 8px solid transparent;
 }
 
 /* Scroll wrapper — несёт padding и flex-layout; в открытом состоянии скроллится */
@@ -168,16 +170,16 @@
 /* ── Year ──────────────────────────────────────────────────────── */
 .projects-scene__year {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.04em;
 }
 
 .projects-scene__card-main-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto;
     grid-gap: 8px;
-    position: relative;
+    align-items: start;
 }
 
 .projects-scene__card-text {
@@ -195,9 +197,10 @@
     overflow: hidden;
     border-radius: 40px;
     corner-shape: squircle;
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    position: sticky;
+    top: 8px;
+    align-self: start;
+    flex-shrink: 0;
 }
 
 /* ── Logo override inside card-image ──────────────────────────── */
