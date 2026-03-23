@@ -64,6 +64,8 @@
 .mobile-photo-strip__photo--selected {
     position: relative;
     z-index: 100;
+    border: 10px solid #fefefe7d;
+    backdrop-filter: blur(1px);
 }
 
 .mobile-photo-strip__photo--dimmed {
@@ -78,6 +80,87 @@
     z-index: 50;
     background: rgba(0, 0, 0, 0.1);
     pointer-events: none;
+}
+
+/* ── Nav arrows (перелистывание alt-фото) ── */
+
+.mobile-photo-strip__photo-nav {
+    position: fixed;
+    top: calc(50% - 42px);
+    z-index: 10000;
+    width: 84px;
+    height: 84px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(248, 248, 248, 0.45);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 24px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+    user-select: none;
+    outline: none;
+}
+
+.mobile-photo-strip__photo-nav:active {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.mobile-photo-strip__photo-nav--prev { left: 12px; }
+.mobile-photo-strip__photo-nav--next { right: 12px; }
+
+/* ── Alt-image crossfade (двухслойный рендер выделенного фото) ── */
+
+.mobile-photo-strip__photo-layers {
+    /* object-fit не применяется к div — задаём размер через унаследованный width/height */
+    position: relative;
+}
+
+.mobile-photo-strip__photo-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* fade — авто-цикл вариантов */
+.mobile-photo-strip__photo-layer--top {
+    animation: photo-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes photo-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* slide — навигация по стрелкам, новое фото въезжает со стороны нажатой стрелки */
+.mobile-photo-strip__photo-layer--top--slide-right {
+    animation: photo-slide-from-right 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.mobile-photo-strip__photo-layer--top--slide-left {
+    animation: photo-slide-from-left 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes photo-slide-from-right {
+    from { opacity: 0.6; transform: translateX(100%); }
+    to   { opacity: 1;   transform: translateX(0); }
+}
+
+@keyframes photo-slide-from-left {
+    from { opacity: 0.6; transform: translateX(-100%); }
+    to   { opacity: 1;   transform: translateX(0); }
 }
 
 /* ── Keyframes ── */

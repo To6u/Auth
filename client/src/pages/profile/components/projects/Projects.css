@@ -17,6 +17,8 @@
     height: 100vh;
     perspective: 1500px;
     perspective-origin: 50% 50%;
+    z-index: 130;
+    pointer-events: none;
 }
 
 /* ── 3D world — camera inverse is applied here via JS ──────────── */
@@ -36,21 +38,61 @@
     max-width: 600px;
     transform-style: preserve-3d;
     will-change: transform, opacity;
-    /* height анимируется CSS, transform — JS lerp */
     transition: height 0.4s ease;
-    max-height: 80vh;
+    max-height: 30vh;
 }
 
-/* Открытая карточка — только высота */
+/* Открытая карточка */
 .projects-scene__card--expanded {
-    height: calc(100vh - 4rem);
+    height: 50vh;
+    max-height: 50vh;
+    display: flex;
+    flex-direction: column;
 }
 
+/* Close-btn не сжимается */
+.projects-scene__card--expanded .projects-scene__close-btn {
+    flex-shrink: 0;
+}
+
+/* Card body занимает остаток — scroll wrapper внутри скроллится.
+   overflow: hidden обязателен — обрезает scrollbar по border-radius. */
 .projects-scene__card--expanded .projects-scene__card-body {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scroll wrapper — скроллится, обрезается родителем */
+.projects-scene__card--expanded .projects-scene__card-scroll {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
+    /* Firefox */
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+/* WebKit — macOS-стиль */
+.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 3px;
+}
+
+.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 /* ── Card body — glass surface (backdrop-filter intentionally here,
@@ -60,11 +102,20 @@
     position: relative;
     border-radius: 60px;
     corner-shape: squircle;
+    background: rgba(246, 234, 198, 0.11);
+    /* Ограничиваем высоту в закрытом состоянии — контент не вытекает за viewport */
+    max-height: 30vh;
+    overflow: hidden;
+    border: 10px solid transparent;
+}
+
+/* Scroll wrapper — несёт padding и flex-layout; в открытом состоянии скроллится */
+.projects-scene__card-scroll {
     padding: 28px 32px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    background: rgba(246, 234, 198, 0.11);
+    overflow: hidden;
 }
 
 /* Glass highlight */
@@ -163,7 +214,6 @@
     margin: 0;
     font-size: 22px;
     font-weight: 700;
-    color: rgba(255, 244, 234, 0.92);
     letter-spacing: -0.01em;
     line-height: 1.25;
 }
@@ -173,7 +223,6 @@
     margin: 0;
     font-size: 14px;
     line-height: 1.6;
-    color: rgba(255, 255, 255, 0.48);
     white-space: pre-line;
 }
 
@@ -193,6 +242,60 @@
     color: rgba(165, 167, 255, 0.85);
     border: 1px solid rgb(160 163 255 / 20%);
     letter-spacing: 0.03em;
+}
+
+/* ── Changelog ─────────────────────────────────────────────────── */
+.projects-scene__changelog {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 1rem;
+}
+
+.projects-scene__changelog-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.projects-scene__changelog-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.projects-scene__changelog-list li {
+    position: relative;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.5;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+}
+
+.projects-scene__changelog-date {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.2);
+    margin-right: 8px;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.projects-scene__changelog-list li::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.6);
+    border: 1px solid rgba(165, 167, 255, 0.4);
 }
 
 /* ── Links ─────────────────────────────────────────────────────── */
@@ -248,7 +351,8 @@
 .projects-scene__label {
     width: 100%;
     padding: 12rem 0 0;
-    text-align: center;
+    margin-bottom: -13rem;
+    margin-left: 10rem;
     z-index: 20;
     font-size: 5rem;
     font-weight: 900;
@@ -355,10 +459,10 @@
 
 .projects-scene__close-btn .submit-button {
     margin-top: 0;
-    width: auto;
+    width: 100px;
     padding: 10px 20px;
     font-size: 14px;
-    right: -9rem;
+    right: -10rem;
     top: 1rem;
     font-weight: 500;
 }

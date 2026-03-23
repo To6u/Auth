@@ -24,6 +24,7 @@ interface Project {
     link?: string;
     github?: string;
     logo?: boolean;
+    changelog?: { text: string; date: string }[];
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -35,7 +36,7 @@ const PROJECTS: Project[] = [
         id: '1',
         title: 'Форма входа',
         description:
-            'JWT-аутентификация через httpOnly cookie, bcrypt с 12 раундами, rate limiting. Три режима в едином интерфейсе с анимациями на Framer Motion. Валидация на blur + серверная через Zod.',
+            'JWT-аутентификация через httpOnly cookie, bcrypt с 12 раундами, rate limiting. Три режима в едином интерфейсе с анимациями на Framer Motion. Валидация на blur + серверная через Zod.\n\nСтек: React 19, TypeScript, Express 5, SQLite (better-sqlite3), Framer Motion.\n\nОсобенности реализации:\n— Единый FormContainer обрабатывает login / register / forgot-password\n— Токен живёт 24 часа, обновляется при каждом запросе\n— Защита от брутфорса: 10 попыток / 15 минут на IP\n— Валидация на blur (клиент) + Zod (сервер)\n— Анимации переходов через Framer Motion layout animations\n— Пароли хранятся в bcrypt-хэшах с 12 раундами соли\n— httpOnly cookie исключает XSS-доступ к токену\n— CORS настроен с конкретным origin, credentials: include\n— Rate limiting через express-rate-limit на auth-роутах\n— Helmet добавляет security-заголовки на все ответы\n\nАрхитектура:\nСервер — Express 5 с async error handling, SQLite через better-sqlite3 (синхронный, без callback hell). Все SQL-запросы через prepared statements — никакой конкатенации строк.\n\nЭто тестовый текст для проверки внутреннего скролла раскрытой карточки. Если видишь эту строку — скролл работает корректно и 3D-сцена не двигается пока листаешь внутри карточки. После того как доскроллишь до конца — следующий скролл переведёт камеру к следующей карточке.',
         tags: ['React', 'TypeScript', 'Express', 'SQLite'],
         status: 'live',
         year: '2024',
@@ -56,6 +57,17 @@ const PROJECTS: Project[] = [
         wy: 90,
         wz: -1500,
         logo: true,
+        changelog: [
+            { text: 'expandable cards with inner scroll + 0.8s bottom lock', date: '24 мар' },
+            { text: 'header dims to 0.3 inside projects section', date: '24 мар' },
+            { text: 'global macOS-style scrollbar', date: '18 мар' },
+            { text: 'scroll-driven 3D camera path via Catmull-Rom spline', date: '18 мар' },
+            { text: 'WebGL wave — phase accumulator, no time jump on resume', date: '14 мар' },
+            {
+                text: 'MobilePhotoStrip — infinite carousel, directional slide',
+                date: '10 мар',
+            },
+        ],
     },
     {
         id: '3',
@@ -87,11 +99,9 @@ interface Vec3 {
  * the world transform inverts it so cards approach the viewer.
  */
 const CAM_PATH: Vec3[] = [
-    { x: 0, y: 0, z: 0 }, // start → card-0
-    { x: -200, y: 60, z: 800 }, // sweep left
-    { x: -320, y: 90, z: 1500 }, // arrive card-1
-    { x: 80, y: 10, z: 2200 }, // sweep right
-    { x: 280, y: -70, z: 3000 }, // arrive card-2
+    { x: 0, y: 0, z: 0 }, // card-0
+    { x: -320, y: 90, z: 1500 }, // card-1
+    { x: 280, y: -70, z: 3000 }, // card-2
     { x: 280, y: -70, z: 3000 }, // ease-out tail — stops at card-2
 ];
 
@@ -156,57 +166,77 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
      * NOT on the parent .projects-scene__card which carries preserve-3d.
      * Applying backdrop-filter directly on a preserve-3d child breaks
      * 3D compositing in WebKit/Safari (unresolved engine bug).
+     *
+     * .projects-scene__card-scroll is the inner scroll wrapper — it carries
+     * padding/flex and gets overflow-y:auto in expanded state. The parent
+     * card-body stays overflow:hidden to clip the scrollbar to border-radius.
      */
     <div className="projects-scene__card-body">
-        <div className="projects-scene__card-header">
-            <span className={`projects-scene__badge projects-scene__badge--${data.status}`}>
-                {STATUS_LABELS[data.status]}
-            </span>
-            <span className="projects-scene__year">{data.year}</span>
-        </div>
-
-        <div className="projects-scene__card-main-content">
-            <div className="projects-scene__card-text">
-                <h3 className="projects-scene__card-title">{data.title}</h3>
-                <p className="projects-scene__card-desc">{data.description}</p>
-            </div>
-            <div className="projects-scene__card-image">{data.logo && <Logo />}</div>
-        </div>
-
-        <div className="projects-scene__tags">
-            {data.tags.map((tag) => (
-                <span key={tag} className="projects-scene__tag">
-                    {tag}
+        <div className="projects-scene__card-scroll">
+            <div className="projects-scene__card-header">
+                <span className={`projects-scene__badge projects-scene__badge--${data.status}`}>
+                    {STATUS_LABELS[data.status]}
                 </span>
-            ))}
-        </div>
-
-        {(data.link ?? data.github) && (
-            <div className="projects-scene__links">
-                {data.link && (
-                    <a
-                        href={data.link}
-                        className="projects-scene__link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <ExternalLink size={14} />
-                        <span>Посмотреть в живую</span>
-                    </a>
-                )}
-                {data.github && (
-                    <a
-                        href={data.github}
-                        className="projects-scene__link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <Github size={14} />
-                        <span>GitHub</span>
-                    </a>
-                )}
+                <span className="projects-scene__year">{data.year}</span>
             </div>
-        )}
+
+            <div className="projects-scene__card-main-content">
+                <div className="projects-scene__card-text">
+                    <h3 className="projects-scene__card-title">{data.title}</h3>
+                    <p className="projects-scene__card-desc">{data.description}</p>
+                </div>
+                <div className="projects-scene__card-image">{data.logo && <Logo />}</div>
+            </div>
+
+            <div className="projects-scene__tags">
+                {data.tags.map((tag) => (
+                    <span key={tag} className="projects-scene__tag">
+                        {tag}
+                    </span>
+                ))}
+            </div>
+
+            {data.changelog && data.changelog.length > 0 && (
+                <div className="projects-scene__changelog">
+                    <span className="projects-scene__changelog-title">Последние изменения:</span>
+                    <ul className="projects-scene__changelog-list">
+                        {data.changelog.map((entry) => (
+                            <li key={entry.text}>
+                                <span className="projects-scene__changelog-date">{entry.date}</span>
+                                {entry.text}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {(data.link ?? data.github) && (
+                <div className="projects-scene__links">
+                    {data.link && (
+                        <a
+                            href={data.link}
+                            className="projects-scene__link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <ExternalLink size={14} />
+                            <span>Посмотреть в живую</span>
+                        </a>
+                    )}
+                    {data.github && (
+                        <a
+                            href={data.github}
+                            className="projects-scene__link"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Github size={14} />
+                            <span>GitHub</span>
+                        </a>
+                    )}
+                </div>
+            )}
+        </div>
     </div>
 ));
 
@@ -215,6 +245,9 @@ ProjectCard.displayName = 'ProjectCard';
 // ─────────────────────────────────────────────────────────────
 // Projects — main component
 // ─────────────────────────────────────────────────────────────
+
+// Progress values on the spline where each card is centred (matches CAM_PATH indices 0, 1, 2 of 3)
+const CARD_PROGRESS = [0, 1 / 3, 2 / 3] as const;
 
 export const Projects = () => {
     const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -227,6 +260,11 @@ export const Projects = () => {
     const counterRef = useRef<HTMLDivElement>(null);
     const counterCurRef = useRef<HTMLSpanElement>(null);
     const scrollHintRef = useRef<HTMLDivElement>(null);
+    // Shared state for click handler (no React state — avoids re-renders)
+    const activeIndexRef = useRef(0);
+    const sectionTopRef = useRef(0);
+    const sectionScrollableRef = useRef(0);
+    const pendingExpandRef = useRef<string | null>(null);
 
     useEffect(() => {
         const section = sectionRef.current;
@@ -240,6 +278,8 @@ export const Projects = () => {
         let sectionTop = section.getBoundingClientRect().top + window.scrollY;
         let sectionScrollable = section.offsetHeight - window.innerHeight;
         let xScale = Math.min(1, window.innerWidth / 1200);
+        sectionTopRef.current = sectionTop;
+        sectionScrollableRef.current = sectionScrollable;
 
         function applyCardPositions(): void {
             PROJECTS.forEach((p, i) => {
@@ -253,6 +293,8 @@ export const Projects = () => {
             sectionTop = section.getBoundingClientRect().top + window.scrollY;
             sectionScrollable = section.offsetHeight - window.innerHeight;
             xScale = Math.min(1, window.innerWidth / 1200);
+            sectionTopRef.current = sectionTop;
+            sectionScrollableRef.current = sectionScrollable;
             applyCardPositions();
         };
 
@@ -275,6 +317,8 @@ export const Projects = () => {
         let rafId = 0;
         let lastActiveIndex = -1;
         let scrollTimer: ReturnType<typeof setTimeout> | undefined;
+        // Кэш .projects-scene__card-body элементов — избегаем querySelector в каждом кадре
+        const cardBodyEls: (HTMLElement | null)[] = [];
         let lastScrollY = window.scrollY;
 
         const LERP = 0.09;
@@ -317,6 +361,7 @@ export const Projects = () => {
         function updateCards(): void {
             let minAbsZ = Infinity;
             let activeIndex = 0;
+            const opacities: number[] = [];
 
             PROJECTS.forEach((p, i) => {
                 const el = cardRefs.current[i];
@@ -354,8 +399,16 @@ export const Projects = () => {
                     blurPx = 3;
                 }
 
+                opacities[i] = opacity;
                 el.style.opacity = String(opacity);
                 el.style.filter = blurPx > 0 ? `blur(${Math.round(blurPx)}px)` : 'none';
+
+                // Клики только у карточек, которые ещё не прошли за камеру (effectiveZ < 300).
+                // Карточки с effectiveZ ≥ 300 фейдятся позади камеры — несмотря на opacity > 0,
+                // их projected 2D hit-area перехватывает клики предназначенные следующей карточке.
+                const clickable = effectiveZ < 300 && opacity > 0.15;
+                el.style.pointerEvents = clickable ? 'auto' : 'none';
+                el.style.cursor = clickable ? 'pointer' : 'default';
 
                 const absZ = Math.abs(effectiveZ);
                 if (absZ < minAbsZ) {
@@ -364,9 +417,25 @@ export const Projects = () => {
                 }
             });
 
-            // Counter + nav dots + авто-открытие — только при смене активной карточки
+            // Зелёный outline — только когда карточка в фокусной зоне (opacity ≥ 0.9).
+            // Без этого outline появляется пока карточка ещё в approaching-зоне и не кликабельна.
+            // cardBodyEls кэшируется — querySelector не вызывается в каждом кадре.
+            cardRefs.current.forEach((el, i) => {
+                if (!el) return;
+                if (!cardBodyEls[i]) {
+                    cardBodyEls[i] = el.querySelector<HTMLElement>('.projects-scene__card-body');
+                }
+                const body = cardBodyEls[i];
+                if (body) {
+                    const inFocus = i === activeIndex && (opacities[i] ?? 0) >= 0.9;
+                    body.style.outline = inFocus ? '8px solid rgba(74, 222, 128, 0.45)' : 'none';
+                }
+            });
+
+            // Counter + nav dots — только при смене активной карточки
             if (activeIndex !== lastActiveIndex) {
                 lastActiveIndex = activeIndex;
+                activeIndexRef.current = activeIndex;
 
                 if (counterCurRef.current) {
                     counterCurRef.current.textContent = String(activeIndex + 1).padStart(2, '0');
@@ -374,20 +443,6 @@ export const Projects = () => {
 
                 navDotRefs.current.forEach((dot, i) => {
                     dot?.classList.toggle('active', i === activeIndex);
-                });
-
-                cardRefs.current.forEach((el, i) => {
-                    if (!el) return;
-                    const isActive = i === activeIndex;
-                    // inline style — React не перезаписывает эти свойства при ре-рендере
-                    el.style.pointerEvents = isActive ? 'auto' : 'none';
-                    el.style.cursor = isActive ? 'pointer' : 'default';
-                    const body = el.querySelector<HTMLElement>('.projects-scene__card-body');
-                    if (body) {
-                        body.style.outline = isActive
-                            ? '20px solid rgba(255, 244, 234, 0.02)'
-                            : 'none';
-                    }
                 });
             }
         }
@@ -448,6 +503,11 @@ export const Projects = () => {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(() => {
                 projectsState.isScrolling = false;
+
+                if (pendingExpandRef.current) {
+                    setExpandedId(pendingExpandRef.current);
+                    pendingExpandRef.current = null;
+                }
             }, SCROLL_IDLE_MS);
             cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(tick);
@@ -479,6 +539,55 @@ export const Projects = () => {
         };
     }, []);
 
+    // Сбрасываем скролл и перехватываем wheel при открытии карточки.
+    // Когда пользователь доскролил до дна — ждём 1с и переходим к следующей карточке.
+    useEffect(() => {
+        if (!expandedId) return;
+        const expandedIndex = PROJECTS.findIndex((p) => p.id === expandedId);
+        const cardEl = cardRefs.current[expandedIndex];
+        if (!cardEl) return;
+
+        const scrollEl = cardEl.querySelector<HTMLElement>('.projects-scene__card-scroll');
+        if (!scrollEl) return;
+        scrollEl.scrollTop = 0;
+
+        // После 1с ожидания на дне — разблокируем скрол (window получает события нативно)
+        let unlocked = false;
+        let unlockTimer: ReturnType<typeof setTimeout> | undefined;
+
+        const onWheel = (e: WheelEvent) => {
+            // Задержка нужна только если карточка реально скроллится (есть что листать)
+            const hasScroll = scrollEl.scrollHeight > scrollEl.clientHeight + 2;
+            if (!hasScroll) return;
+
+            const atBottom =
+                scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 2;
+
+            if (atBottom && e.deltaY > 0) {
+                if (unlocked) return; // пропускаем — window scroll сработает нативно
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (unlockTimer !== undefined) return; // уже ждём
+                unlockTimer = setTimeout(() => {
+                    unlockTimer = undefined;
+                    unlocked = true;
+                }, 800);
+            } else {
+                // Прокрутка вверх или не на дне — сбрасываем задержку
+                clearTimeout(unlockTimer);
+                unlockTimer = undefined;
+                unlocked = false;
+            }
+        };
+
+        scrollEl.addEventListener('wheel', onWheel, { passive: false });
+        return () => {
+            scrollEl.removeEventListener('wheel', onWheel);
+            clearTimeout(unlockTimer);
+        };
+    }, [expandedId]);
+
     return (
         <>
             <section ref={sectionRef} id="projects" className="projects-scene">
@@ -501,7 +610,20 @@ export const Projects = () => {
                                     cardRefs.current[i] = el;
                                 }}
                                 className={`projects-scene__card${expandedId === p.id ? ' projects-scene__card--expanded' : ''}`}
-                                onClick={() => setExpandedId((cur) => (cur === p.id ? null : p.id))}
+                                onClick={() => {
+                                    if (i === activeIndexRef.current) {
+                                        setExpandedId((cur) => (cur === p.id ? null : p.id));
+                                    } else {
+                                        // Карточка не активна — плавно прокручиваем к её слою,
+                                        // расширяем после остановки скролла
+                                        const progress = CARD_PROGRESS[i] ?? 0;
+                                        const targetY =
+                                            sectionTopRef.current +
+                                            progress * sectionScrollableRef.current;
+                                        pendingExpandRef.current = p.id;
+                                        window.scrollTo({ top: targetY, behavior: 'smooth' });
+                                    }
+                                }}
                             >
                                 {/* Кнопка закрыть — внутри card, над card-body, управляется CSS через --expanded */}
                                 <div
@@ -513,7 +635,7 @@ export const Projects = () => {
                                 >
                                     <SubmitButton
                                         isLoading={false}
-                                        buttonText="Закрыть"
+                                        buttonText=""
                                         type="button"
                                         icon={<X size={14} />}
                                         iconPosition="left"

@@ -8,15 +8,20 @@ export function PageErrorFallback() {
     return (
         <div
             style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 99999,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                minHeight: '100vh',
                 gap: '16px',
                 color: '#fff',
                 textAlign: 'center',
                 padding: '24px',
+                background: 'rgba(10, 8, 30, 0.92)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
             }}
         >
             <p style={{ fontSize: '16px', opacity: 0.7, margin: 0 }}>

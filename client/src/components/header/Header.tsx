@@ -10,7 +10,7 @@ const NAV_ITEMS = [
     { id: 'place', label: 'Откуда' },
     { id: 'way', label: 'Путь' },
     { id: 'projects', label: 'Проекты' },
-    { id: 'contacts', label: 'СЦ' },
+    { id: 'contacts', label: 'Связь' },
 ] as const;
 
 type SectionId = (typeof NAV_ITEMS)[number]['id'];

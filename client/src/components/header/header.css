@@ -15,6 +15,24 @@
     pointer-events: auto;
 }
 
+/* Внутри секции проектов — хедер уходит на второй план */
+html:has(.projects-scene__nav.visible) .header {
+    opacity: 0.3;
+}
+
+html:has(.projects-scene__nav.visible) .header:hover {
+    opacity: 1;
+}
+
+.header a {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.header a:hover {
+    opacity: 1;
+}
+
 /* После скролла hero — вертикальный список справа сверху */
 .header--scrolled {
     display: flex;
