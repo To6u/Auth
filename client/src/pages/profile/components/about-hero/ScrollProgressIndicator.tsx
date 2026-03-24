@@ -44,6 +44,7 @@ export const ScrollProgressIndicator = memo(
     }: ScrollProgressIndicatorProps) => {
         const uid = useId();
         const clipId = `track-clip-${uid}`;
+        const progressClipId = `progress-clip-${uid}`;
 
         const [dotPositions, setDotPositions] = useState<number[]>([]);
         const [svgHeight, setSvgHeight] = useState(0);
@@ -54,6 +55,9 @@ export const ScrollProgressIndicator = memo(
         // ref для сравнения svgHeight (state) в MotionValue-колбэках без stale closure
         const svgHeightRef = useRef(0);
         svgHeightRef.current = svgHeight;
+
+        const clipRectRef = useRef<SVGRectElement>(null);
+        const progressClipRef = useRef<SVGRectElement>(null);
 
         const { scrollYProgress } = useScroll({
             target: containerRef,
@@ -145,6 +149,22 @@ export const ScrollProgressIndicator = memo(
             }
         });
 
+        // Safari: CSS-трансформы внутри <clipPath> игнорируются — обновляем SVG-атрибуты напрямую.
+        // Серый трек: rect.y = clipY (скрывает сверху вниз).
+        // Белый прогресс: rect.height = clipY (открывает сверху вниз).
+        // Никакого stroke-dasharray/dashoffset — SVG clipPath атрибуты работают везде.
+        useMotionValueEvent(clipY, 'change', (v) => {
+            clipRectRef.current?.setAttribute('y', String(v));
+            progressClipRef.current?.setAttribute('height', String(v));
+        });
+
+        useEffect(() => {
+            if (svgHeight === 0) return;
+            const v = clipY.get();
+            clipRectRef.current?.setAttribute('y', String(v));
+            progressClipRef.current?.setAttribute('height', String(v));
+        }, [svgHeight]); // eslint-disable-line react-hooks/exhaustive-deps
+
         useEffect(() => {
             measureAndUpdate(false);
 
@@ -177,12 +197,24 @@ export const ScrollProgressIndicator = memo(
                     preserveAspectRatio="xMidYMin meet"
                 >
                     <defs>
+                        {/* Трек: rect.y растёт → скрывает сверху вниз */}
                         <clipPath id={clipId}>
-                            <motion.rect
+                            <rect
+                                ref={clipRectRef}
                                 x={-AMPLITUDE}
+                                y={0}
                                 width={PATH_WIDTH + AMPLITUDE * 2}
                                 height={svgHeight}
-                                style={{ y: clipY }}
+                            />
+                        </clipPath>
+                        {/* Прогресс: rect.height растёт → открывает сверху вниз */}
+                        <clipPath id={progressClipId}>
+                            <rect
+                                ref={progressClipRef}
+                                x={-AMPLITUDE}
+                                y={0}
+                                width={PATH_WIDTH + AMPLITUDE * 2}
+                                height={0}
                             />
                         </clipPath>
                     </defs>
@@ -193,10 +225,10 @@ export const ScrollProgressIndicator = memo(
                         className="scroll-progress-indicator__track-path"
                     />
 
-                    <motion.path
+                    <path
                         d={wavePath}
+                        clipPath={`url(#${progressClipId})`}
                         className="scroll-progress-indicator__progress-path"
-                        style={{ pathLength: scrollYProgress }}
                     />
 
                     {dotPositions.map((position, index) => {

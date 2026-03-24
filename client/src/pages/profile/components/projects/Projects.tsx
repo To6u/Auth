@@ -188,10 +188,12 @@ const ProjectCard = memo(({ data }: ProjectCardProps) => (
                     <h3 className="projects-scene__card-title">{data.title}</h3>
                     <p className="projects-scene__card-desc">{data.description}</p>
                 </div>
-                <div className="projects-scene__card-image">
-                    {data.logo && <Logo />}
-                    {data.asciiPreview && <LoginAsciiPreview />}
-                </div>
+                {(data.logo || data.asciiPreview) && (
+                    <div className="projects-scene__card-image">
+                        {data.logo && <Logo />}
+                        {data.asciiPreview && <LoginAsciiPreview />}
+                    </div>
+                )}
             </div>
 
             <div className="projects-scene__tags">
@@ -268,6 +270,7 @@ export const Projects = () => {
     const scrollHintRef = useRef<HTMLDivElement>(null);
     // Shared state for click handler (no React state — avoids re-renders)
     const activeIndexRef = useRef(0);
+    const touchMovedRef = useRef(false);
     const sectionTopRef = useRef(0);
     const sectionScrollableRef = useRef(0);
     const pendingExpandRef = useRef<string | null>(null);
@@ -590,8 +593,86 @@ export const Projects = () => {
         };
 
         scrollEl.addEventListener('wheel', onWheel, { passive: false });
+
+        // Touch — document capture level: перехватываем до 3D-сцены.
+        // getBoundingClientRect корректно возвращает 2D-проекцию после transform,
+        // поэтому hit-test работает правильно несмотря на 3D-позицию карточки.
+        // scrollMode фиксируется один раз при первом значимом движении —
+        // исключает прыжки контента при смене режима в середине жеста.
+        let touchStartY = 0;
+        let lastTouchY = 0;
+        let touchInsideCard = false;
+        let scrollMode: 'undecided' | 'card' | 'page' = 'undecided';
+
+        const onTouchStart = (e: TouchEvent) => {
+            const touch = e.touches[0];
+            if (!touch) return;
+            touchStartY = touch.clientY;
+            lastTouchY = touch.clientY;
+            touchMovedRef.current = false;
+            scrollMode = 'undecided';
+
+            const rect = cardEl.getBoundingClientRect();
+            touchInsideCard =
+                touch.clientX >= rect.left &&
+                touch.clientX <= rect.right &&
+                touch.clientY >= rect.top &&
+                touch.clientY <= rect.bottom;
+        };
+
+        const onTouchMove = (e: TouchEvent) => {
+            const touch = e.touches[0];
+            if (!touch) return;
+
+            const deltaY = touch.clientY - lastTouchY;
+            const totalDelta = touch.clientY - touchStartY;
+            if (Math.abs(totalDelta) > 5) touchMovedRef.current = true;
+
+            if (!touchInsideCard) {
+                lastTouchY = touch.clientY;
+                return;
+            }
+
+            // Фиксируем режим один раз при первых 8px движения
+            if (scrollMode === 'undecided' && Math.abs(totalDelta) > 8) {
+                const hasScroll = scrollEl.scrollHeight > scrollEl.clientHeight + 2;
+                const atTop = scrollEl.scrollTop <= 0;
+                const atBottom =
+                    scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 2;
+                const swipingDown = totalDelta > 0; // палец вниз → контент вверх
+
+                if (!hasScroll || (atTop && swipingDown) || (atBottom && !swipingDown)) {
+                    scrollMode = 'page';
+                } else {
+                    scrollMode = 'card';
+                }
+            }
+
+            lastTouchY = touch.clientY;
+
+            if (scrollMode !== 'card') return;
+
+            e.preventDefault();
+            scrollEl.scrollTop -= deltaY;
+        };
+
+        const onTouchEnd = () => {
+            touchInsideCard = false;
+            scrollMode = 'undecided';
+            setTimeout(() => {
+                touchMovedRef.current = false;
+            }, 50);
+        };
+
+        document.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
+        document.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+        document.addEventListener('touchend', onTouchEnd, { passive: true, capture: true });
+
         return () => {
             scrollEl.removeEventListener('wheel', onWheel);
+            document.removeEventListener('touchstart', onTouchStart, { capture: true });
+            document.removeEventListener('touchmove', onTouchMove, { capture: true });
+            document.removeEventListener('touchend', onTouchEnd, { capture: true });
             clearTimeout(unlockTimer);
         };
     }, [expandedId]);
@@ -619,6 +700,7 @@ export const Projects = () => {
                                 }}
                                 className={`projects-scene__card${expandedId === p.id ? ' projects-scene__card--expanded' : ''}`}
                                 onClick={() => {
+                                    if (touchMovedRef.current) return;
                                     if (i === activeIndexRef.current) {
                                         setExpandedId((cur) => (cur === p.id ? null : p.id));
                                     } else {

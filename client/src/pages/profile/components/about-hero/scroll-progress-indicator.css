@@ -24,13 +24,15 @@
 }
 
 /* Прогресс — яркая волна с свечением (заполненная часть) */
+/* filter намеренно не через CSS: Safari создаёт compositing-слой до stroke-dashoffset
+   → тень рендерится по полной длине пути независимо от прогресса.
+   SVG filter="url()" применяется после dash-рендеринга — баг обходится. */
 .scroll-progress-indicator__progress-path {
     fill: none;
     stroke: rgba(255, 244, 234, 0.85);
     stroke-width: 2.5;
     stroke-linecap: round;
     stroke-linejoin: round;
-    filter: drop-shadow(0 0 2px rgba(255, 244, 234, 0.5));
 }
 
 /* Заполнение точки */

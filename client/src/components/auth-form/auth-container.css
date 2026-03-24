@@ -61,8 +61,7 @@
 
 /* Левая часть - форма с блюром */
 .auth-form-section {
-    border-radius: 80px;
-    corner-shape: squircle;
+    border-radius: 32px;
     margin: 20px;
     flex: 1;
     padding: 40px 60px;
@@ -75,6 +74,13 @@
 
     background: transparent;
     backdrop-filter: blur(16px);
+}
+
+@supports (corner-shape: squircle) {
+    .auth-form-section {
+        border-radius: 80px;
+        corner-shape: squircle;
+    }
 }
 
 .auth-form-section::before {

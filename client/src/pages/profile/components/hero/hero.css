@@ -34,7 +34,7 @@
 }
 
 .hero__content:last-child {
-    margin-top: 25px;
+    margin-top: -15px;
 }
 
 /* Subtitle - контейнер с градиентом */
@@ -97,5 +97,9 @@
     .hero__content {
         font-size: 72px;
         padding: 0 1rem;
+    }
+
+    .hero__letters {
+        margin-top: -24px;
     }
 }

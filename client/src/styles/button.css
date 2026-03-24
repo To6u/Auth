@@ -22,8 +22,7 @@ button {
 
     /* Рамка */
     border: none;
-    border-radius: 25px;
-    corner-shape: squircle;
+    border-radius: 14px;
 
     /* Интерактивность */
     cursor: pointer;
@@ -35,6 +34,13 @@ button {
     /* Убираем внутренние отступы */
     margin: 0;
     box-sizing: border-box;
+}
+
+@supports (corner-shape: squircle) {
+    button {
+        border-radius: 25px;
+        corner-shape: squircle;
+    }
 }
 
 /* Состояние hover */

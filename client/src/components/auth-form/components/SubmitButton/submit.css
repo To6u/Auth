@@ -10,11 +10,17 @@
     overflow: hidden;
     background: transparent;
     border: none;
-    border-radius: 50px;
-    corner-shape: squircle;
+    border-radius: 20px;
     cursor: pointer;
     z-index: 3;
     box-shadow: 0 14px 28px -5px rgba(255, 238, 97, 0), 0 10px 10px -5px rgba(189, 217, 89, 0);
+}
+
+@supports (corner-shape: squircle) {
+    .submit-button {
+        border-radius: 50px;
+        corner-shape: squircle;
+    }
 }
 
 .button-text {

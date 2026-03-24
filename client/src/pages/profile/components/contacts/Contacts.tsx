@@ -45,8 +45,8 @@ const SOCIAL_CARDS = [
     {
         id: 'telegram',
         label: 'Telegram',
-        handle: '@niyaz',
-        href: 'https://t.me/niyaz',
+        handle: '@AZmagulovNI',
+        href: 'https://t.me/AZmagulovNI',
         Icon: TelegramIcon,
         color: 'rgba(41, 182, 246, 0.85)',
     },

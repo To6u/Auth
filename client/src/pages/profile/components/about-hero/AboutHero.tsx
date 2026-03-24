@@ -9,6 +9,9 @@ import { NameSection, SectionOneContent, SectionThreeContent } from './component
 import { useScrollSection } from './hooks/useScrollSection';
 import './about-hero.css';
 
+// feDisplacementMap с maxScale:90 не имеет GPU-ускорения в Safari → сильный лаг
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
 const imageModules = import.meta.glob('@/assets/about-images/*.{jpg,jpeg,JPEG,gif,GIF,png}', {
     eager: true,
     query: '?url',
@@ -272,7 +275,7 @@ export const AboutHero = memo(() => {
                                     width: '100%',
                                 }}
                             >
-                                {!isMobile && <WaveFilterBallsPlace />}
+                                {!isMobile && !isSafari && <WaveFilterBallsPlace />}
                                 <FloatingBalls
                                     images={PHOTOS}
                                     altImages={ALT_PHOTOS}
@@ -319,7 +322,7 @@ export const AboutHero = memo(() => {
                             {/* Десктоп/планшет: шары внутри sticky-заголовка — двигаются вместе с ним */}
                             {!isMobileLayout && (
                                 <motion.div style={{ opacity: ballsWayOpacity }}>
-                                    {!isMobile && <WaveFilterBallsWay />}
+                                    {!isMobile && !isSafari && <WaveFilterBallsWay />}
                                     <FloatingBalls
                                         images={MY_PHOTOS}
                                         altImages={MY_ALT_PHOTOS}

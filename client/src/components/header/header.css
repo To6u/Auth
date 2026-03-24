@@ -201,6 +201,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     .header__burger-wrap {
         display: block;
         width: 52px;
+        z-index: 150;
     }
 
     .header__burger-wrap .submit-button {
@@ -209,6 +210,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
 
     .header__mobile-menu {
         display: flex;
+        z-index: 140;
     }
 
     .header__mobile-menu--open {

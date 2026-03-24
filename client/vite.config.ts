@@ -1,12 +1,11 @@
 import react from '@vitejs/plugin-react';
-import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [react()],
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src'),
+            '@': new URL('./src', import.meta.url).pathname,
         },
     },
     server: {
@@ -20,5 +19,9 @@ export default defineConfig({
     },
     build: {
         assetsInlineLimit: 0, // Отключаем инлайн для шрифтов
+        target: 'es2015',
+    },
+    esbuild: {
+        target: 'es2015',
     },
 });

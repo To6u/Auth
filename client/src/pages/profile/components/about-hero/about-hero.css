@@ -130,8 +130,7 @@
     width: 100%;
     max-width: 900px;
     padding: 3rem;
-    border-radius: 80px;
-    corner-shape: squircle;
+    border-radius: 32px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -140,6 +139,13 @@
     backdrop-filter: blur(20px);
     background: transparent;
     -webkit-backdrop-filter: blur(20px);
+}
+
+@supports (corner-shape: squircle) {
+    .glass-card {
+        border-radius: 80px;
+        corner-shape: squircle;
+    }
 }
 
 /* About Section */
@@ -213,8 +219,14 @@
 }
 
 .photo-gallery img {
-    border-radius: 40px;
-    corner-shape: squircle;
+    border-radius: 16px;
+}
+
+@supports (corner-shape: squircle) {
+    .photo-gallery img {
+        border-radius: 40px;
+        corner-shape: squircle;
+    }
 }
 
 @media (max-width: 1280px) {

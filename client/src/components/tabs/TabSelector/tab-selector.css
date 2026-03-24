@@ -8,10 +8,16 @@
 
     background: rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(7, 7, 7, 0.1);
-    border-radius: 40px;
-    corner-shape: squircle;
+    border-radius: 18px;
 
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+@supports (corner-shape: squircle) {
+    .tab-selector {
+        border-radius: 40px;
+        corner-shape: squircle;
+    }
 }
 
 .tab-selector--centered {
@@ -33,12 +39,18 @@
 
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 25px;
-    corner-shape: squircle;
+    border-radius: 12px;
 
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: visible;
     margin-bottom: 0;
+}
+
+@supports (corner-shape: squircle) {
+    .tab-label {
+        border-radius: 25px;
+        corner-shape: squircle;
+    }
 }
 
 /* С текстом */

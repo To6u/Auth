@@ -40,6 +40,44 @@ export const useWaveEffect = (
     const animationRef = useRef<number>(0);
     const isAnimatingRef = useRef(false);
 
+    const startAnimation = useCallback(() => {
+        if (isAnimatingRef.current) return;
+        isAnimatingRef.current = true;
+
+        const animate = () => {
+            const displacement = displacementRef.current;
+            const container = containerRef.current;
+            if (!displacement || !container) {
+                isAnimatingRef.current = false;
+                return;
+            }
+
+            const targetScale = isHoveredRef.current ? 0 : scrollScaleRef.current;
+            const current = currentScaleRef.current;
+            const diff = targetScale - current;
+
+            if (Math.abs(diff) > 0.1) {
+                currentScaleRef.current = current + diff * hoverTransitionSpeed;
+                displacement.setAttribute('scale', String(currentScaleRef.current));
+                if (container.style.filter === 'none' || container.style.filter === '') {
+                    container.style.filter = `url(#${filterId})`;
+                }
+                animationRef.current = requestAnimationFrame(animate);
+            } else {
+                currentScaleRef.current = targetScale;
+                displacement.setAttribute('scale', String(targetScale));
+                if (targetScale < 0.5) {
+                    container.style.filter = 'none';
+                } else {
+                    container.style.filter = `url(#${filterId})`;
+                }
+                isAnimatingRef.current = false;
+            }
+        };
+
+        animationRef.current = requestAnimationFrame(animate);
+    }, [hoverTransitionSpeed, filterId]);
+
     // Page Visibility API
     useEffect(() => {
         const handleVisibility = () => {
@@ -91,44 +129,6 @@ export const useWaveEffect = (
         observer.observe(container);
         return () => observer.disconnect();
     }, [alwaysOn, maxScale, startAnimation]);
-
-    const startAnimation = useCallback(() => {
-        if (isAnimatingRef.current) return;
-        isAnimatingRef.current = true;
-
-        const animate = () => {
-            const displacement = displacementRef.current;
-            const container = containerRef.current;
-            if (!displacement || !container) {
-                animationRef.current = requestAnimationFrame(animate);
-                return;
-            }
-
-            const targetScale = isHoveredRef.current ? 0 : scrollScaleRef.current;
-            const current = currentScaleRef.current;
-            const diff = targetScale - current;
-
-            if (Math.abs(diff) > 0.1) {
-                currentScaleRef.current = current + diff * hoverTransitionSpeed;
-                displacement.setAttribute('scale', String(currentScaleRef.current));
-                if (container.style.filter === 'none' || container.style.filter === '') {
-                    container.style.filter = `url(#${filterId})`;
-                }
-                animationRef.current = requestAnimationFrame(animate);
-            } else {
-                currentScaleRef.current = targetScale;
-                displacement.setAttribute('scale', String(targetScale));
-                if (targetScale < 0.5) {
-                    container.style.filter = 'none';
-                } else {
-                    container.style.filter = `url(#${filterId})`;
-                }
-                isAnimatingRef.current = false;
-            }
-        };
-
-        animationRef.current = requestAnimationFrame(animate);
-    }, [hoverTransitionSpeed, filterId]);
 
     // Hover tracking
     useEffect(() => {

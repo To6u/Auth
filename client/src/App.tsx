@@ -185,7 +185,7 @@ function AnimatedRoutes() {
 
                     {isTabletOrMobile ? (
                         <ErrorBoundary fallback={null} name="WavesWithText">
-                            <WavesWithText showText={location.pathname === '/'} isStatic noWaves />
+                            <WavesWithText showText={location.pathname === '/'} isStatic />
                         </ErrorBoundary>
                     ) : (
                         <ErrorBoundary fallback={null} name="WavesWithText">
