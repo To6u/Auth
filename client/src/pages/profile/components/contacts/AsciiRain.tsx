@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef } from 'react';
 import asciiRaw from '@/assets/Az3d_ascii.txt?raw';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 
 const CHAR_W = 8;
 const CHAR_H = 14;
@@ -112,6 +113,7 @@ const AsciiRain = memo(() => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     // Lazy init в useEffect — не вызываем document API при рендере (SSR-safe, StrictMode-safe)
     const offscreenRef = useRef<HTMLCanvasElement | null>(null);
+    const { isSavingMode } = useAnimationMode();
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -170,8 +172,8 @@ const AsciiRain = memo(() => {
         const ro = new ResizeObserver(resize);
         ro.observe(canvas);
 
-        // Только статика при prefers-reduced-motion
-        if (prefersReduced) {
+        // Только статика при prefers-reduced-motion или сберегающем режиме
+        if (prefersReduced || isSavingMode) {
             return () => ro.disconnect();
         }
 
@@ -312,7 +314,7 @@ const AsciiRain = memo(() => {
             window.removeEventListener('mousemove', onActivity);
             window.removeEventListener('scroll', onActivity);
         };
-    }, []);
+    }, [isSavingMode]);
 
     return <canvas ref={canvasRef} className="contacts-ascii-canvas" aria-hidden="true" />;
 });

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import snowImg from '@/assets/Snow1.png';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
 import AsciiRain from './AsciiRain.tsx';
@@ -74,12 +75,16 @@ const MAX_TILT = 15; // deg
 
 function useCardTilt() {
     const ref = useRef<HTMLAnchorElement>(null);
+    const { isSavingMode } = useAnimationMode();
+    const isSavingModeRef = useRef(isSavingMode);
+    isSavingModeRef.current = isSavingMode;
 
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
 
         const onMove = (e: MouseEvent) => {
+            if (isSavingModeRef.current) return;
             const rect = el.getBoundingClientRect();
             // Нормализованная позиция -1..1 внутри карточки
             const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
@@ -140,6 +145,9 @@ const BG_PARALLAX_X = 20;
 export const Contacts = () => {
     const sectionRef = useRef<HTMLElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
+    const { isSavingMode: _savingMode } = useAnimationMode();
+    const isSavingModeRef = useRef(_savingMode);
+    isSavingModeRef.current = _savingMode;
 
     useEffect(() => {
         const section = sectionRef.current;
@@ -172,6 +180,7 @@ export const Contacts = () => {
         };
 
         const onMouseMove = (e: MouseEvent) => {
+            if (isSavingModeRef.current) return;
             lastActivityTime = performance.now();
             if (!rafId && isVisible && !cancelled) rafId = requestAnimationFrame(tick);
             // Нижняя часть экрана не влияет на параллакс — smootherstep [0.3→0.7]

@@ -52,6 +52,10 @@
     transform-style: flat;
 }
 
+.projects-scene__card--expanded .projects-scene__tags {
+    display: flex;
+}
+
 /* Close-btn не сжимается */
 .projects-scene__card--expanded .projects-scene__close-btn {
     flex-shrink: 0;
@@ -235,7 +239,7 @@
 
 /* ── Tag list ──────────────────────────────────────────────────── */
 .projects-scene__tags {
-    display: flex;
+    display: none;
     flex-wrap: wrap;
     gap: 6px;
 }
@@ -310,7 +314,6 @@
     display: flex;
     gap: 12px;
     margin-top: 4px;
-    margin-bottom: 20px;
 }
 
 .projects-scene__link {
@@ -550,6 +553,10 @@
 
     .projects-scene__card-header {
         margin-top: 20px;
+    }
+
+    .projects-scene__links {
+        margin-bottom: 20px;
     }
 
     /* transform-style: flat на expanded меняет compositing — явно восстанавливаем blur */

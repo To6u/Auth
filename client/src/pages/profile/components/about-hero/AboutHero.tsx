@@ -1,10 +1,11 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { memo, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import FloatingBalls from '@/components/floating-balls/FloatingBalls';
 import { MobilePhotoStrip } from '@/components/mobile-photo-strip';
 import { useBreakpoints } from '@/hooks/useBreakpoints';
 import { useElementProgress } from '@/hooks/useElementProgress';
 import { useWaveEffect } from '@/hooks/useWaveEffect';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import { NameSection, SectionOneContent, SectionThreeContent } from './components';
 import { useScrollSection } from './hooks/useScrollSection';
 import './about-hero.css';
@@ -48,6 +49,8 @@ export const AboutHero = memo(() => {
     const sectionThreeRef = useRef<HTMLDivElement>(null);
     const sectionTitleRef = useRef<HTMLDivElement>(null);
 
+    const { isSavingMode } = useAnimationMode();
+
     // <480px — мобилка, <768px — граница grid→flex-column
     const { isMobile, isMobileLayout } = useBreakpoints();
 
@@ -75,7 +78,7 @@ export const AboutHero = memo(() => {
     );
     const sectionThreeExitProgress = useElementProgress(
         sectionThreeRef,
-        ['40% start', 'end start'],
+        ['70% start', 'end start'],
         scrollY
     );
 
@@ -181,6 +184,15 @@ export const AboutHero = memo(() => {
         { maxScale: 90, alwaysOn: true }
     );
 
+    // Сброс filter при включении сберегающего режима
+    useEffect(() => {
+        if (isSavingMode) {
+            if (containerRefBallsPlace.current)
+                containerRefBallsPlace.current.style.filter = 'none';
+            if (containerRefBallsWay.current) containerRefBallsWay.current.style.filter = 'none';
+        }
+    }, [isSavingMode, containerRefBallsPlace, containerRefBallsWay]);
+
     // ═══════════════════════════════════════════════════════════════
     // SECTION ANIMATIONS
     // ═══════════════════════════════════════════════════════════════
@@ -275,7 +287,9 @@ export const AboutHero = memo(() => {
                                     width: '100%',
                                 }}
                             >
-                                {!isMobile && !isSafari && <WaveFilterBallsPlace />}
+                                {!isMobile && !isSafari && !isSavingMode && (
+                                    <WaveFilterBallsPlace />
+                                )}
                                 <FloatingBalls
                                     images={PHOTOS}
                                     altImages={ALT_PHOTOS}
@@ -322,7 +336,9 @@ export const AboutHero = memo(() => {
                             {/* Десктоп/планшет: шары внутри sticky-заголовка — двигаются вместе с ним */}
                             {!isMobileLayout && (
                                 <motion.div style={{ opacity: ballsWayOpacity }}>
-                                    {!isMobile && !isSafari && <WaveFilterBallsWay />}
+                                    {!isMobile && !isSafari && !isSavingMode && (
+                                        <WaveFilterBallsWay />
+                                    )}
                                     <FloatingBalls
                                         images={MY_PHOTOS}
                                         altImages={MY_ALT_PHOTOS}

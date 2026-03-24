@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
 import { LoginIcon, LogoutIcon } from '@/assets/icons';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import { useAuthInfo } from '@/hooks/useAuthInfo';
 import './header.css';
 
@@ -14,6 +15,20 @@ const NAV_ITEMS = [
 ] as const;
 
 type SectionId = (typeof NAV_ITEMS)[number]['id'];
+
+const LeafIcon = () => (
+    <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true">
+        <path
+            d="M3 13C3 13 5.5 6 13 3C13 9.5 8 13 3 13Z"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinejoin="round"
+            fill="currentColor"
+            fillOpacity="0.25"
+        />
+        <path d="M3 13L7.5 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+);
 
 // Иконка гамбургера с анимацией в крест при открытии
 const BurgerIcon = ({ isOpen }: { isOpen: boolean }) => (
@@ -32,6 +47,7 @@ const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isPastHero, setIsPastHero] = useState(false);
     const { isAuthenticated, isLoading, logout } = useAuthInfo();
+    const { isSavingMode, toggleSavingMode } = useAnimationMode();
     const navigate = useNavigate();
     const topsRef = useRef<number[]>([]);
 
@@ -119,6 +135,22 @@ const Header = () => {
                         </a>
                     </li>
                 ))}
+                <li>
+                    <button
+                        type="button"
+                        className={`header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
+                        onClick={toggleSavingMode}
+                        title={isSavingMode ? 'Обычный режим' : 'Сберегающий режим'}
+                        aria-pressed={isSavingMode}
+                        aria-label={
+                            isSavingMode
+                                ? 'Выключить сберегающий режим'
+                                : 'Включить сберегающий режим'
+                        }
+                    >
+                        <LeafIcon />
+                    </button>
+                </li>
             </ul>
 
             {/* Гамбургер — SubmitButton с иконкой бургера, только на мобилке */}
@@ -154,6 +186,19 @@ const Header = () => {
                             </a>
                         </li>
                     ))}
+
+                    {/* Сберегающий режим */}
+                    <li>
+                        <button
+                            type="button"
+                            className={`header__mobile-auth header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
+                            onClick={toggleSavingMode}
+                            aria-pressed={isSavingMode}
+                        >
+                            <LeafIcon />
+                            {isSavingMode ? 'Обычный режим' : 'Сберегающий режим'}
+                        </button>
+                    </li>
 
                     {/* Войти / Выйти как пункт меню */}
                     {!isLoading && (

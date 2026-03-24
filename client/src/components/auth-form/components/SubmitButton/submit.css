@@ -48,6 +48,10 @@
     pointer-events: none;
 }
 
+html.saving-mode .submit-button .wave {
+    animation-play-state: paused;
+}
+
 /* Волна 1 - голубая */
 .wave-1 {
     background: linear-gradient(

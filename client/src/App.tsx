@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { ProtectedRoute } from '@/components/route/ProtectedRoute';
 import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground';
 import WavesBackground from '@/components/wave-bg/WavesBackground';
+import { AnimationModeProvider } from '@/context/AnimationModeContext';
 import { AuthInfoProvider } from '@/context/AuthInfoContext';
 import { LoginPage } from '@/pages/LoginPage';
 import '@/components/layout/layout.css';
@@ -203,9 +204,11 @@ function App() {
         <>
             <AppLoader />
             <BrowserRouter>
-                <AuthInfoProvider>
-                    <AnimatedRoutes />
-                </AuthInfoProvider>
+                <AnimationModeProvider>
+                    <AuthInfoProvider>
+                        <AnimatedRoutes />
+                    </AuthInfoProvider>
+                </AnimationModeProvider>
             </BrowserRouter>
         </>
     );

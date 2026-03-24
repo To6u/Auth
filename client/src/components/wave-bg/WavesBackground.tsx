@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import {
     WAVE_SPEED_MULTIPLIER,
     type WaveConfig,
@@ -28,6 +29,9 @@ const throttle = <T extends (...args: never[]) => unknown>(
 const useMousePosition = (canvasRef: React.RefObject<HTMLCanvasElement | null>) => {
     const mousePos = useRef({ x: -1000, y: -1000 });
     const rectRef = useRef<DOMRect | null>(null);
+    const { isSavingMode } = useAnimationMode();
+    const isSavingModeRef = useRef(isSavingMode);
+    isSavingModeRef.current = isSavingMode;
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -39,6 +43,7 @@ const useMousePosition = (canvasRef: React.RefObject<HTMLCanvasElement | null>) 
         updateRect();
 
         const handleMouseMove = (e: MouseEvent) => {
+            if (isSavingModeRef.current) return;
             const rect = rectRef.current;
             if (!rect) return;
             mousePos.current = {

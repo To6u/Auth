@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import type { WaveConfig } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
 import {
     parsedWaveColors,
@@ -324,6 +325,9 @@ const WavesBackgroundWebGL = memo(() => {
     const vertexBuffersRef = useRef<Float32Array[]>([]);
     const isUnmountedRef = useRef(false);
     const dprRef = useRef(1);
+    const { isSavingMode } = useAnimationMode();
+    const isSavingModeRef = useRef(isSavingMode);
+    isSavingModeRef.current = isSavingMode;
     const mouseRef = useRef<MouseState>({
         x: 0,
         y: 0,
@@ -400,6 +404,7 @@ const WavesBackgroundWebGL = memo(() => {
 
         // Обработчики мыши — на window, т.к. canvas имеет z-index: -1
         const handleMouseMove = (e: MouseEvent) => {
+            if (isSavingModeRef.current) return;
             mouseRef.current.x = e.clientX;
             mouseRef.current.y = e.clientY;
             mouseRef.current.active = true;

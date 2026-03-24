@@ -313,6 +313,7 @@ export const Projects = () => {
             recalcLayout();
         });
         bodyResizeObserver.observe(sectionEl);
+        bodyResizeObserver.observe(document.body);
 
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

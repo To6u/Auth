@@ -47,6 +47,34 @@ html:has(.projects-scene__nav.visible) .header:hover {
     font-weight: 900;
 }
 
+/* ── Свитчер сберегающего режима ─────────────────────────────────── */
+
+.header__save-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    opacity: 0.45;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+}
+
+.header__save-toggle:hover {
+    opacity: 1;
+}
+
+.header__save-toggle--active {
+    opacity: 1;
+    color: rgba(140, 220, 140, 0.9);
+}
+
 /* ── Десктоп burger + dropdown (удалён) ──────────────────────────── */
 
 /* ── Гамбургер (SubmitButton-обёртка) ────────────────────────────── */
