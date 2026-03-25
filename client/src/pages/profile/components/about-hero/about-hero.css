@@ -291,7 +291,9 @@
 
     .about-hero {
         padding: 2rem 1rem;
-        overflow-x: hidden; /* sticky → static на мобилке, hidden безопасен; клипает FM-трансформы */
+        /* overflow: clip — обрезает composited/GPU слои (Framer Motion) в Chrome DevTools;
+           не создаёт scroll container в отличие от hidden; sticky уже отключен на мобилке */
+        overflow: clip;
     }
 
     /* Двухколоночный грид схлопывается в колонку */
