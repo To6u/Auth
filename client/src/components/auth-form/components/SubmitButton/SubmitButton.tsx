@@ -52,7 +52,7 @@ export const SubmitButton = memo<SubmitButtonProps>(
             <span className="wave wave-2" aria-hidden="true"></span>
             <span className="wave wave-3" aria-hidden="true"></span>
             <span className="wave wave-4" aria-hidden="true"></span>
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
                 <motion.span
                     key={isLoading ? 'loading' : 'idle'}
                     className="button-text"

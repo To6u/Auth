@@ -283,6 +283,7 @@ html.saving-mode .submit-button .wave {
 }
 
 .submit-button:active:not(:disabled) {
+    scale: 1;
     transform: translateY(4px);
 }
 

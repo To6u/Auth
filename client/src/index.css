@@ -43,6 +43,11 @@ svg {
     max-width: 100%;
 }
 
+img {
+    outline: 1px solid rgba(255, 255, 255, 0.1);
+    outline-offset: -1px;
+}
+
 input,
 button,
 textarea,
@@ -63,6 +68,16 @@ h5,
 h6 {
     overflow-wrap: break-word;
     line-height: normal;
+}
+
+h1,
+h2,
+h3 {
+    text-wrap: balance;
+}
+
+p {
+    text-wrap: pretty;
 }
 
 ul,

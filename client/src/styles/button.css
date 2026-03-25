@@ -29,7 +29,7 @@ button {
     user-select: none;
 
     /* Переходы */
-    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+    transition: background-color 0.3s ease, scale 0.15s ease-out, box-shadow 0.3s ease;
 
     /* Убираем внутренние отступы */
     margin: 0;
@@ -51,7 +51,7 @@ button:hover:not(:disabled) {
 
 /* Состояние active */
 button:active:not(:disabled) {
-    transform: translateY(1px);
+    scale: 0.96;
     box-shadow: 0 1px 4px rgba(74, 144, 226, 0.3);
 }
 

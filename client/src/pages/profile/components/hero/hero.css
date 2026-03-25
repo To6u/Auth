@@ -17,7 +17,7 @@
     padding: 0 2rem;
     opacity: 0;
     transform: translateY(30px);
-    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2;
     font-size: 200px;
     font-family: 'Ganxy', 'Montserrat Alternates', serif;

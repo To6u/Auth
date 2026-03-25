@@ -7,7 +7,7 @@ interface AnimatedTitleProps {
 }
 
 export const AnimatedTitle = memo<AnimatedTitleProps>(({ title }) => (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
         <motion.h2
             key={title}
             initial={{ opacity: 0, y: -10 }}

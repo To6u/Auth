@@ -182,7 +182,7 @@
     text-decoration: underline;
     text-decoration-color: rgba(255, 244, 234, 0.4);
     text-underline-offset: 3px;
-    transition: all 0.3s ease;
+    transition: text-decoration-color 0.3s ease, color 0.3s ease;
     cursor: help;
     font-weight: 800;
 }
