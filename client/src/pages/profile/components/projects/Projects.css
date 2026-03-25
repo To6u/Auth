@@ -570,11 +570,6 @@
         -webkit-backdrop-filter: blur(12px);
     }
 
-    /* Скроллбар вплотную к краю card-body */
-    .projects-scene__card--expanded .projects-scene__card-scroll {
-        padding-right: 0;
-    }
-
     .projects-scene__card-scroll {
         padding: 0 18px 1rem 18px;
         gap: 10px;
@@ -632,6 +627,7 @@
 @media (max-width: 480px) {
     .projects-scene__label {
         font-size: 2rem;
+        margin-left: 1rem;
     }
 }
 

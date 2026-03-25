@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
+import { SubmitButton } from '@/components/submit-button/SubmitButton';
 import { LoginIcon, LogoutIcon } from '@/assets/icons';
 import { useAnimationMode } from '@/context/AnimationModeContext';
 import { useAuthInfo } from '@/hooks/useAuthInfo';
@@ -140,7 +140,7 @@ const Header = () => {
                         type="button"
                         className={`header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
                         onClick={toggleSavingMode}
-                        title={isSavingMode ? 'Обычный режим' : 'Сберегающий режим'}
+                        title={isSavingMode ? 'Полный газ' : 'Сберегающий режим'}
                         aria-pressed={isSavingMode}
                         aria-label={
                             isSavingMode
@@ -159,7 +159,7 @@ const Header = () => {
                     type="button"
                     className={`header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
                     onClick={toggleSavingMode}
-                    title={isSavingMode ? 'Обычный режим' : 'Сберегающий режим'}
+                    title={isSavingMode ? 'Полный газ' : 'Сберегающий режим'}
                     aria-pressed={isSavingMode}
                     aria-label={
                         isSavingMode ? 'Выключить сберегающий режим' : 'Включить сберегающий режим'

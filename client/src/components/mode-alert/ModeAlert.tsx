@@ -32,7 +32,7 @@ export const ModeAlert = memo(() => {
         // Показываем после паузы (финальное состояние серии кликов)
         debounceRef.current = setTimeout(() => {
             setMode(isSavingMode ? 'saving' : 'normal');
-            setText(isSavingMode ? 'Сберегающий режим' : 'Обычный режим');
+            setText(isSavingMode ? 'Сберегающий режим' : 'Полный газ');
             setVisible(true);
 
             dismissRef.current = setTimeout(() => setVisible(false), DISMISS_MS);

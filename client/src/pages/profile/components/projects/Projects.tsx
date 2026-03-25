@@ -1,7 +1,7 @@
 import { ArrowDown, ExternalLink, Github, X } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
-import { Logo } from '@/components/auth-form/components/Logo/Logo';
-import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
+import { Logo } from '@/components/logo/Logo';
+import { SubmitButton } from '@/components/submit-button/SubmitButton';
 import { LoginAsciiPreview } from '@/components/login-ascii-preview/LoginAsciiPreview';
 import { projectsState } from '@/lib/projectsState';
 import './Projects.css';
@@ -105,7 +105,7 @@ const CAM_PATH: Vec3[] = [
     { x: 0, y: 0, z: 0 }, // card-0
     { x: -320, y: 90, z: 1500 }, // card-1
     { x: 280, y: -70, z: 3000 }, // card-2
-    { x: 280, y: -70, z: 3000 }, // ease-out tail — stops at card-2
+    // { x: 280, y: -70, z: 3000 }, // ease-out tail — stops at card-2
 ];
 
 function catmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number {
@@ -255,7 +255,7 @@ ProjectCard.displayName = 'ProjectCard';
 // ─────────────────────────────────────────────────────────────
 
 // Progress values on the spline where each card is centred (matches CAM_PATH indices 0, 1, 2 of 3)
-const CARD_PROGRESS = [0, 1 / 3, 2 / 3] as const;
+const CARD_PROGRESS = [0, 1 / 2, 1] as const;
 
 export const Projects = () => {
     const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -274,6 +274,7 @@ export const Projects = () => {
     const sectionTopRef = useRef(0);
     const sectionScrollableRef = useRef(0);
     const pendingExpandRef = useRef<string | null>(null);
+    const expandedIdRef = useRef<string | null>(null);
 
     useEffect(() => {
         const section = sectionRef.current;
@@ -298,13 +299,17 @@ export const Projects = () => {
             });
         }
 
+        let resizeTimer: ReturnType<typeof setTimeout> | undefined;
         const recalcLayout = () => {
-            sectionTop = section.getBoundingClientRect().top + window.scrollY;
-            sectionScrollable = section.offsetHeight - window.innerHeight;
-            xScale = Math.min(1, window.innerWidth / 1200);
-            sectionTopRef.current = sectionTop;
-            sectionScrollableRef.current = sectionScrollable;
-            applyCardPositions();
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                sectionTop = section.getBoundingClientRect().top + window.scrollY;
+                sectionScrollable = section.offsetHeight - window.innerHeight;
+                xScale = Math.min(1, window.innerWidth / 1200);
+                sectionTopRef.current = sectionTop;
+                sectionScrollableRef.current = sectionScrollable;
+                applyCardPositions();
+            }, 100);
         };
 
         window.addEventListener('resize', recalcLayout, { passive: true });
@@ -457,6 +462,19 @@ export const Projects = () => {
                     dot?.classList.toggle('active', i === activeIndex);
                 });
             }
+
+            // Авто-закрытие: если расширенная карточка вылетела за камеру — закрываем.
+            // setExpandedId откладывается через setTimeout(0) чтобы не вызывать React
+            // re-render синхронно внутри RAF-цикла.
+            const currentExpanded = expandedIdRef.current;
+            if (currentExpanded !== null) {
+                const eIdx = PROJECTS.findIndex((p) => p.id === currentExpanded);
+                const eCard = PROJECTS[eIdx];
+                if (eCard && eCard.wz + camZ > 400) {
+                    expandedIdRef.current = null;
+                    setTimeout(() => setExpandedId(null), 0);
+                }
+            }
         }
 
         // ── rAF tick ─────────────────────────────────────────────────────
@@ -548,8 +566,14 @@ export const Projects = () => {
             projectsState.active = false;
             projectsState.isScrolling = false;
             clearTimeout(scrollTimer);
+            clearTimeout(resizeTimer);
         };
     }, []);
+
+    // Синхронизируем expandedIdRef для доступа из RAF без замыкания на state
+    useEffect(() => {
+        expandedIdRef.current = expandedId;
+    }, [expandedId]);
 
     // Сбрасываем скролл и перехватываем wheel при открытии карточки.
     // Когда пользователь доскролил до дна — ждём 1с и переходим к следующей карточке.
@@ -596,14 +620,17 @@ export const Projects = () => {
         scrollEl.addEventListener('wheel', onWheel, { passive: false });
 
         // Touch — document capture level: перехватываем до 3D-сцены.
-        // getBoundingClientRect корректно возвращает 2D-проекцию после transform,
-        // поэтому hit-test работает правильно несмотря на 3D-позицию карточки.
+        // getBoundingClientRect используется только пока карточка в фокусной зоне
+        // (effectiveZ ≈ 0) — авто-закрытие в updateCards() гарантирует, что к моменту
+        // hit-test карточка не находится в vanishing-point (z ≈ perspective), где
+        // проекция вырождается.
         // scrollMode фиксируется один раз при первом значимом движении —
         // исключает прыжки контента при смене режима в середине жеста.
         let touchStartY = 0;
         let lastTouchY = 0;
         let touchInsideCard = false;
         let scrollMode: 'undecided' | 'card' | 'page' = 'undecided';
+        let touchEndTimer: ReturnType<typeof setTimeout> | undefined;
 
         const onTouchStart = (e: TouchEvent) => {
             const touch = e.touches[0];
@@ -651,6 +678,11 @@ export const Projects = () => {
 
             lastTouchY = touch.clientY;
 
+            if (scrollMode === 'page') {
+                e.preventDefault();
+                window.scrollBy(0, -deltaY);
+                return;
+            }
             if (scrollMode !== 'card') return;
 
             e.preventDefault();
@@ -660,7 +692,8 @@ export const Projects = () => {
         const onTouchEnd = () => {
             touchInsideCard = false;
             scrollMode = 'undecided';
-            setTimeout(() => {
+            clearTimeout(touchEndTimer);
+            touchEndTimer = setTimeout(() => {
                 touchMovedRef.current = false;
             }, 50);
         };
@@ -675,6 +708,7 @@ export const Projects = () => {
             document.removeEventListener('touchmove', onTouchMove, { capture: true });
             document.removeEventListener('touchend', onTouchEnd, { capture: true });
             clearTimeout(unlockTimer);
+            clearTimeout(touchEndTimer);
         };
     }, [expandedId]);
 
@@ -731,7 +765,6 @@ export const Projects = () => {
                                         icon={<X size={14} />}
                                         iconPosition="left"
                                         aria-label="Закрыть карточку"
-                                        onClick={() => setExpandedId(null)}
                                     />
                                 </div>
                                 <ProjectCard data={p} />

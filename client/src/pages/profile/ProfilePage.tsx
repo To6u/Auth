@@ -4,7 +4,7 @@ import { useAuthInfo } from '@/hooks/useAuthInfo';
 import '@/pages/profile/profile-page.css';
 import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SubmitButton } from '@/components/auth-form/components/SubmitButton/SubmitButton';
+import { SubmitButton } from '@/components/submit-button/SubmitButton';
 import Header from '@/components/header/Header.tsx';
 import AboutHero from '@/pages/profile/components/about-hero/AboutHero.tsx';
 import { Contacts } from '@/pages/profile/components/contacts/Contacts';

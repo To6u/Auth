@@ -1,7 +1,7 @@
 import { ANIMATION_DURATION, BUTTON_SPRING_CONFIG } from 'client/src/constants/auth.constants.ts';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, type ReactNode } from 'react';
-import 'client/src/components/auth-form/components/SubmitButton/submit.css';
+import './submit.css';
 
 interface SubmitButtonProps {
     isLoading: boolean;
