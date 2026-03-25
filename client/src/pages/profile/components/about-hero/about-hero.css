@@ -3,6 +3,8 @@
     width: 100%;
     padding: 4rem 2rem;
     display: grid;
+    /* minmax(0, 1fr) — предотвращает расширение implicit track до min-content детей (FM-враппер без класса) */
+    grid-template-columns: minmax(0, 1fr);
     justify-content: start;
     z-index: 2;
     overflow-x: clip;
@@ -296,12 +298,17 @@
         overflow: clip;
     }
 
-    /* Двухколоночный грид схлопывается в колонку */
+    /* Двухколоночный грид схлопывается в колонку.
+       align-items: stretch — переопределяет desktop 'start', иначе flex items берут max-content вместо ширины контейнера.
+       min-width: 0 — предотвращает расширение grid item до min-content детей */
     .about-hero-my-place,
     .about-hero-my-way {
         display: flex;
         flex-direction: column;
+        align-items: stretch;
         padding: 2rem 0;
+        min-width: 0;
+        max-width: 100%;
     }
 
     .about-hero-right {
@@ -321,6 +328,7 @@
     .about-hero-left {
         position: relative;
         z-index: auto;
+        min-width: 0;
     }
 
     /* Sticky-заголовок превращается в статичный — убирает 50rem пустого места */
@@ -351,6 +359,7 @@
     .glass-card {
         padding: 2rem;
         gap: 2rem;
+        max-width: 100%;
     }
 
     .about-section__title {

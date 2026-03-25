@@ -7,12 +7,11 @@
     padding: 10px 24px;
     border-radius: 999px;
     background: rgba(40, 40, 60, 0.55);
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(3px);
-    border: 1px solid rgba(255, 244, 234, 0.1);
     color: rgba(255, 244, 234, 0.85);
     font-size: 0.85rem;
-    font-weight: 300;
+    font-weight: 900;
     letter-spacing: 0.06em;
     opacity: 0;
     transition:

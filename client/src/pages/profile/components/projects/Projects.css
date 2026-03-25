@@ -19,6 +19,7 @@
     perspective-origin: 50% 50%;
     z-index: 130;
     pointer-events: none;
+    overflow: clip;
 }
 
 /* ── 3D world — camera inverse is applied here via JS ──────────── */
@@ -474,12 +475,10 @@
 }
 
 .projects-scene__close-btn .submit-button {
-    margin-top: 0;
+    margin-top: -110px;
     width: 100px;
     padding: 10px 20px;
     font-size: 14px;
-    right: -10rem;
-    top: 1rem;
     font-weight: 500;
 }
 
@@ -534,7 +533,8 @@
    ================================================================ */
 @media (max-width: 768px) {
     .projects-scene__label {
-        margin-left: 1rem;
+        margin-left: 0;
+        padding-left: 1rem;
     }
 
     .projects-scene__card--expanded {

@@ -39,7 +39,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     flex-direction: column;
     align-items: flex-end;
     gap: 10px;
-    top: 120px;
+    top: 70px;
     grid-gap: 2rem;
 }
 
