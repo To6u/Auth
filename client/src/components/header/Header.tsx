@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 type SectionId = (typeof NAV_ITEMS)[number]['id'];
 
 const LeafIcon = () => (
-    <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" width="24" height="24" aria-hidden="true">
         <path
             d="M3 13C3 13 5.5 6 13 3C13 9.5 8 13 3 13Z"
             stroke="currentColor"
@@ -153,6 +153,22 @@ const Header = () => {
                 </li>
             </ul>
 
+            {/* Свитчер под бургером — только мобилка */}
+            <div className="header__save-wrap">
+                <button
+                    type="button"
+                    className={`header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
+                    onClick={toggleSavingMode}
+                    title={isSavingMode ? 'Обычный режим' : 'Сберегающий режим'}
+                    aria-pressed={isSavingMode}
+                    aria-label={
+                        isSavingMode ? 'Выключить сберегающий режим' : 'Включить сберегающий режим'
+                    }
+                >
+                    <LeafIcon />
+                </button>
+            </div>
+
             {/* Гамбургер — SubmitButton с иконкой бургера, только на мобилке */}
             <div className="header__burger-wrap">
                 <SubmitButton
@@ -186,19 +202,6 @@ const Header = () => {
                             </a>
                         </li>
                     ))}
-
-                    {/* Сберегающий режим */}
-                    <li>
-                        <button
-                            type="button"
-                            className={`header__mobile-auth header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
-                            onClick={toggleSavingMode}
-                            aria-pressed={isSavingMode}
-                        >
-                            <LeafIcon />
-                            {isSavingMode ? 'Обычный режим' : 'Сберегающий режим'}
-                        </button>
-                    </li>
 
                     {/* Войти / Выйти как пункт меню */}
                     {!isLoading && (

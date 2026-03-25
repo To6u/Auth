@@ -177,6 +177,8 @@ export const Contacts = () => {
             const clamped = Math.max(0, Math.min(1, progress));
             scrollTranslateY = 380 * (1 - clamped);
             bgOpacity = Math.min(1, clamped * 2);
+            lastActivityTime = performance.now();
+            if (!rafId && isVisible && !cancelled) rafId = requestAnimationFrame(tick);
         };
 
         const onMouseMove = (e: MouseEvent) => {
@@ -224,9 +226,11 @@ export const Contacts = () => {
             ([entry]) => {
                 isVisible = entry.isIntersecting;
                 if (isVisible) {
-                    rafId = requestAnimationFrame(tick);
+                    lastActivityTime = performance.now();
+                    if (!rafId && !cancelled) rafId = requestAnimationFrame(tick);
                 } else {
                     cancelAnimationFrame(rafId);
+                    rafId = 0;
                 }
             },
             { rootMargin: '100px' }

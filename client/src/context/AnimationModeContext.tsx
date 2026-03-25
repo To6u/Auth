@@ -10,9 +10,11 @@ interface AnimationModeContextValue {
 const AnimationModeContext = createContext<AnimationModeContextValue | null>(null);
 
 export function AnimationModeProvider({ children }: { children: ReactNode }) {
-    const [isSavingMode, setIsSavingMode] = useState(
-        () => localStorage.getItem(STORAGE_KEY) === 'true'
-    );
+    const [isSavingMode, setIsSavingMode] = useState(() => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored !== null) return stored === 'true';
+        return window.matchMedia('(max-width: 768px)').matches; // mobile: saving mode by default
+    });
 
     useEffect(() => {
         document.documentElement.classList.toggle('saving-mode', isSavingMode);

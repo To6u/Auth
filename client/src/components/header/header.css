@@ -77,6 +77,26 @@ html:has(.projects-scene__nav.visible) .header:hover {
 
 /* ── Десктоп burger + dropdown (удалён) ──────────────────────────── */
 
+/* ── Свитчер под бургером (только мобилка) ───────────────────────── */
+
+.header__save-wrap {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .header__save-wrap {
+        display: flex;
+        position: fixed;
+        top: 80px; /* 20px burger top + 52px burger height + 8px gap */
+        right: 20px;
+        z-index: 150;
+        width: 52px;
+        height: 52px;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 /* ── Гамбургер (SubmitButton-обёртка) ────────────────────────────── */
 
 .header__burger-wrap {

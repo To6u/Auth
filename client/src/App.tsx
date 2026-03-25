@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/route/ProtectedRoute';
 import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground';
 import WavesBackground from '@/components/wave-bg/WavesBackground';
 import { AnimationModeProvider } from '@/context/AnimationModeContext';
+import { ModeAlert } from '@/components/mode-alert/ModeAlert';
 import { AuthInfoProvider } from '@/context/AuthInfoContext';
 import { LoginPage } from '@/pages/LoginPage';
 import '@/components/layout/layout.css';
@@ -208,6 +209,7 @@ function App() {
                     <AuthInfoProvider>
                         <AnimatedRoutes />
                     </AuthInfoProvider>
+                    <ModeAlert />
                 </AnimationModeProvider>
             </BrowserRouter>
         </>

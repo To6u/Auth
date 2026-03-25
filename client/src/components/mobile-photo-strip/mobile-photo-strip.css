@@ -5,8 +5,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
     position: relative;
     margin-bottom: 2rem;
     z-index: 1;

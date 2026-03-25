@@ -1,5 +1,6 @@
 import type { RefObject } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import { wavesConfig } from '@/components/wave-bg/wave-with-text/wavesConfigWebGL';
 import { projectsState } from '@/lib/projectsState';
 import { ANIM_BUFFER_MULTIPLIER, createTextAnimState, updateTextAnimState } from './wave-bg.anim';
@@ -22,6 +23,10 @@ export const useWaveAnimation = (
     isStatic = false,
     noWaves = false
 ): void => {
+    const { isSavingMode } = useAnimationMode();
+    const isSavingModeRef = useRef(isSavingMode);
+    isSavingModeRef.current = isSavingMode;
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -123,6 +128,7 @@ export const useWaveAnimation = (
         };
 
         const onMouseMoveCoords = (e: MouseEvent) => {
+            if (isSavingModeRef.current) return;
             mouse.x = e.clientX;
             mouse.y = e.clientY;
             mouse.active = true;

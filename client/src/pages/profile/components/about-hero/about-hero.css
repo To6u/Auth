@@ -276,8 +276,8 @@
     .about-hero-my-place .floating-balls-my-place {
         position: unset;
         transform: translateX(0);
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
+        width: calc(100% + 2rem);
+        margin-left: -1rem;
         border-radius: 0;
         user-select: none;
         -webkit-user-select: none;
@@ -291,6 +291,7 @@
 
     .about-hero {
         padding: 2rem 1rem;
+        overflow-x: hidden; /* sticky → static на мобилке, hidden безопасен; клипает FM-трансформы */
     }
 
     /* Двухколоночный грид схлопывается в колонку */
