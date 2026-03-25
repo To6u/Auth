@@ -43,7 +43,7 @@ svg {
     max-width: 100%;
 }
 
-img {
+img:not(.contacts-bg-img) {
     outline: 1px solid rgba(255, 255, 255, 0.1);
     outline-offset: -1px;
 }
