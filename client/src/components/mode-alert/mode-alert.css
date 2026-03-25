@@ -27,3 +27,13 @@
     transform: translateX(-50%) translateY(0);
     opacity: 1;
 }
+
+.mode-alert--saving {
+    color: rgba(140, 220, 140, 0.95);
+    border-color: rgba(140, 220, 140, 0.2);
+}
+
+.mode-alert--normal {
+    color: rgba(255, 244, 234, 0.85);
+    border-color: rgba(255, 244, 234, 0.1);
+}

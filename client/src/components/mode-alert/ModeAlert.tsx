@@ -9,6 +9,7 @@ export const ModeAlert = memo(() => {
     const { isSavingMode } = useAnimationMode();
     const [visible, setVisible] = useState(false);
     const [text, setText] = useState('');
+    const [mode, setMode] = useState<'saving' | 'normal'>('normal');
 
     // Отслеживаем реальные изменения, а не первый рендер / StrictMode double-run
     const prevValueRef = useRef<boolean | null>(null);
@@ -30,6 +31,7 @@ export const ModeAlert = memo(() => {
 
         // Показываем после паузы (финальное состояние серии кликов)
         debounceRef.current = setTimeout(() => {
+            setMode(isSavingMode ? 'saving' : 'normal');
             setText(isSavingMode ? 'Сберегающий режим' : 'Обычный режим');
             setVisible(true);
 
@@ -44,7 +46,7 @@ export const ModeAlert = memo(() => {
 
     return (
         <div
-            className={`mode-alert${visible ? ' mode-alert--visible' : ''}`}
+            className={`mode-alert mode-alert--${mode}${visible ? ' mode-alert--visible' : ''}`}
             aria-live="polite"
             aria-atomic="true"
         >
