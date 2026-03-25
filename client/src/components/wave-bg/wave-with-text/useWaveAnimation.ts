@@ -38,7 +38,9 @@ export const useWaveAnimation = (
             alpha: true,
             antialias: true,
             premultipliedAlpha: false,
-            preserveDrawingBuffer: false,
+            // true — предотвращает мигание волн на iOS Safari: tile-based GPU очищает буфер
+            // сразу после композитинга, preserveDrawingBuffer держит содержимое до следующего gl.clear
+            preserveDrawingBuffer: true,
             powerPreference: 'low-power',
         });
 
