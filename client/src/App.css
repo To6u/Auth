@@ -76,6 +76,7 @@ html:has(.page-login)::before {
 
 html {
     position: relative;
+    background-color: hsl(246, 73%, 10%);
 }
 
 body,

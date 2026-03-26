@@ -236,6 +236,10 @@
     will-change: transform;
 }
 
+.contacts-card:hover  .contacts-card__label {
+    color: rgba(255, 255, 255, 1);
+}
+
 .contacts-card__icon {
     width: 48px;
     height: 48px;
@@ -256,6 +260,7 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: rgba(255, 255, 255, 0.5);
+    transition: color 0.15s ease;
 }
 
 .contacts-card__handle {
@@ -280,23 +285,29 @@
 /* ── Mobile ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .contacts-inner {
-        margin-top: 6rem;
+        margin-top: 4rem;
     }
 
     .contacts-heading {
         font-size: 3rem;
     }
 
+    .contacts-cards {
+        flex-direction: column;
+        gap: 24px;
+    }
+
     .contacts-card {
-        width: 120px;
-        padding: 22px 16px;
+        width: 100%;
+        padding: 0;
+        flex-direction: column;
+        gap: 0;
     }
 }
 
 /* ── Small mobile ───────────────────────────────────────────────── */
 @media (max-width: 480px) {
     .contacts-inner {
-        margin-top: 4rem;
         gap: 32px;
         padding: 0 1rem;
     }
@@ -306,13 +317,7 @@
     }
 
     .contacts-cards {
-        gap: 10px;
-    }
-
-    /* 3 карточки по 100px + 2×10px gap = 320px — влезают на 375px экран */
-    .contacts-card {
-        width: 100px;
-        padding: 18px 10px;
+        gap: 24px;
     }
 
     .contacts-card__icon {

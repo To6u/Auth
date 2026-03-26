@@ -556,10 +556,24 @@ export const Projects = () => {
         applyCardPositions();
         rafId = requestAnimationFrame(tick);
 
+        // Мобилка: скрываем заголовок «Проекты» когда «Связь» входит во вьюпорт
+        let contactsObserver: IntersectionObserver | null = null;
+        const contactsHeading = document.querySelector('.contacts-heading');
+        if (contactsHeading) {
+            contactsObserver = new IntersectionObserver(
+                ([entry]) => {
+                    labelRef.current?.classList.toggle('contacts-in-view', entry.isIntersecting);
+                },
+                { threshold: 0 }
+            );
+            contactsObserver.observe(contactsHeading);
+        }
+
         return () => {
             window.removeEventListener('scroll', onScroll);
             window.removeEventListener('resize', recalcLayout);
             bodyResizeObserver.disconnect();
+            contactsObserver?.disconnect();
             cancelAnimationFrame(rafId);
             document.removeEventListener('visibilitychange', onVisibilityChange);
             projectsState.camProgress = 0;

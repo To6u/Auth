@@ -383,6 +383,13 @@
     opacity: 1;
 }
 
+@media (max-width: 768px) {
+    .projects-scene__label.contacts-in-view {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
 /* ── Counter ───────────────────────────────────────────────────── */
 .projects-scene__counter {
     position: absolute;
@@ -533,8 +540,7 @@
    ================================================================ */
 @media (max-width: 768px) {
     .projects-scene__label {
-        margin-left: 0;
-        padding-left: 1rem;
+        margin-left: 1rem;
     }
 
     .projects-scene__card--expanded {
