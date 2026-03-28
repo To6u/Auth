@@ -71,7 +71,16 @@ html:has(.projects-scene__nav.visible) .header:hover {
     padding: 0;
     outline: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
     user-select: none;
+    -webkit-user-select: none;
+}
+
+.header__companion:active:not(:disabled),
+.header__companion:focus {
+    scale: 1;
+    box-shadow: none;
+    background-color: transparent;
 }
 
 .header__companion:focus-visible {
@@ -222,6 +231,11 @@ html:has(.projects-scene__nav.visible) .header:hover {
         height: 52px;
         align-items: center;
         justify-content: center;
+    }
+
+    /* Стрелка тултипа центрируется под иконкой листика (центр 52px враппера = 26px от правого края) */
+    .header__save-wrap .mode-alert::before {
+        right: 20px; /* 26px центр - 6px полуширина стрелки */
     }
 }
 
