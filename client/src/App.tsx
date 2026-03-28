@@ -5,7 +5,6 @@ import { ProtectedRoute } from '@/components/route/ProtectedRoute';
 import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackground';
 import WavesBackground from '@/components/wave-bg/WavesBackground';
 import { AnimationModeProvider } from '@/context/AnimationModeContext';
-import { ModeAlert } from '@/components/mode-alert/ModeAlert';
 import { AuthInfoProvider } from '@/context/AuthInfoContext';
 import { LoginPage } from '@/pages/LoginPage';
 import '@/components/layout/layout.css';
@@ -77,11 +76,7 @@ function AppLoader() {
 
     return (
         <div
-            className="app-loader"
-            style={{
-                opacity: fading ? 0 : 1,
-                transition: fading ? 'opacity 0.8s ease' : 'none',
-            }}
+            className={`app-loader${fading ? ' app-loader--fading' : ''}`}
             onTransitionEnd={handleTransitionEnd}
         >
             <LogoAZ fading={fading} onAnimationEnd={handleAnimationEnd} />
@@ -209,7 +204,6 @@ function App() {
                     <AuthInfoProvider>
                         <AnimatedRoutes />
                     </AuthInfoProvider>
-                    <ModeAlert />
                 </AnimationModeProvider>
             </BrowserRouter>
         </>

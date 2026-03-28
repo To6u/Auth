@@ -222,8 +222,10 @@ label {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
+    width: 0;
+    min-width: 0;
     min-height: 64px;
+    overflow: hidden;
     border-radius: 16px;
     font-size: 18px;
     font-weight: 700;
@@ -233,6 +235,7 @@ label {
     opacity: 0;
     transform: scale(0.6);
     transition:
+        width 0.25s ease,
         opacity 0.25s ease,
         transform 0.25s ease,
         color 0.2s ease;
@@ -240,16 +243,20 @@ label {
     user-select: none;
 }
 
-.input-match-icon--match {
-    color: #4ade80;
+.input-match-icon--match,
+.input-match-icon--mismatch {
+    width: 44px;
+    min-width: 44px;
     opacity: 1;
     transform: scale(1);
 }
 
+.input-match-icon--match {
+    color: #4ade80;
+}
+
 .input-match-icon--mismatch {
     color: #f87171;
-    opacity: 1;
-    transform: scale(1);
 }
 
 .password-toggle-btn {

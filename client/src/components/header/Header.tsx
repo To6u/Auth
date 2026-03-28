@@ -4,10 +4,12 @@ import { SubmitButton } from '@/components/submit-button/SubmitButton';
 import { LoginIcon, LogoutIcon } from '@/assets/icons';
 import { useAnimationMode } from '@/context/AnimationModeContext';
 import { useAuthInfo } from '@/hooks/useAuthInfo';
+import { useMotionPreference } from '@/hooks/useMotionPreference';
+import { ModeAlert } from '@/components/mode-alert/ModeAlert';
+import { Companion } from '@/pages/profile/components/companion/Companion.tsx';
 import './header.css';
 
 const NAV_ITEMS = [
-    { id: 'deer', label: 'De|eR' },
     { id: 'place', label: 'Откуда' },
     { id: 'way', label: 'Путь' },
     { id: 'projects', label: 'Проекты' },
@@ -48,6 +50,8 @@ const Header = () => {
     const [isPastHero, setIsPastHero] = useState(false);
     const { isAuthenticated, isLoading, logout } = useAuthInfo();
     const { isSavingMode, toggleSavingMode } = useAnimationMode();
+    const { prefersReducedMotion } = useMotionPreference();
+    const [showFireTooltip, setShowFireTooltip] = useState(false);
     const navigate = useNavigate();
     const topsRef = useRef<number[]>([]);
 
@@ -105,7 +109,28 @@ const Header = () => {
         };
     }, [isOpen]);
 
+    useEffect(() => {
+        if (prefersReducedMotion || !isSavingMode) return;
+
+        const showTooltip = () => {
+            setShowFireTooltip(true);
+            setTimeout(() => setShowFireTooltip(false), 3000);
+        };
+
+        const id = setInterval(showTooltip, 10_000);
+        return () => clearInterval(id);
+    }, [prefersReducedMotion, isSavingMode]);
+
     const handleLinkClick = useCallback(() => setIsOpen(false), []);
+
+    const handleScrollToTop = useCallback(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
+
+    const handleDesktopLogout = useCallback(async () => {
+        await logout();
+        navigate('/login');
+    }, [logout, navigate]);
 
     const handleMobileLogout = useCallback(async () => {
         setIsOpen(false);
@@ -123,6 +148,15 @@ const Header = () => {
 
     return (
         <>
+            <button
+                type="button"
+                className={`header__companion${activeId === 'projects' ? ' header__companion--hidden' : ''}`}
+                onClick={handleScrollToTop}
+                aria-label="Наверх"
+            >
+                <Companion />
+            </button>
+
             {/* Десктоп nav — горизонтальный до скролла hero, вертикальный после */}
             <ul className={`header${isPastHero ? ' header--scrolled' : ''}`}>
                 {NAV_ITEMS.map(({ id, label }) => (
@@ -135,7 +169,30 @@ const Header = () => {
                         </a>
                     </li>
                 ))}
-                <li>
+                {!isLoading && (
+                    <li>
+                        {isAuthenticated ? (
+                            <button
+                                type="button"
+                                className="header__auth"
+                                onClick={handleDesktopLogout}
+                            >
+                                <LogoutIcon />
+                                Выйти
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                className="header__auth"
+                                onClick={() => navigate('/login')}
+                            >
+                                <LoginIcon />
+                                Войти
+                            </button>
+                        )}
+                    </li>
+                )}
+                <li className="header__save-toggle-wrap">
                     <button
                         type="button"
                         className={`header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
@@ -150,11 +207,17 @@ const Header = () => {
                     >
                         <LeafIcon />
                     </button>
+                    <ModeAlert />
+                    {showFireTooltip && (
+                        <span className="header__fire-tooltip" role="tooltip">
+                            🔥 добавь огоньку
+                        </span>
+                    )}
                 </li>
             </ul>
 
             {/* Свитчер под бургером — только мобилка */}
-            <div className="header__save-wrap">
+            <div className="header__save-wrap header__save-toggle-wrap">
                 <button
                     type="button"
                     className={`header__save-toggle${isSavingMode ? ' header__save-toggle--active' : ''}`}
@@ -167,6 +230,12 @@ const Header = () => {
                 >
                     <LeafIcon />
                 </button>
+                <ModeAlert silent />
+                {showFireTooltip && (
+                    <span className="header__fire-tooltip" role="tooltip">
+                        🔥 добавь огоньку
+                    </span>
+                )}
             </div>
 
             {/* Гамбургер — SubmitButton с иконкой бургера, только на мобилке */}
@@ -208,6 +277,7 @@ const Header = () => {
                         <li>
                             {isAuthenticated ? (
                                 <button
+                                    type="button"
                                     className="header__mobile-auth"
                                     onClick={handleMobileLogout}
                                 >
@@ -215,7 +285,11 @@ const Header = () => {
                                     Выйти
                                 </button>
                             ) : (
-                                <button className="header__mobile-auth" onClick={handleMobileLogin}>
+                                <button
+                                    type="button"
+                                    className="header__mobile-auth"
+                                    onClick={handleMobileLogin}
+                                >
                                     <LoginIcon />
                                     Войти
                                 </button>

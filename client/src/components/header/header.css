@@ -8,7 +8,7 @@
     display: grid;
     grid-auto-flow: column;
     grid-gap: 40px;
-    font-weight: 100;
+    font-weight: 300;
     letter-spacing: 0.02rem;
     opacity: 1;
     transition: opacity 0.3s ease;
@@ -33,6 +33,16 @@ html:has(.projects-scene__nav.visible) .header:hover {
     opacity: 1;
 }
 
+.header a:focus-visible,
+.header__auth:focus-visible,
+.header__save-toggle:focus-visible,
+.header__mobile-menu a:focus-visible,
+.header__mobile-auth:focus-visible {
+    outline: 2px solid rgba(255, 244, 234, 0.5);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
 /* После скролла hero — вертикальный список справа сверху */
 .header--scrolled {
     display: flex;
@@ -45,6 +55,59 @@ html:has(.projects-scene__nav.visible) .header:hover {
 
 .header__link--active {
     font-weight: 900;
+}
+
+/* ── Companion (fixed, рядом с шапкой) ──────────────────────────── */
+
+.header__companion {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    cursor: pointer;
+    transition: opacity 0.4s ease;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .header__companion {
+        top: -20px;
+    }
+
+    .header__companion--hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+/* ── Desktop auth ────────────────────────────────────────────────── */
+
+.header__auth {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+}
+
+.header__auth:hover {
+    opacity: 1;
+}
+
+.header__auth svg {
+    width: 14px;
+    height: 14px;
 }
 
 /* ── Свитчер сберегающего режима ─────────────────────────────────── */
@@ -73,6 +136,98 @@ html:has(.projects-scene__nav.visible) .header:hover {
 .header__save-toggle--active {
     opacity: 1;
     color: rgba(140, 220, 140, 0.9);
+}
+
+/* ── Fire tooltip ────────────────────────────────────────────────── */
+
+.header__save-toggle-wrap {
+    position: relative;
+}
+
+.header__fire-tooltip {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    white-space: nowrap;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: rgba(255, 244, 234, 0.9);
+    background: rgba(255, 120, 30, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 5px 10px;
+    border-radius: 8px;
+    pointer-events: none;
+    animation: fire-tooltip-in 0.3s ease forwards, fire-tooltip-out 0.4s ease 2.6s forwards;
+}
+
+.header__fire-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    right: 10px;
+    border: 6px solid transparent;
+    border-bottom-color: rgba(255, 120, 30, 0.15);
+}
+
+@keyframes fire-tooltip-in-mobile {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes fire-tooltip-out-mobile {
+    from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-4px);
+    }
+}
+
+@media (max-width: 768px) {
+    .header__fire-tooltip {
+        right: auto;
+        left: 50%;
+        animation: fire-tooltip-in-mobile 0.3s ease forwards,
+            fire-tooltip-out-mobile 0.4s ease 2.6s forwards;
+    }
+
+    .header__fire-tooltip::before {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes fire-tooltip-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fire-tooltip-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
 }
 
 /* ── Десктоп burger + dropdown (удалён) ──────────────────────────── */

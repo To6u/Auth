@@ -109,6 +109,11 @@ p {
         );
 }
 
+.app-loader--fading {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
 .app-loader::before,
 .page-loading-fallback::before {
     content: '';
@@ -127,14 +132,12 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    background:
-        linear-gradient(
-            57deg,
-            hsla(246, 73%, 10%) 0%,
-            hsla(223, 76%, 21%, 0.2) 36%,
-            hsla(213, 85%, 11%, 0.5) 75%,
-            hsla(264, 80%, 12%) 100%
-        );
+    background: radial-gradient(
+        ellipse 55% 55% at center,
+        hsla(246, 73%, 10%, 1) 0%,
+        hsla(246, 73%, 10%, 0.85) 40%,
+        hsla(246, 73%, 10%, 0) 100%
+    );
     animation: fallbackFadeIn 0.3s ease;
 }
 

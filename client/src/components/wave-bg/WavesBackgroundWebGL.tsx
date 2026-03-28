@@ -1,5 +1,4 @@
 import { memo, useEffect, useRef } from 'react';
-import { useAnimationMode } from '@/context/AnimationModeContext';
 import type { WaveConfig } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
 import {
     parsedWaveColors,
@@ -7,6 +6,7 @@ import {
     WAVE_WIDTH_MULTIPLIER,
     wavesConfig,
 } from 'src/components/wave-bg/wave-with-text/wavesConfigWebGL.ts';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import '@/components/wave-bg/wave-with-text/waves-canvas.css';
 
 interface WaveShaderProgram {
@@ -336,6 +336,9 @@ const WavesBackgroundWebGL = memo(() => {
         active: false,
         smoothActive: 0,
     });
+    // Аккумулятор фазы — не даёт прыжка при resume после паузы
+    const phaseRef = useRef(0);
+    const lastRafTimeRef = useRef<number | null>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -370,12 +373,22 @@ const WavesBackgroundWebGL = memo(() => {
         // biome-ignore lint/correctness/useHookAtTopLevel: gl.useProgram — WebGL API, не React-хук
         gl.useProgram(program.program);
 
-        // Предаллоцируем буферы для вершин
+        // Предаллоцируем CPU-буферы и GPU-буфер нужного размера
         const initBuffers = (width: number) => {
             const step = calculateAdaptiveStep(width);
             const bufferSize = calculateBufferSize(width, step);
 
             vertexBuffersRef.current = wavesConfig.map(() => new Float32Array(bufferSize));
+
+            // Аллоцируем GPU-буфер один раз нужного размера — дальше обновляем через bufferSubData
+            if (bufferRef.current) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, bufferRef.current);
+                gl.bufferData(
+                    gl.ARRAY_BUFFER,
+                    bufferSize * Float32Array.BYTES_PER_ELEMENT,
+                    gl.DYNAMIC_DRAW
+                );
+            }
         };
 
         const resize = () => {
@@ -397,7 +410,7 @@ const WavesBackgroundWebGL = memo(() => {
         resize();
 
         const resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(document.body);
+        resizeObserver.observe(canvas);
 
         let lastMouseMoveTime = Date.now();
         let lowFpsTimer: ReturnType<typeof setTimeout> | null = null;
@@ -418,8 +431,30 @@ const WavesBackgroundWebGL = memo(() => {
         window.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseleave', handleMouseLeave);
 
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                if (lowFpsTimer !== null) {
+                    clearTimeout(lowFpsTimer);
+                    lowFpsTimer = null;
+                }
+                cancelAnimationFrame(animationFrameRef.current);
+                animationFrameRef.current = 0;
+            } else if (!isUnmountedRef.current) {
+                lastMouseMoveTime = Date.now();
+                lastRafTimeRef.current = null; // сброс — чтобы первый delta не дал прыжка фазы
+                animationFrameRef.current = requestAnimationFrame(animate);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         const animate = (time: number) => {
             if (isUnmountedRef.current || !programRef.current || !bufferRef.current) return;
+
+            // Аккумулируем фазу через дельту — нет прыжка при resume после паузы
+            const delta = lastRafTimeRef.current !== null ? time - lastRafTimeRef.current : 16;
+            lastRafTimeRef.current = time;
+            phaseRef.current += delta;
+            const phase = phaseRef.current;
 
             // Обновляем интерполированное состояние мыши
             updateMouseState(mouseRef.current);
@@ -432,7 +467,7 @@ const WavesBackgroundWebGL = memo(() => {
 
             gl.clear(gl.COLOR_BUFFER_BIT);
             gl.uniform2f(locs.resolution, width, height);
-            gl.uniform1f(locs.time, time);
+            gl.uniform1f(locs.time, phase);
 
             wavesConfig.forEach((wave, index) => {
                 const buffer = vertexBuffersRef.current[index];
@@ -443,7 +478,7 @@ const WavesBackgroundWebGL = memo(() => {
                     width,
                     height,
                     wave,
-                    time,
+                    phase,
                     step,
                     mouse,
                     dpr
@@ -451,11 +486,7 @@ const WavesBackgroundWebGL = memo(() => {
                 const colors = parsedWaveColors[index];
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, bufferRef.current);
-                gl.bufferData(
-                    gl.ARRAY_BUFFER,
-                    buffer.subarray(0, vertexCount * 2),
-                    gl.DYNAMIC_DRAW
-                );
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer.subarray(0, vertexCount * 2));
 
                 gl.enableVertexAttribArray(locs.position);
                 gl.vertexAttribPointer(locs.position, 2, gl.FLOAT, false, 0, 0);
@@ -503,6 +534,7 @@ const WavesBackgroundWebGL = memo(() => {
 
             window.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseleave', handleMouseLeave);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
 
             resizeObserver.disconnect();
 

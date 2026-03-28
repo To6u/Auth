@@ -1,153 +1,13 @@
 import { ArrowDown, ExternalLink, Github, X } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
+import { LoginAsciiPreview } from '@/components/login-ascii-preview/LoginAsciiPreview';
 import { Logo } from '@/components/logo/Logo';
 import { SubmitButton } from '@/components/submit-button/SubmitButton';
-import { LoginAsciiPreview } from '@/components/login-ascii-preview/LoginAsciiPreview';
 import { projectsState } from '@/lib/projectsState';
+import type { Project, ProjectStatus } from './projects.data';
+import { PROJECTS } from './projects.data';
+import { CAM_PATH, CARD_PROGRESS, clamp, splinePoint } from './projects.math';
 import './Projects.css';
-
-// ─────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────
-
-type ProjectStatus = 'live' | 'wip' | 'archived';
-
-interface Project {
-    id: string;
-    title: string;
-    description: string;
-    tags: string[];
-    status: ProjectStatus;
-    year: string;
-    wx: number;
-    wy: number;
-    wz: number;
-    link?: string;
-    github?: string;
-    logo?: boolean;
-    asciiPreview?: boolean;
-    changelog?: { text: string; date: string }[];
-}
-
-// ─────────────────────────────────────────────────────────────
-// Datav
-// ─────────────────────────────────────────────────────────────
-
-const PROJECTS: Project[] = [
-    {
-        id: '1',
-        title: 'Форма входа',
-        description:
-            'Три режима в одном: вход, регистрация, восстановление пароля. Переходы между ними — плавные, без перезагрузки страницы.\n\nПароль хэшируется, токен хранится в httpOnly cookie — из JavaScript недоступен. Брутфорс ограничен: 10 попыток за 15 минут.',
-        tags: ['React', 'TypeScript', 'Express', 'SQLite'],
-        status: 'live',
-        year: '2024',
-        wx: 0,
-        wy: 0,
-        wz: 0,
-        link: '/login',
-        asciiPreview: true,
-    },
-    {
-        id: '2',
-        title: 'Моя страница',
-        description:
-            'Портфолио с 3D-сценой на Three.js, WebGL-волнами, scroll-анимациями на Framer Motion и Canvas 2D.\nПостоянно дорабатываю.',
-        tags: ['React', 'Three.js', 'WebGL', 'Canvas'],
-        status: 'wip',
-        year: 'декабрь 2025 - ...',
-        wx: -320,
-        wy: 90,
-        wz: -1500,
-        logo: true,
-        changelog: [
-            { text: 'expandable cards with inner scroll + 0.8s bottom lock', date: '24 мар' },
-            { text: 'header dims to 0.3 inside projects section', date: '24 мар' },
-            { text: 'global macOS-style scrollbar', date: '18 мар' },
-            { text: 'scroll-driven 3D camera path via Catmull-Rom spline', date: '18 мар' },
-            { text: 'WebGL wave — phase accumulator, no time jump on resume', date: '14 мар' },
-            {
-                text: 'MobilePhotoStrip — infinite carousel, directional slide',
-                date: '10 мар',
-            },
-        ],
-    },
-    {
-        id: '3',
-        title: 'Дашборд пользователя',
-        description:
-            'Личное пространство для задач и привычек. Список дел с приоритетами и дедлайнами, трекер привычек с визуализацией прогресса.',
-        tags: ['React', 'TypeScript', 'SQLite'],
-        status: 'archived',
-        year: 'апрель 2026',
-        wx: 280,
-        wy: -70,
-        wz: -3000,
-    },
-];
-
-// ─────────────────────────────────────────────────────────────
-// Camera spline helpers
-// ─────────────────────────────────────────────────────────────
-
-interface Vec3 {
-    x: number;
-    y: number;
-    z: number;
-}
-
-/**
- * Camera waypoints.
- * Z grows positively as the "virtual camera" flies forward;
- * the world transform inverts it so cards approach the viewer.
- */
-const CAM_PATH: Vec3[] = [
-    { x: 0, y: 0, z: 0 }, // card-0
-    { x: -320, y: 90, z: 1500 }, // card-1
-    { x: 280, y: -70, z: 3000 }, // card-2
-    // { x: 280, y: -70, z: 3000 }, // ease-out tail — stops at card-2
-];
-
-function catmullRom(p0: number, p1: number, p2: number, p3: number, t: number): number {
-    const t2 = t * t;
-    const t3 = t2 * t;
-    return (
-        0.5 *
-        (2 * p1 +
-            (-p0 + p2) * t +
-            (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
-            (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
-    );
-}
-
-/**
- * Map t ∈ [0, 1] to a position on the Catmull-Rom spline defined by `path`.
- * Boundary condition: duplicates start/end points to prevent NaN at edges.
- */
-function splinePoint(path: Vec3[], t: number): Vec3 {
-    const n = path.length - 1; // segment count
-    const clamped = Math.min(Math.max(t, 0), 1);
-    const raw = clamped * n;
-    const i = Math.min(Math.floor(raw), n - 1);
-    const localT = raw - i;
-
-    // Duplicate boundary points to satisfy Catmull-Rom requirements.
-    // Non-null assertions are safe: indices are clamped to [0, n] above.
-    const p0 = path[i === 0 ? 0 : i - 1]!;
-    const p1 = path[i]!;
-    const p2 = path[i + 1]!;
-    const p3 = path[i >= n - 1 ? n : i + 2]!;
-
-    return {
-        x: catmullRom(p0.x, p1.x, p2.x, p3.x, localT),
-        y: catmullRom(p0.y, p1.y, p2.y, p3.y, localT),
-        z: catmullRom(p0.z, p1.z, p2.z, p3.z, localT),
-    };
-}
-
-function clamp(v: number, lo: number, hi: number): number {
-    return Math.min(Math.max(v, lo), hi);
-}
 
 // ─────────────────────────────────────────────────────────────
 // ProjectCard — pure display, no scroll logic
@@ -253,9 +113,6 @@ ProjectCard.displayName = 'ProjectCard';
 // ─────────────────────────────────────────────────────────────
 // Projects — main component
 // ─────────────────────────────────────────────────────────────
-
-// Progress values on the spline where each card is centred (matches CAM_PATH indices 0, 1, 2 of 3)
-const CARD_PROGRESS = [0, 1 / 2, 1] as const;
 
 export const Projects = () => {
     const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -742,11 +599,14 @@ export const Projects = () => {
                     {/* 3D world */}
                     <div className="projects-scene__world" ref={worldRef}>
                         {PROJECTS.map((p, i) => (
+                            // biome-ignore lint/a11y/useSemanticElements: вложенная <button> закрытия исключает использование <button> для карточки
                             <div
                                 key={p.id}
                                 ref={(el) => {
                                     cardRefs.current[i] = el;
                                 }}
+                                role="button"
+                                tabIndex={0}
                                 className={`projects-scene__card${expandedId === p.id ? ' projects-scene__card--expanded' : ''}`}
                                 onClick={() => {
                                     if (touchMovedRef.current) return;
@@ -763,8 +623,18 @@ export const Projects = () => {
                                         window.scrollTo({ top: targetY, behavior: 'smooth' });
                                     }
                                 }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        if (i === activeIndexRef.current) {
+                                            setExpandedId((cur) => (cur === p.id ? null : p.id));
+                                        }
+                                    }
+                                }}
                             >
                                 {/* Кнопка закрыть — внутри card, над card-body, управляется CSS через --expanded */}
+                                {/* biome-ignore lint/a11y/noStaticElementInteractions: div нужен только для stopPropagation, интерактивный элемент — вложенный SubmitButton */}
+                                {/* biome-ignore lint/a11y/useKeyWithClickEvents: см. выше */}
                                 <div
                                     className="projects-scene__close-btn"
                                     onClick={(e) => {
@@ -809,7 +679,7 @@ export const Projects = () => {
                             navDotRefs.current[i] = el;
                         }}
                         className="projects-scene__nav-dot"
-                        aria-label={`Project ${i + 1}`}
+                        aria-hidden="true"
                     />
                 ))}
             </nav>

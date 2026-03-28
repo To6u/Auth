@@ -2,6 +2,50 @@
    Contacts — 100vh section
    ================================================================ */
 
+@keyframes char-fall {
+    0%, 75% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    90% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    91% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.companion-group__ascii {
+    position: absolute;
+    bottom: 60px;
+    right: 50px;
+    z-index: 5;
+    font-family: monospace;
+    font-size: 7px;
+    line-height: 1.2;
+    white-space: pre;
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+}
+
+.companion-group__ascii span {
+    display: inline-block;
+    animation: char-fall 8s ease-in infinite;
+    animation-delay: calc(var(--delay) * 1s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .companion-group__ascii span {
+        animation: none;
+    }
+}
+
 .contacts-section {
     position: relative;
     height: 100vh;
@@ -234,6 +278,11 @@
 
 .contacts-card:hover {
     will-change: transform;
+}
+
+.contacts-card:focus-visible {
+    outline: 2px solid rgba(255, 244, 234, 0.5);
+    outline-offset: 4px;
 }
 
 .contacts-card:hover  .contacts-card__label {

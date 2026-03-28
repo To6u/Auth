@@ -37,7 +37,6 @@ const ThinWavesBackground = memo(() => {
             waveGradients.fill(null);
         };
         resizeCanvas();
-        window.addEventListener('resize', resizeCanvas, { passive: true });
         const ro = new ResizeObserver(resizeCanvas);
         ro.observe(canvas);
 
@@ -163,7 +162,6 @@ const ThinWavesBackground = memo(() => {
         animate();
 
         return () => {
-            window.removeEventListener('resize', resizeCanvas);
             ro.disconnect();
             document.removeEventListener('visibilitychange', onVisibilityChange);
             window.removeEventListener('mousemove', onActivity);

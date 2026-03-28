@@ -5,7 +5,7 @@ import './mode-alert.css';
 const DEBOUNCE_MS = 400;
 const DISMISS_MS = 3000;
 
-export const ModeAlert = memo(() => {
+export const ModeAlert = memo(({ silent = false }: { silent?: boolean }) => {
     const { isSavingMode } = useAnimationMode();
     const [visible, setVisible] = useState(false);
     const [text, setText] = useState('');
@@ -32,7 +32,7 @@ export const ModeAlert = memo(() => {
         // Показываем после паузы (финальное состояние серии кликов)
         debounceRef.current = setTimeout(() => {
             setMode(isSavingMode ? 'saving' : 'normal');
-            setText(isSavingMode ? 'Сберегающий режим' : 'Полный газ');
+            setText(isSavingMode ? '🌿 Сберегающий режим' : '🔥 Полный газ');
             setVisible(true);
 
             dismissRef.current = setTimeout(() => setVisible(false), DISMISS_MS);
@@ -47,8 +47,9 @@ export const ModeAlert = memo(() => {
     return (
         <div
             className={`mode-alert mode-alert--${mode}${visible ? ' mode-alert--visible' : ''}`}
-            aria-live="polite"
-            aria-atomic="true"
+            aria-live={silent ? undefined : 'polite'}
+            aria-atomic={silent ? undefined : 'true'}
+            aria-hidden={silent ? true : undefined}
         >
             {text}
         </div>
