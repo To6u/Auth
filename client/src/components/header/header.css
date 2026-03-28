@@ -69,6 +69,15 @@ html:has(.projects-scene__nav.visible) .header:hover {
     background: none;
     border: none;
     padding: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.header__companion:focus-visible {
+    outline: 2px solid rgba(255, 244, 234, 0.5);
+    outline-offset: 4px;
+    border-radius: 4px;
 }
 
 @media (max-width: 768px) {
@@ -171,42 +180,6 @@ html:has(.projects-scene__nav.visible) .header:hover {
     border-bottom-color: rgba(255, 120, 30, 0.15);
 }
 
-@keyframes fire-tooltip-in-mobile {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-4px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
-@keyframes fire-tooltip-out-mobile {
-    from {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-4px);
-    }
-}
-
-@media (max-width: 768px) {
-    .header__fire-tooltip {
-        right: auto;
-        left: 50%;
-        animation: fire-tooltip-in-mobile 0.3s ease forwards,
-            fire-tooltip-out-mobile 0.4s ease 2.6s forwards;
-    }
-
-    .header__fire-tooltip::before {
-        right: auto;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-}
 
 @keyframes fire-tooltip-in {
     from {

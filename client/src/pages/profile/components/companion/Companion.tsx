@@ -5,12 +5,12 @@ import type * as THREE from 'three';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
 import './companion.css';
 
-useGLTF.preload('/model.gltf');
+useGLTF.preload('/scene-slim-opt.glb');
 
 const CAMERA = { position: [-0.008, 0.999, 0.053] as [number, number, number], fov: 45 };
 
 function Model({ onLoad }: { onLoad: () => void }) {
-    const { scene } = useGLTF('/model.gltf');
+    const { scene } = useGLTF('/scene-slim-opt.glb');
     const ref = useRef<THREE.Group>(null);
 
     const clonedScene = useRef<THREE.Group | null>(null);
