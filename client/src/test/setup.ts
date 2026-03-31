@@ -91,6 +91,12 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
     disconnect: vi.fn(),
 }));
 
+// window.scrollTo — not implemented in jsdom, framer-motion вызывает при измерении keyframes
+Object.defineProperty(window, 'scrollTo', {
+    writable: true,
+    value: vi.fn(),
+});
+
 // matchMedia mock
 Object.defineProperty(window, 'matchMedia', {
     writable: true,

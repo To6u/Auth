@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { useAnimationMode } from '@/context/AnimationModeContext';
+import azAscii from '@/assets/az_ascii.txt?raw';
 import snowImg from '@/assets/Snow1.png';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
-import azAscii from '@/assets/az_ascii.txt?raw';
+import { useAnimationMode } from '@/context/AnimationModeContext';
 import { AsciiArt } from './AsciiArt.tsx';
 import AsciiRain from './AsciiRain.tsx';
 import './contacts.css';
@@ -256,26 +256,16 @@ export const Contacts = () => {
 
     return (
         <section id="contacts" ref={sectionRef} className="contacts-section">
-            <AsciiArt
-                className="companion-group__ascii"
-                text={azAscii
-                    .split('\n')
-                    .slice(0, 17)
-                    .map((l) => l.trimEnd())
-                    .join('\n')}
-            />
-            <div className="contacts-aurora" aria-hidden="true">
-                <div className="contacts-aurora__blob contacts-aurora__blob--1" />
-                <div className="contacts-aurora__blob contacts-aurora__blob--2" />
-                <div className="contacts-aurora__blob contacts-aurora__blob--3" />
-                <div className="contacts-aurora__blob contacts-aurora__blob--4" />
-                <div className="contacts-aurora__blob contacts-aurora__blob--5" />
+            <div className="contacts-bg" aria-hidden="true">
+                <div className="contacts-aurora">
+                    <div className="contacts-aurora__blob contacts-aurora__blob--1" />
+                    <div className="contacts-aurora__blob contacts-aurora__blob--2" />
+                    <div className="contacts-aurora__blob contacts-aurora__blob--3" />
+                    <div className="contacts-aurora__blob contacts-aurora__blob--4" />
+                    <div className="contacts-aurora__blob contacts-aurora__blob--5" />
+                </div>
+                <img ref={imgRef} src={snowImg} alt="" className="contacts-bg-img" />
             </div>
-            <img ref={imgRef} src={snowImg} alt="" aria-hidden="true" className="contacts-bg-img" />
-
-            <ErrorBoundary fallback={null} name="AsciiRain">
-                <AsciiRain />
-            </ErrorBoundary>
 
             <div className="contacts-inner">
                 <h2 className="contacts-heading">Связь</h2>
@@ -285,6 +275,19 @@ export const Contacts = () => {
                     ))}
                 </div>
             </div>
+
+            <ErrorBoundary fallback={null} name="AsciiRain">
+                <AsciiRain />
+            </ErrorBoundary>
+
+            <AsciiArt
+                className="companion-group__ascii"
+                text={azAscii
+                    .split('\n')
+                    .slice(0, 17)
+                    .map((l) => l.trimEnd())
+                    .join('\n')}
+            />
         </section>
     );
 };

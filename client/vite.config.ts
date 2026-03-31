@@ -18,6 +18,9 @@ export default defineConfig({
             },
         },
     },
+    optimizeDeps: {
+        include: ['react', 'react-dom', 'framer-motion'],
+    },
     build: {
         assetsInlineLimit: 0, // Отключаем инлайн для шрифтов
         target: 'es2015',

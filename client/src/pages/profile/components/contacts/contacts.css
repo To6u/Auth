@@ -48,10 +48,20 @@
 
 .contacts-section {
     position: relative;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     overflow: hidden;
+}
+
+/* Изолированный фоновый слой — aurora + bg-img + ascii-canvas.
+   position: absolute; inset: 0 означает что canvas позиционируется
+   относительно этого враппера (= секции), не мешая потоку contacts-inner. */
+.contacts-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
 }
 
 /* ── Aurora ─────────────────────────────────────────────────────── */
@@ -333,6 +343,13 @@
 
 /* ── Mobile ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+    /* На мобиле секция — колонка: contacts-inner сверху, canvas снизу */
+    .contacts-section {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
     .contacts-inner {
         margin-top: 4rem;
     }
@@ -351,6 +368,28 @@
         padding: 0;
         flex-direction: column;
         gap: 0;
+    }
+
+    /* Canvas выходит из абсолютного потока и встаёт ниже контента */
+    .contacts-ascii-canvas {
+        position: relative;
+        inset: auto;
+        transform: none;
+        height: 320px;
+        width: auto;
+        margin-top: 32px;
+        flex-shrink: 0;
+    }
+
+    /* companion-group__ascii — DOM-последний, выходит из absolute и встаёт под canvas */
+    .companion-group__ascii {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        align-self: flex-end;
+        margin-right: 50px;
+        margin-top: 16px;
+        margin-bottom: 32px;
     }
 }
 
