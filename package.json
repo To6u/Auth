@@ -19,8 +19,9 @@
         "format": "biome format --write .",
         "format:check": "biome check .",
         "lint:biome": "biome lint .",
-        "test": "npm run test:unit && npm run test:e2e",
+        "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
         "test:unit": "cd client && npm run test",
+        "test:integration": "cd server && npm run test",
         "test:e2e": "playwright test"
     },
     "devDependencies": {
