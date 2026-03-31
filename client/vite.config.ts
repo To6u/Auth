@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -23,5 +24,18 @@ export default defineConfig({
     },
     esbuild: {
         target: 'es2015',
+    },
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: ['./src/test/setup.ts'],
+        include: ['src/**/*.test.{ts,tsx}'],
+        exclude: ['node_modules', 'dist'],
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'html'],
+            include: ['src/**/*.{ts,tsx}'],
+            exclude: ['src/test/**', 'src/**/*.d.ts'],
+        },
     },
 });

@@ -18,10 +18,14 @@
         "claude": "bash scripts/claude.sh",
         "format": "biome format --write .",
         "format:check": "biome check .",
-        "lint:biome": "biome lint ."
+        "lint:biome": "biome lint .",
+        "test": "npm run test:unit && npm run test:e2e",
+        "test:unit": "cd client && npm run test",
+        "test:e2e": "playwright test"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.4.7",
+        "@playwright/test": "^1.52.0",
         "concurrently": "^9.2.1",
         "prettier": "^3.7.4"
     }
