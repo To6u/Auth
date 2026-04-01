@@ -24,6 +24,7 @@ export default defineConfig({
     build: {
         assetsInlineLimit: 0, // Отключаем инлайн для шрифтов
         target: 'es2015',
+        cssMinify: false,
     },
     esbuild: {
         target: 'es2015',
