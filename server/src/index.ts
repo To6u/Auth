@@ -4,7 +4,6 @@ import cors from 'cors';
 import express, { type Express, type NextFunction, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import { apiLimiter } from './config/rate-limit.config';
-import { registerDevRoutes } from './dev-routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
@@ -13,11 +12,11 @@ import { logger } from './utils/logger';
 const app: Express = express();
 const PORT = process.env.PORT || 3001;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
-
-if (NODE_ENV === 'production' && !process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET не задан — production запуск прерван');
+if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET не задан — запуск прерван');
 }
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // 🔐 Security: Helmet
 app.use(helmet());
@@ -53,11 +52,6 @@ app.get('/health', (req: Request, res: Response) => {
     });
 });
 
-// 🔧 Dev routes (только в development)
-if (NODE_ENV !== 'production') {
-    registerDevRoutes(app);
-}
-
 // 📍 Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -74,9 +68,7 @@ const server = app.listen(PORT, () => {
     logger.info(`🚀 Сервер запущен на http://localhost:${PORT}`);
     logger.info(`📝 Режим: ${NODE_ENV}`);
     logger.info(`💚 Health check: http://localhost:${PORT}/health`);
-    logger.info(
-        `🔐 JWT Secret: ${JWT_SECRET === 'fallback-secret-key' ? '⚠️ ИСПОЛЬЗУЕТСЯ ДЕФОЛТНЫЙ!' : '✅ Настроен'}`
-    );
+    logger.info(`🔐 JWT Secret: ✅ Настроен`);
     logger.info('='.repeat(50));
 });
 

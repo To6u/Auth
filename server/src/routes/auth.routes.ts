@@ -7,7 +7,7 @@ import { logger } from '../utils/logger';
 import { loginSchema, registerSchema, validateRequest } from '../validation/auth.validation';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET!;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Prepared statements — компилируются один раз при старте модуля

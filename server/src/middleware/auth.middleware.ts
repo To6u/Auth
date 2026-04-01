@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { logger } from '../utils/logger';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export interface AuthRequest extends Request {
     user?: {

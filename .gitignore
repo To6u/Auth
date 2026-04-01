@@ -7,6 +7,7 @@ server/node_modules/
 dist/
 client/dist/
 server/dist/
+client/tsconfig.app.tsbuildinfo
 # Env
 .env
 .env.local
@@ -18,6 +19,7 @@ server/dist/
 # IDE
 .vscode/
 .idea/
+.continue/
 *.swp
 *.swo
 # Logs
@@ -31,6 +33,9 @@ backup_*/
 .claude_system_prompt.tmp
 SERVER.md
 CLIENT.md
+# Dev-only server files
+server/src/dev-routes.ts
+
 # AI / Claude Code — не коммитить в репозиторий
 CLAUDE.md
 .claude/
