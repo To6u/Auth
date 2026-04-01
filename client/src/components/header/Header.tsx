@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SubmitButton } from '@/components/submit-button/SubmitButton';
 import { LoginIcon, LogoutIcon } from '@/assets/icons';
+import { ModeAlert } from '@/components/mode-alert/ModeAlert';
+import { SubmitButton } from '@/components/submit-button/SubmitButton';
 import { useAnimationMode } from '@/context/AnimationModeContext';
 import { useAuthInfo } from '@/hooks/useAuthInfo';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
-import { ModeAlert } from '@/components/mode-alert/ModeAlert';
 import { Companion } from '@/pages/profile/components/companion/Companion.tsx';
 import './header.css';
 
@@ -121,7 +121,11 @@ const Header = () => {
         return () => clearInterval(id);
     }, [prefersReducedMotion, isSavingMode]);
 
-    const handleLinkClick = useCallback(() => setIsOpen(false), []);
+    const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+        e.preventDefault();
+        setIsOpen(false);
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }, []);
 
     const handleScrollToTop = useCallback(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -164,6 +168,7 @@ const Header = () => {
                         <a
                             href={`#${id}`}
                             className={activeId === id ? 'header__link--active' : undefined}
+                            onClick={(e) => handleNavClick(e, id)}
                         >
                             {label}
                         </a>
@@ -265,7 +270,7 @@ const Header = () => {
                             <a
                                 href={`#${id}`}
                                 className={activeId === id ? 'header__link--active' : undefined}
-                                onClick={handleLinkClick}
+                                onClick={(e) => handleNavClick(e, id)}
                             >
                                 {label}
                             </a>
