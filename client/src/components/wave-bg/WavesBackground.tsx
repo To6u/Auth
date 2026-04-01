@@ -396,7 +396,7 @@ const WavesBackground = memo(() => {
         if (!ctx) return;
 
         const waves = wavesConfig;
-        let animationId: number;
+        let animationId: ReturnType<typeof requestAnimationFrame>;
         let time = 0;
         let lastFrameTime = performance.now();
 
