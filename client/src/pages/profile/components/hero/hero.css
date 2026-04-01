@@ -63,6 +63,7 @@
     display: inline-block;
     will-change: transform, opacity;
     color: rgba(255, 244, 234, 0.8);
+    user-select: none;
 }
 
 /* Пульсация text-shadow */
