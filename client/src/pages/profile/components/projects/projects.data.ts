@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'limit to 10 entries, trim oldest on overflow', date: '2 апр' },
             { text: 'use prepare-commit-msg hook so file lands in same commit', date: '2 апр' },
             { text: 'stop hint cycle on interaction, restart on mouse leave', date: '2 апр' },
             { text: 'switch to commit-msg hook, auto-insert from conventional commit', date: '2 апр' },
@@ -63,16 +64,7 @@ export const PROJECTS: Project[] = [
             { text: 'scroll-progress paths fill full height on mobile', date: '2 апр' },
             { text: 'contacts: last updated date block', date: '2 апр' },
             { text: 'saving mode disables ascii animation', date: '2 апр' },
-            { text: 'expandable cards with inner scroll + 0.8s bottom lock', date: '24 мар' },
-            { text: 'header dims to 0.3 inside projects section', date: '24 мар' },
-            { text: 'global macOS-style scrollbar', date: '18 мар' },
-            { text: 'scroll-driven 3D camera path via Catmull-Rom spline', date: '18 мар' },
-            { text: 'WebGL wave — phase accumulator, no time jump on resume', date: '14 мар' },
-            {
-                text: 'MobilePhotoStrip — infinite carousel, directional slide',
-                date: '10 мар',
-            },
-        ],
+],
     },
     {
         id: '3',
