@@ -1,34 +1,37 @@
 #!/usr/bin/env node
-// Читает .changelog-draft.json, вставляет записи в projects.data.ts после маркера // CHANGELOG_INSERT,
-// стейджит файл и удаляет драфт.
+// commit-msg хук: извлекает описание из conventional commit и вставляет в projects.data.ts
+// Использование: node scripts/update-changelog.mjs <путь_к_файлу_с_сообщением>
 
 import { execSync } from 'node:child_process';
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const DRAFT_PATH = resolve(ROOT, '.changelog-draft.json');
 const DATA_PATH = resolve(ROOT, 'client/src/pages/profile/components/projects/projects.data.ts');
 const MARKER = '// CHANGELOG_INSERT';
+const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
-if (!existsSync(DRAFT_PATH)) process.exit(0);
+const msgFile = process.argv[2];
+if (!msgFile) process.exit(0);
 
-const draft = JSON.parse(readFileSync(DRAFT_PATH, 'utf8'));
-if (!Array.isArray(draft) || draft.length === 0) process.exit(0);
+const firstLine = readFileSync(msgFile, 'utf8').trim().split('\n')[0];
 
-const lines = draft
-    .map(({ text, date }) => `            { text: '${text}', date: '${date}' },`)
-    .join('\n');
+// Conventional commit: feat(scope): description  →  description
+const match = firstLine.match(/^[a-z]+(?:\([^)]+\))?!?:\s*(.+)$/);
+if (!match) process.exit(0);
+
+const description = match[1].trim().replace(/'/g, "\\'");
+const d = new Date();
+const date = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 
 const source = readFileSync(DATA_PATH, 'utf8');
 if (!source.includes(MARKER)) {
     console.error(`[changelog] Маркер "${MARKER}" не найден в projects.data.ts`);
-    process.exit(1);
+    process.exit(0);
 }
 
-const updated = source.replace(MARKER, `${MARKER}\n${lines}`);
+const entry = `            { text: '${description}', date: '${date}' },`;
+const updated = source.replace(MARKER, `${MARKER}\n${entry}`);
 writeFileSync(DATA_PATH, updated, 'utf8');
 execSync(`git add "${DATA_PATH}"`);
-
-unlinkSync(DRAFT_PATH);
-console.log(`[changelog] Добавлено ${draft.length} записей`);
+console.log(`[changelog] ${description} (${date})`);
