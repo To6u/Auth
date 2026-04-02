@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'use cwd in git add so staged file lands in commit', date: '2 апр' },
             { text: 'limit to 10 entries, trim oldest on overflow', date: '2 апр' },
             { text: 'use prepare-commit-msg hook so file lands in same commit', date: '2 апр' },
             { text: 'stop hint cycle on interaction, restart on mouse leave', date: '2 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'companion: drag hint icon + 100×100 on mobile', date: '2 апр' },
             { text: 'scroll-progress paths fill full height on mobile', date: '2 апр' },
             { text: 'contacts: last updated date block', date: '2 апр' },
-            { text: 'saving mode disables ascii animation', date: '2 апр' },
 ],
     },
     {

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-// commit-msg хук: извлекает описание из conventional commit и вставляет в projects.data.ts
-// Использование: node scripts/update-changelog.mjs <путь_к_файлу_с_сообщением>
+// pre-commit хук: читает сообщение из .git/COMMIT_EDITMSG, вставляет запись в projects.data.ts
 
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -11,12 +10,14 @@ const DATA_PATH = resolve(ROOT, 'client/src/pages/profile/components/projects/pr
 const MARKER = '// CHANGELOG_INSERT';
 const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
-const msgFile = process.argv[2];
-const msgSource = process.argv[3]; // message | template | merge | squash | commit
-if (!msgFile) process.exit(0);
-if (msgSource && msgSource !== 'message' && msgSource !== 'template') process.exit(0);
+const msgFile = resolve(ROOT, '.git/COMMIT_EDITMSG');
 
-const firstLine = readFileSync(msgFile, 'utf8').trim().split('\n')[0];
+let firstLine = '';
+try {
+    firstLine = readFileSync(msgFile, 'utf8').trim().split('\n')[0];
+} catch {
+    process.exit(0);
+}
 
 // Conventional commit: feat(scope): description  →  description
 const match = firstLine.match(/^[a-z]+(?:\([^)]+\))?!?:\s*(.+)$/);
