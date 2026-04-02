@@ -570,6 +570,10 @@
         margin-bottom: 20px;
     }
 
+    .projects-scene__close-btn {
+        display: none;
+    }
+
     /* transform-style: flat на expanded меняет compositing — явно восстанавливаем blur */
     .projects-scene__card--expanded .projects-scene__card-body {
         backdrop-filter: blur(12px);

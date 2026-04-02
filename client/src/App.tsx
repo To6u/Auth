@@ -160,7 +160,6 @@ function AnimatedRoutes() {
                     </AnimatePresence>
                 </div>
             </div>
-
             {/*
              * prefers-reduced-motion: reduce → статичный CSS-градиент, 0 canvas (a11y)
              * mobile (< 768px)             → только ThinWavesBackground (фон + лёгкие волны)

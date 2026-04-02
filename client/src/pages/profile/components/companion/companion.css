@@ -1,16 +1,21 @@
 .companion {
+    position: relative;
     width: 150px;
     height: 150px;
     flex-shrink: 0;
     opacity: 0;
-    transition: opacity 0.6s ease;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
 }
 
 .companion--loaded {
-    opacity: 1;
+    animation: companionEnter 0.4s cubic-bezier(0.619, -1, 0.269, 2) forwards;
+}
+
+@keyframes companionEnter {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
 }
 
 .companion--interactive {
@@ -20,6 +25,38 @@
 
 .companion--interactive:active {
     cursor: grabbing;
+}
+
+.companion__hint {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 244, 234, 0.45);
+    pointer-events: none;
+}
+
+.companion__hint-icon {
+    display: flex;
+    animation: hint-spin 2.5s ease-in-out infinite;
+}
+
+@keyframes hint-spin {
+    0%, 60%, 100% { transform: rotate(0deg); }
+    30% { transform: rotate(180deg); }
+}
+
+@media (max-width: 767px) {
+    .companion {
+        width: 100px;
+        height: 100px;
+    }
+
+    .companion__hint {
+        width: 12px;
+        height: 12px;
+    }
 }
 
 .companion__canvas {

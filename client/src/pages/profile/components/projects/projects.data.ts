@@ -53,6 +53,13 @@ export const PROJECTS: Project[] = [
         wz: -1500,
         logo: true,
         changelog: [
+            // CHANGELOG_INSERT
+            { text: 'NiAz title + az.svg favicon', date: '2 апр' },
+            { text: 'build date auto-injection via Vite define', date: '2 апр' },
+            { text: 'companion: drag hint icon + 100×100 on mobile', date: '2 апр' },
+            { text: 'scroll-progress paths fill full height on mobile', date: '2 апр' },
+            { text: 'contacts: last updated date block', date: '2 апр' },
+            { text: 'saving mode disables ascii animation', date: '2 апр' },
             { text: 'expandable cards with inner scroll + 0.8s bottom lock', date: '24 мар' },
             { text: 'header dims to 0.3 inside projects section', date: '24 мар' },
             { text: 'global macOS-style scrollbar', date: '18 мар' },

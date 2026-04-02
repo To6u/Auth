@@ -1,3 +1,6 @@
+# Changelog draft (локальный, не коммитится)
+.changelog-draft.json
+
 # Dependencies
 node_modules/
 client/node_modules/

@@ -12,15 +12,21 @@
 /* Киношный выход через wrapper — drawLogo внутри не прерывается */
 .logo-wrapper {
     display: flex;
+    animation: logoEnter 0.4s cubic-bezier(0.619, -1, 0.269, 2) forwards;
 }
 
 .logo-wrapper--fading {
-    animation: logoExit 0.8s ease-in forwards;
+    animation: logoExit 0.5s cubic-bezier(0.619, -1, 0.269, 2) forwards;
+}
+
+@keyframes logoEnter {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
 }
 
 @keyframes logoExit {
     from { transform: scale(1); opacity: 1; }
-    to   { transform: scale(2); opacity: 0; }
+    to   { transform: scale(0); opacity: 0; }
 }
 
 @keyframes drawLogo {

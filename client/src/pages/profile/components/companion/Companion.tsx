@@ -1,5 +1,7 @@
 import { Environment, OrbitControls, useGLTF } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { AnimatePresence, motion } from 'framer-motion';
+import { RefreshCw } from 'lucide-react';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import type * as THREE from 'three';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
@@ -8,6 +10,8 @@ import './companion.css';
 useGLTF.preload('/scene-slim-opt.glb');
 
 const CAMERA = { position: [-0.008, 0.999, 0.053] as [number, number, number], fov: 45 };
+const SPIN_MS = 2500;
+const PAUSE_MS = 5000;
 
 function Model({ onLoad }: { onLoad: () => void }) {
     const { scene } = useGLTF('/scene-slim-opt.glb');
@@ -46,7 +50,34 @@ function Invalidator({ autoRotate }: { autoRotate: boolean }) {
 export function Companion() {
     const [hovered, setHovered] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [hintVisible, setHintVisible] = useState(false);
     const handleLoad = useCallback(() => setLoaded(true), []);
+
+    useEffect(() => {
+        if (!loaded) return;
+        let cancelled = false;
+        let t1: ReturnType<typeof setTimeout>;
+        let t2: ReturnType<typeof setTimeout>;
+
+        const cycle = (delay: number) => {
+            t1 = setTimeout(() => {
+                if (cancelled) return;
+                setHintVisible(true);
+                t2 = setTimeout(() => {
+                    if (cancelled) return;
+                    setHintVisible(false);
+                    cycle(PAUSE_MS);
+                }, SPIN_MS);
+            }, delay);
+        };
+
+        cycle(900);
+        return () => {
+            cancelled = true;
+            clearTimeout(t1);
+            clearTimeout(t2);
+        };
+    }, [loaded]);
 
     return (
         <div
@@ -54,6 +85,23 @@ export function Companion() {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
+            <AnimatePresence>
+                {hintVisible && !hovered && (
+                    <motion.span
+                        key="hint"
+                        className="companion__hint"
+                        aria-hidden="true"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: 'tween', ease: [0.619, -1, 0.269, 2], duration: 0.4 }}
+                    >
+                        <span className="companion__hint-icon">
+                            <RefreshCw size={18} strokeWidth={1.5} />
+                        </span>
+                    </motion.span>
+                )}
+            </AnimatePresence>
             <ErrorBoundary fallback={null} name="Companion">
                 <Canvas
                     className="companion__canvas"

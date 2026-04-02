@@ -117,6 +117,13 @@
 .mobile-photo-strip__photo-nav--prev { left: 12px; }
 .mobile-photo-strip__photo-nav--next { right: 12px; }
 
+@media (max-width: 767px) {
+    .mobile-photo-strip__photo-nav {
+        width: 64px;
+        height: 64px;
+    }
+}
+
 /* ── Alt-image crossfade (двухслойный рендер выделенного фото) ── */
 
 .mobile-photo-strip__photo-layers {
