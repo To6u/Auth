@@ -46,6 +46,10 @@
     }
 }
 
+.companion-group__ascii--static span {
+    animation: none;
+}
+
 .contacts-section {
     position: relative;
     min-height: 100vh;
@@ -330,6 +334,16 @@
     text-align: center;
 }
 
+.contacts-updated {
+    position: absolute;
+    bottom: 20px;
+    right: 50px;
+    margin: 0;
+    font-size: 11px;
+    color: rgba(255, 244, 234, 0.3);
+    letter-spacing: 0.04em;
+}
+
 /* ── Tablet ─────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
     .contacts-inner {
@@ -389,7 +403,15 @@
         align-self: flex-end;
         margin-right: 50px;
         margin-top: 16px;
-        margin-bottom: 32px;
+        margin-bottom: 8px;
+    }
+
+    .contacts-updated {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        align-self: flex-end;
+        margin: 20px auto 32px;
     }
 }
 

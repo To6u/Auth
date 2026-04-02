@@ -194,7 +194,7 @@ export const ScrollProgressIndicator = memo(
                     height={svgHeight}
                     viewBox={`0 0 ${PATH_WIDTH} ${svgHeight}`}
                     overflow="visible"
-                    preserveAspectRatio="xMidYMin meet"
+                    preserveAspectRatio="none"
                 >
                     <defs>
                         {/* Трек: rect.y растёт → скрывает сверху вниз */}

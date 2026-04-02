@@ -349,7 +349,6 @@ export const AboutHero = memo(() => {
                                 </motion.div>
                             )}
                         </motion.div>
-
                         {/* Мобилка: полоса фото снаружи заголовка */}
                         {isMobileLayout && (
                             <motion.div

@@ -135,6 +135,8 @@ const SocialCard = ({ label, handle, href }: Omit<CardProps, 'Icon' | 'color'>) 
     );
 };
 
+const LAST_UPDATED = __BUILD_DATE__;
+
 // ── Lerp-параметры фонового изображения ─────────────────────────────────────
 
 const MOUSE_LERP = 0.06;
@@ -147,9 +149,9 @@ const BG_PARALLAX_X = 20;
 export const Contacts = () => {
     const sectionRef = useRef<HTMLElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
-    const { isSavingMode: _savingMode } = useAnimationMode();
-    const isSavingModeRef = useRef(_savingMode);
-    isSavingModeRef.current = _savingMode;
+    const { isSavingMode } = useAnimationMode();
+    const isSavingModeRef = useRef(isSavingMode);
+    isSavingModeRef.current = isSavingMode;
 
     useEffect(() => {
         const section = sectionRef.current;
@@ -281,13 +283,14 @@ export const Contacts = () => {
             </ErrorBoundary>
 
             <AsciiArt
-                className="companion-group__ascii"
+                className={`companion-group__ascii${isSavingMode ? ' companion-group__ascii--static' : ''}`}
                 text={azAscii
                     .split('\n')
                     .slice(0, 17)
                     .map((l) => l.trimEnd())
                     .join('\n')}
             />
+            <p className="contacts-updated">Сайт обновлен: {LAST_UPDATED}</p>
         </section>
     );
 };

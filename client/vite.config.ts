@@ -2,8 +2,28 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+const MONTHS = [
+    'январь',
+    'февраль',
+    'март',
+    'апрель',
+    'май',
+    'июнь',
+    'июль',
+    'август',
+    'сентябрь',
+    'октябрь',
+    'ноябрь',
+    'декабрь',
+];
+const d = new Date();
+const buildDate = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+
 export default defineConfig({
     plugins: [react()],
+    define: {
+        __BUILD_DATE__: JSON.stringify(buildDate),
+    },
     resolve: {
         alias: {
             '@': new URL('./src', import.meta.url).pathname,
