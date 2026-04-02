@@ -52,41 +52,58 @@ export function Companion() {
     const [loaded, setLoaded] = useState(false);
     const [hintVisible, setHintVisible] = useState(false);
     const handleLoad = useCallback(() => setLoaded(true), []);
+    const cycleStopRef = useRef<(() => void) | null>(null);
 
-    useEffect(() => {
-        if (!loaded) return;
-        let cancelled = false;
+    const startCycle = useCallback((delay: number) => {
         let t1: ReturnType<typeof setTimeout>;
         let t2: ReturnType<typeof setTimeout>;
+        let cancelled = false;
 
-        const cycle = (delay: number) => {
-            t1 = setTimeout(() => {
-                if (cancelled) return;
-                setHintVisible(true);
-                t2 = setTimeout(() => {
-                    if (cancelled) return;
-                    setHintVisible(false);
-                    cycle(PAUSE_MS);
-                }, SPIN_MS);
-            }, delay);
-        };
-
-        cycle(900);
-        return () => {
+        const stop = () => {
             cancelled = true;
             clearTimeout(t1);
             clearTimeout(t2);
         };
-    }, [loaded]);
+
+        t1 = setTimeout(() => {
+            if (cancelled) return;
+            setHintVisible(true);
+            t2 = setTimeout(() => {
+                if (cancelled) return;
+                setHintVisible(false);
+                cycleStopRef.current = startCycle(PAUSE_MS);
+            }, SPIN_MS);
+        }, delay);
+
+        return stop;
+    }, []);
+
+    useEffect(() => {
+        if (!loaded) return;
+        cycleStopRef.current = startCycle(900);
+        return () => cycleStopRef.current?.();
+    }, [loaded, startCycle]);
+
+    const handleMouseEnter = useCallback(() => {
+        setHovered(true);
+        setHintVisible(false);
+        cycleStopRef.current?.();
+        cycleStopRef.current = null;
+    }, []);
+
+    const handleMouseLeave = useCallback(() => {
+        setHovered(false);
+        cycleStopRef.current = startCycle(PAUSE_MS);
+    }, [startCycle]);
 
     return (
         <div
             className={`companion${hovered ? ' companion--interactive' : ''}${loaded ? ' companion--loaded' : ''}`}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
             <AnimatePresence>
-                {hintVisible && !hovered && (
+                {hintVisible && (
                     <motion.span
                         key="hint"
                         className="companion__hint"
