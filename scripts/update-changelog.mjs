@@ -49,5 +49,5 @@ if (lines.length > MAX_ENTRIES) {
 }
 
 writeFileSync(DATA_PATH, updated, 'utf8');
-execSync(`git add "${DATA_PATH}"`);
+execSync(`git add "${DATA_PATH}"`, { cwd: ROOT });
 console.log(`[changelog] ${description} (${date})`);
