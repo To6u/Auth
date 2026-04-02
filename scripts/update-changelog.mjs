@@ -32,8 +32,22 @@ if (!source.includes(MARKER)) {
     process.exit(0);
 }
 
+const MAX_ENTRIES = 10;
 const entry = `            { text: '${description}', date: '${date}' },`;
-const updated = source.replace(MARKER, `${MARKER}\n${entry}`);
+
+// Вставляем новую запись после маркера, затем обрезаем до MAX_ENTRIES
+let updated = source.replace(MARKER, `${MARKER}\n${entry}`);
+
+const markerIdx = updated.indexOf(MARKER);
+const afterMarker = updated.indexOf('\n', markerIdx) + 1;
+const changelogEnd = updated.indexOf(']', afterMarker);
+const entriesBlock = updated.slice(afterMarker, changelogEnd);
+const lines = entriesBlock.split('\n').filter(l => l.trim().startsWith('{'));
+if (lines.length > MAX_ENTRIES) {
+    const trimmed = lines.slice(0, MAX_ENTRIES).join('\n') + '\n';
+    updated = updated.slice(0, afterMarker) + trimmed + updated.slice(changelogEnd);
+}
+
 writeFileSync(DATA_PATH, updated, 'utf8');
 execSync(`git add "${DATA_PATH}"`);
 console.log(`[changelog] ${description} (${date})`);
