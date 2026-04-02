@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'stop hint cycle on interaction, restart on mouse leave', date: '2 апр' },
             { text: 'switch to commit-msg hook, auto-insert from conventional commit', date: '2 апр' },
             { text: 'NiAz title + az.svg favicon', date: '2 апр' },
             { text: 'build date auto-injection via Vite define', date: '2 апр' },

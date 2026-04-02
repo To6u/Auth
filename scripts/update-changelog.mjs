@@ -12,7 +12,9 @@ const MARKER = '// CHANGELOG_INSERT';
 const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
 const msgFile = process.argv[2];
+const msgSource = process.argv[3]; // message | template | merge | squash | commit
 if (!msgFile) process.exit(0);
+if (msgSource && msgSource !== 'message' && msgSource !== 'template') process.exit(0);
 
 const firstLine = readFileSync(msgFile, 'utf8').trim().split('\n')[0];
 
