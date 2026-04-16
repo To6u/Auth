@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'add 3D assets, icons, integration tests; ignore test-results', date: '16 апр' },
             { text: 'remove orphaned brace in projects.data.ts changelog', date: '16 апр' },
             { text: 'add productivity hub with tasks, habits, challenges, trash', date: '16 апр' },
             { text: 'use post-commit + amend, env guard prevents recursion', date: '2 апр' },
@@ -63,8 +64,7 @@ export const PROJECTS: Project[] = [
             { text: 'stop hint cycle on interaction, restart on mouse leave', date: '2 апр' },
             { text: 'NiAz title + az.svg favicon', date: '2 апр' },
             { text: 'build date auto-injection via Vite define', date: '2 апр' },
-            { text: 'companion: drag hint icon + 100×100 on mobile', date: '2 апр' },
-        ],
+],
     },
     {
         id: '3',

@@ -25,6 +25,10 @@ client/tsconfig.app.tsbuildinfo
 .continue/
 *.swp
 *.swo
+# Tests output
+test-results/
+playwright-report/
+
 # Logs
 *.log
 logs/

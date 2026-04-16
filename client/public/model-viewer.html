@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Model Viewer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1a1a2e; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.5;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.01, 1000);
+camera.position.set(0, 0, 3);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+scene.add(new THREE.AmbientLight(0xffffff, 1));
+const dir = new THREE.DirectionalLight(0xffffff, 3);
+dir.position.set(2, 4, 3);
+scene.add(dir);
+const dir2 = new THREE.DirectionalLight(0x8888ff, 1);
+dir2.position.set(-2, -1, -2);
+scene.add(dir2);
+
+new GLTFLoader().load('/src/assets/scene.gltf', (gltf) => {
+    const model = gltf.scene;
+
+    // удаляем background-node полностью — visible:false не помогает для Box3
+    const bg = model.getObjectByName('background');
+    if (bg) bg.removeFromParent();
+
+    // центрируем по реальным мешам
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+    controls.target.set(0, 0, 0);
+
+    // подгоняем камеру
+    const size = box.getSize(new THREE.Vector3());
+    const fovRad = camera.fov * Math.PI / 180;
+    const dist = (Math.max(size.x, size.y) / 2) / Math.tan(fovRad / 2) * 1.5;
+    camera.position.set(-0.092, 0.955, 0.285);
+    camera.near = dist * 0.002;
+    camera.far = dist * 100;
+    camera.updateProjectionMatrix();
+    controls.update();
+
+    scene.add(model);
+    window._model = model;
+    console.log('size:', size, 'dist:', dist.toFixed(4));
+});
+
+// Нажми C — выведет текущую позицию камеры в консоль
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'c' || e.key === 'C' || e.key === 'с' || e.key === 'С') {
+        const p = camera.position;
+        console.log(`camera.position.set(${p.x.toFixed(3)}, ${p.y.toFixed(3)}, ${p.z.toFixed(3)})`);
+    }
+});
+
+window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+});
+
+renderer.setAnimationLoop(() => {
+    controls.update();
+    renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
