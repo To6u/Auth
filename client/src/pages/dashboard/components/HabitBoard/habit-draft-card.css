@@ -1,0 +1,154 @@
+/* Same shape as .habit-circle */
+.habit-draft {
+    position: relative;
+    aspect-ratio: 1;
+}
+
+.habit-draft__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* Overlay inside the circle — same as habit-circle__overlay */
+.habit-draft__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 12%;
+    gap: 5px;
+}
+
+/* Name input */
+.habit-draft__name-input {
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    outline: none;
+    width: 72%;
+    text-align: center;
+    color: rgba(255, 244, 234, 0.85);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+    font-size: 11px;
+    padding: 2px 0 3px;
+    transition: border-color 0.15s;
+}
+
+.habit-draft__name-input::placeholder {
+    color: rgba(255, 244, 234, 0.25);
+    font-style: italic;
+}
+
+.habit-draft__name-input:focus {
+    border-bottom-color: rgba(108, 143, 255, 0.6);
+}
+
+/* Meta row: color dot + × + target */
+.habit-draft__meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.habit-draft__color-btn {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s;
+    flex-shrink: 0;
+}
+
+.habit-draft__color-btn:hover {
+    transform: scale(1.25);
+}
+
+/* Hidden native color input */
+.habit-draft__color-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.habit-draft__sep {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255, 244, 234, 0.2);
+}
+
+.habit-draft__target-input {
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0;
+    outline: none;
+    width: 22px;
+    text-align: center;
+    color: rgba(255, 244, 234, 0.7);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 10px;
+    padding: 1px 0 2px;
+    -moz-appearance: textfield;
+    transition: border-color 0.15s;
+}
+
+.habit-draft__target-input:focus {
+    border-bottom-color: rgba(108, 143, 255, 0.5);
+}
+
+.habit-draft__target-input::-webkit-inner-spin-button,
+.habit-draft__target-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+/* Save / Cancel */
+.habit-draft__actions {
+    display: flex;
+    gap: 4px;
+}
+
+.habit-draft__btn {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+.habit-draft__btn--save {
+    background: rgba(108, 143, 255, 0.3);
+    color: rgba(180, 200, 255, 1);
+}
+
+.habit-draft__btn--save:hover:not(:disabled) {
+    background: rgba(108, 143, 255, 0.5);
+}
+
+.habit-draft__btn--save:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+.habit-draft__btn--cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 244, 234, 0.7);
+}
+
+.habit-draft__btn--cancel:hover {
+    background: rgba(255, 80, 80, 0.2);
+    color: rgba(255, 130, 130, 0.9);
+}

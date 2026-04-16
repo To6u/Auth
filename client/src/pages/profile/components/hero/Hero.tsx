@@ -13,20 +13,11 @@ const Hero = () => {
         offset: ['start start', 'end start'],
     });
 
-    // Левые буквы: влево-вверх
-    const leftX = useTransform(scrollYProgress, [0, 0.5], [0, -50]); // vw
-    const leftY = useTransform(scrollYProgress, [0, 0.5], [0, -50]); // vh
-
-    // Правые буквы: вправо-вверх
-    const rightX = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
-    const rightY = useTransform(scrollYProgress, [0, 0.5], [0, -50]);
-
+    const leftXVw = useTransform(scrollYProgress, [0, 0.5], ['0vw', '-50vw']);
+    const leftYVh = useTransform(scrollYProgress, [0, 0.5], ['0vh', '-50vh']);
+    const rightXVw = useTransform(scrollYProgress, [0, 0.5], ['0vw', '50vw']);
+    const rightYVh = useTransform(scrollYProgress, [0, 0.5], ['0vh', '-50vh']);
     const opacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
-
-    const leftXVw = useTransform(leftX, (v) => `${v}vw`);
-    const leftYVh = useTransform(leftY, (v) => `${v}vh`);
-    const rightXVw = useTransform(rightX, (v) => `${v}vw`);
-    const rightYVh = useTransform(rightY, (v) => `${v}vh`);
 
     useEffect(() => {
         const timer = setTimeout(() => setIsVisible(true), ANIMATION_DELAY);

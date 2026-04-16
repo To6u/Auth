@@ -1,0 +1,179 @@
+.habit-modal {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(400px, 90vw);
+    max-height: 90vh;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 24px;
+    color: rgba(255, 244, 234, 0.9);
+    overflow-y: auto;
+}
+
+.habit-modal::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.habit-modal__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.habit-modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.habit-modal__label {
+    font-size: 12px;
+    color: rgba(255, 244, 234, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.habit-modal__input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: rgba(255, 244, 234, 0.9);
+    font-size: 14px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+}
+
+.habit-modal__input:focus {
+    border-color: rgba(108, 143, 255, 0.5);
+}
+
+.habit-modal__color-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.habit-modal__color-input {
+    width: 40px;
+    height: 36px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: none;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.habit-modal__auto-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255, 244, 234, 0.6);
+    cursor: pointer;
+}
+
+.habit-modal__preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.habit-modal__slots {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.habit-modal__slot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.habit-modal__input--time {
+    width: auto;
+    flex: 1;
+    color-scheme: dark;
+}
+
+.habit-modal__slot-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    border: none;
+    background: rgba(255, 80, 80, 0.12);
+    color: rgba(255, 120, 120, 0.8);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.habit-modal__slot-remove:hover {
+    background: rgba(255, 80, 80, 0.25);
+}
+
+.habit-modal__add-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    background: none;
+    color: rgba(255, 244, 234, 0.5);
+    font-size: 12px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.habit-modal__add-slot:hover {
+    color: rgba(255, 244, 234, 0.85);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.habit-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.habit-modal__btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s;
+}
+
+.habit-modal__btn:hover {
+    opacity: 0.85;
+}
+
+.habit-modal__btn--cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 244, 234, 0.7);
+}
+
+.habit-modal__btn--save {
+    background: #6c8fff;
+    color: #fff;
+}

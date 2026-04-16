@@ -4,8 +4,14 @@ import cors from 'cors';
 import express, { type Express, type NextFunction, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import { apiLimiter } from './config/rate-limit.config';
+import db from './db';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import authRoutes from './routes/auth.routes';
+import challengeRoutes from './routes/challenges.routes';
+import habitRoutes from './routes/habits.routes';
+import sectionRoutes from './routes/sections.routes';
+import taskRoutes from './routes/tasks.routes';
+import trashRoutes from './routes/trash.routes';
 import userRoutes from './routes/user.routes';
 import { logger } from './utils/logger';
 
@@ -15,8 +21,6 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET не задан — запуск прерван');
 }
-
-const JWT_SECRET = process.env.JWT_SECRET;
 
 // 🔐 Security: Helmet
 app.use(helmet());
@@ -28,14 +32,14 @@ app.use(cookieParser());
 // 🌐 CORS
 const corsOptions = {
     origin: NODE_ENV === 'production' ? ['https://yourdomain.com'] : 'http://localhost:5173', // Vite dev server — wildcard несовместим с credentials: true
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
 app.use(cors(corsOptions));
 
 // 📊 Request logging
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
     logger.info(`${req.method} ${req.url} - ${req.ip}`);
     next();
 });
@@ -44,7 +48,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api', apiLimiter);
 
 // 💚 Health check
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
@@ -55,6 +59,11 @@ app.get('/health', (req: Request, res: Response) => {
 // 📍 Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/challenges', challengeRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/sections', sectionRoutes);
+app.use('/api/habits', habitRoutes);
+app.use('/api/trash', trashRoutes);
 
 // ❌ 404 handler
 app.use(notFoundHandler);
@@ -77,7 +86,7 @@ const gracefulShutdown = (signal: string): void => {
     logger.info(`${signal} получен, закрываю сервер...`);
     server.close(() => {
         logger.info('✅ HTTP сервер закрыт');
-        // db.close(); // Раскомментируй если используешь connection pool
+        db.close();
         logger.info('✅ База данных закрыта');
         process.exit(0);
     });

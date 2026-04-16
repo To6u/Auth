@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useAnimationMode } from '@/context/AnimationModeContext';
 import {
     WAVE_SPEED_MULTIPLIER,
@@ -189,7 +189,7 @@ const WavesBackground = memo(() => {
 
     const mouseInfluenceStrength = useRef(0);
     const smoothMousePos = useRef({ x: -1000, y: -1000 });
-    const speedMultiplier = useMemo(() => WAVE_SPEED_MULTIPLIER / 10, []);
+    const speedMultiplier = WAVE_SPEED_MULTIPLIER / 10;
 
     // НОВОЕ: Для плавного сброса времени
     const timeResetProgress = useRef(0);
@@ -432,6 +432,7 @@ const WavesBackground = memo(() => {
 
             if (performance.now() - lastActivityBg > IDLE_TIMEOUT_BG) {
                 idlePausedBg = true;
+                cancelAnimationFrame(animationId);
                 return;
             }
             idlePausedBg = false;

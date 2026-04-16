@@ -22,7 +22,11 @@
         "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
         "test:unit": "cd client && npm run test",
         "test:integration": "cd server && npm run test",
-        "test:e2e": "playwright test"
+        "test:e2e": "playwright test",
+        "postinstall": "npm rebuild better-sqlite3"
+    },
+    "engines": {
+        "node": ">=24"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.4.7",

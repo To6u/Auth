@@ -1,0 +1,219 @@
+.habit-board {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    gap: 20px;
+}
+
+.habit-board__header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-bottom: 28px;
+}
+
+.brain-3d-icon {
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+    margin-left: -30px;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.brain-3d-icon canvas {
+    display: block;
+    outline: none;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.habit-board__title {
+    font-size: 48px;
+    font-weight: 900;
+    color: rgba(255, 244, 234, 0.9);
+    margin-left: -40px;
+}
+
+.habit-board__nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.habit-board__nav-btn {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    color: rgba(255, 244, 234, 0.7);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.habit-board__nav-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.habit-board__nav-label {
+    font-size: 13px;
+    color: rgba(255, 244, 234, 0.6);
+    min-width: 80px;
+    text-align: center;
+}
+
+.habit-board__circles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.habit-board__col-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 8px;
+    padding: 3px 6px;
+    margin-left: auto;
+}
+
+.habit-board__col-btn {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 244, 234, 0.6);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.habit-board__col-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 244, 234, 1);
+}
+
+.habit-board__col-btn:disabled {
+    opacity: 0.2;
+    color: rgba(255, 244, 234, 0.3);
+    cursor: default;
+}
+
+.habit-board__col-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 244, 234, 0.7);
+    min-width: 14px;
+    text-align: center;
+}
+
+.habit-board__col-title {
+    font-size: 12px;
+    color: rgba(255, 244, 234, 0.4);
+    padding-right: 4px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    margin-right: 2px;
+}
+
+
+.habit-board__add-btn {
+    margin-left: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    color: rgba(255, 244, 234, 0.5);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.habit-board__add-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 244, 234, 0.85);
+}
+
+.view-mode-toggle {
+    display: flex;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px;
+    gap: 2px;
+}
+
+.view-mode-toggle__btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    color: rgba(255, 244, 234, 0.5);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.view-mode-toggle__btn--today {
+    color: rgba(100, 210, 130, 0.7);
+}
+
+.view-mode-toggle__btn--active {
+    background: rgba(108, 143, 255, 0.25);
+    color: rgba(255, 244, 234, 0.95);
+}
+
+.view-mode-toggle__btn--today.view-mode-toggle__btn--active {
+    background: rgba(80, 200, 120, 0.18);
+    color: rgba(100, 220, 140, 0.95);
+}
+
+.habit-board__context-menu {
+    position: fixed;
+    z-index: 200;
+    background: #1e1e2e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 4px;
+    min-width: 140px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.habit-board__context-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: none;
+    border: none;
+    color: rgba(255, 244, 234, 0.75);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.habit-board__context-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.habit-board__context-item--danger {
+    color: rgba(255, 100, 100, 0.9);
+}

@@ -43,12 +43,6 @@ button {
     }
 }
 
-/* Состояние hover */
-button:hover:not(:disabled) {
-    /*background-color: #3a7bc8;*/
-    /*box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);*/
-}
-
 /* Состояние active */
 button:active:not(:disabled) {
     scale: 0.96;
@@ -71,8 +65,8 @@ button:focus-visible {
 
 /* Состояние disabled */
 button:not(.submit-button):disabled {
-    background-color: #ccc;
-    color: #666;
+    background-color: #cccccc1a;
+    color: #cccccc1a;
     cursor: not-allowed;
     opacity: 0.6;
     box-shadow: none;

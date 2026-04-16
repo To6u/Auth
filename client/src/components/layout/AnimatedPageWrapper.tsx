@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { type ReactNode, useCallback, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface AnimatedPageContextProps {
@@ -23,66 +23,44 @@ export const AnimatedPageWrapper = ({
     navigateTo,
     exitDuration = 600,
     onExitStart,
-    enterFrom = 'right', // По умолчанию появляется справа
-    exitTo = 'left', // По умолчанию уходит влево
+    enterFrom = 'right',
+    exitTo = 'left',
 }: AnimatedPageWrapperProps) => {
     const [isExiting, setIsExiting] = useState(false);
     const navigate = useNavigate();
+    const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+    useEffect(() => {
+        return () => clearTimeout(timerRef.current);
+    }, []);
 
     const handleExit = useCallback(() => {
         onExitStart?.();
         setIsExiting(true);
 
         if (navigateTo) {
-            setTimeout(() => {
+            timerRef.current = setTimeout(() => {
                 navigate(navigateTo);
             }, exitDuration);
         }
     }, [onExitStart, navigateTo, exitDuration, navigate]);
 
-    const contextProps: AnimatedPageContextProps = {
-        isExiting,
-        triggerExit: handleExit,
-    };
+    const contextProps = useMemo<AnimatedPageContextProps>(
+        () => ({ isExiting, triggerExit: handleExit }),
+        [isExiting, handleExit]
+    );
 
-    // Определяем направление для initial (вход)
-    const getInitialX = () => {
-        return enterFrom === 'left' ? -100 : 100;
-    };
-
-    // Определяем направление для exit (выход)
-    const getExitX = () => {
-        return exitTo === 'left' ? -100 : 100;
-    };
+    const initialX = enterFrom === 'left' ? '-100%' : '100%';
+    const exitX = exitTo === 'left' ? '-100%' : '100%';
 
     return (
         <motion.div
             className="animated-page-wrapper"
-            initial={{
-                opacity: 0,
-                filter: 'blur(10px)',
-                x: getInitialX(),
-            }}
-            animate={
-                isExiting
-                    ? {
-                          opacity: 0,
-                          filter: 'blur(10px)',
-                          x: getExitX(),
-                      }
-                    : {
-                          opacity: 1,
-                          filter: '',
-                          x: 0,
-                      }
-            }
+            initial={{ opacity: 0, x: initialX }}
+            animate={isExiting ? { opacity: 0, x: exitX } : { opacity: 1, x: 0 }}
             transition={{
                 duration: isExiting ? exitDuration / 1000 : 0.4,
                 ease: 'easeInOut',
-            }}
-            style={{
-                width: '100%',
-                minHeight: '100vh',
             }}
         >
             {typeof children === 'function' ? children(contextProps) : children}

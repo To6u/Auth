@@ -1,0 +1,246 @@
+@property --shadow-opacity {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+
+.habit-circle {
+    container-type: inline-size;
+    position: relative;
+    aspect-ratio: 1;
+    width: var(--circle-size, 120px);
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Свечение — отдельный compositor-слой, opacity-only transition */
+.habit-circle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(ellipse at center, var(--habit-color) 0%, transparent 68%);
+    opacity: calc(var(--shadow-opacity) * 0.35);
+    transition: opacity 0.3s ease;
+    will-change: opacity;
+}
+
+.habit-circle:active .habit-circle__svg {
+    transform: scale(0.96);
+}
+
+/* SVG fills the entire square container */
+.habit-circle__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transition: transform 0.1s;
+}
+
+/* HTML overlay: positioned inside the ring area */
+.habit-circle__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 10%;
+    pointer-events: none;
+    gap: 12px;
+}
+
+.habit-circle__name {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--habit-color);
+    text-align: center;
+    max-width: 85%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.habit-circle__year-pct {
+    font-size: 10px;
+    color: rgba(255, 244, 234, 0.45);
+    text-align: center;
+}
+
+.habit-circle__status {
+    position: absolute;
+    top: 13%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 600;
+    color: #4ade80;
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    animation: status-appear 0.3s ease;
+    z-index: 2;
+}
+
+@keyframes left-dot-wave {
+    0%, 100% { opacity: 0; }
+    35%, 65%  { opacity: 0.75; }
+}
+
+/* Анимируем всю группу целиком — 1 анимация вместо 30 */
+.habit-circle__left-dots-wrap {
+    animation: left-dot-wave 3.6s ease-in-out infinite;
+}
+
+@keyframes dots-blink {
+    0%, 100% { opacity: 0; }
+    50%       { opacity: 0.85; }
+}
+
+.habit-circle__dots--blink {
+    animation: dots-blink 1.6s ease-in-out infinite;
+}
+
+@keyframes ring-breathe {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.25; }
+}
+
+.habit-circle__ring--breathe {
+    animation: ring-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.1); }
+}
+
+.habit-circle__icon--pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: icon-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes status-appear {
+    from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Count "N из M" — внутри overlay, под названием */
+.habit-circle__count-display {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.habit-circle__count-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--habit-color);
+    line-height: 1;
+    transition: opacity 0.3s ease;
+}
+
+.habit-circle__count-sep {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--habit-color);
+    opacity: 0.5;
+    line-height: 1;
+}
+
+/* Половинки-клик-зоны */
+.habit-circle__half {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.habit-circle__half--left {
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 11%;
+    transition: background 0.2s ease;
+}
+
+.habit-circle__half--right {
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 11%;
+    transition: background 0.2s ease;
+}
+
+.habit-circle__half--left:hover:not(.habit-circle__half--disabled) {
+    background: radial-gradient(ellipse at left center, rgba(255, 50, 50, 0.45) 0%, transparent 70%);
+}
+
+.habit-circle__half--right:hover {
+    background: radial-gradient(ellipse at right center, rgba(40, 210, 90, 0.4) 0%, transparent 70%);
+}
+
+.habit-circle__half--disabled {
+    cursor: default;
+    pointer-events: none;
+}
+
+.habit-circle__edge-icon {
+    font-size: 22px;
+    color: rgba(255, 244, 234, 0.55);
+    line-height: 1;
+    user-select: none;
+    transition: color 0.15s;
+}
+
+.habit-circle__half--left:hover:not(.habit-circle__half--disabled) .habit-circle__edge-icon {
+    color: rgba(255, 100, 100, 1);
+}
+
+.habit-circle__half--right:hover .habit-circle__edge-icon {
+    color: rgba(80, 230, 120, 1);
+}
+
+/* ── Масштабирование по количеству колонок (class-based, надёжно) ── */
+/* count-sep («из») не трогаем — остаётся 16px на всех размерах    */
+
+.habit-board__circles--cols-5 .habit-circle__name,
+.habit-board__circles--cols-6 .habit-circle__name      { font-size: 13px; }
+.habit-board__circles--cols-7 .habit-circle__name,
+.habit-board__circles--cols-8 .habit-circle__name      { font-size: 10px; }
+
+.habit-board__circles--cols-5 .habit-circle__count-num { font-size: 40px; }
+.habit-board__circles--cols-6 .habit-circle__count-num { font-size: 34px; }
+.habit-board__circles--cols-7 .habit-circle__count-num { font-size: 28px; }
+.habit-board__circles--cols-8 .habit-circle__count-num { font-size: 24px; }
+
+.habit-board__circles--cols-5 .habit-circle__overlay   { gap: 4px; }
+.habit-board__circles--cols-6 .habit-circle__overlay   { gap: 4px; padding-bottom: 14%; }
+.habit-board__circles--cols-7 .habit-circle__overlay,
+.habit-board__circles--cols-8 .habit-circle__overlay   { gap: 2px; padding-bottom: 14%; }
+
+.habit-board__circles--cols-5 .habit-circle__edge-icon { font-size: 17px; }
+.habit-board__circles--cols-6 .habit-circle__edge-icon { font-size: 15px; }
+.habit-board__circles--cols-7 .habit-circle__edge-icon,
+.habit-board__circles--cols-8 .habit-circle__edge-icon { font-size: 12px; }
+
+.habit-board__circles--cols-6 .habit-circle__status,
+.habit-board__circles--cols-7 .habit-circle__status,
+.habit-board__circles--cols-8 .habit-circle__status    { font-size: 7px; letter-spacing: 0; }
+
+.habit-board__circles--cols-6 .habit-circle__year-pct,
+.habit-board__circles--cols-7 .habit-circle__year-pct,
+.habit-board__circles--cols-8 .habit-circle__year-pct  { font-size: 8px; }
