@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'унификация scrollbar, squircle на daily-challenge', date: '23 апр' },
             { text: 'убрать hint-мигалку, a11y role и cursor на CSS :hover', date: '23 апр' },
             { text: 'a11y role и cursor через CSS :hover', date: '23 апр' },
             { text: 'add 3D assets, icons, integration tests; ignore test-results', date: '16 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'use cwd in git add so staged file lands in commit', date: '2 апр' },
             { text: 'limit to 10 entries, trim oldest on overflow', date: '2 апр' },
             { text: 'use prepare-commit-msg hook so file lands in same commit', date: '2 апр' },
-            { text: 'stop hint cycle on interaction, restart on mouse leave', date: '2 апр' },
 ],
     },
     {

@@ -83,28 +83,6 @@
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
     overscroll-behavior-y: none;
-    /* Firefox */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
-}
-
-/* WebKit — macOS-стиль */
-.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width: 6px;
-}
-
-.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.22);
-    border-radius: 999px;
-}
-
-.projects-scene__card--expanded .projects-scene__card-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
 }
 
 /* ── Card body — glass surface (backdrop-filter intentionally here,

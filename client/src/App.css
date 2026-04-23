@@ -3,13 +3,14 @@
 /* Firefox */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
 }
 
 /* WebKit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
+    -webkit-appearance: none;
 }
 
 ::-webkit-scrollbar-track {
@@ -17,12 +18,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.18);
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.4);
 }
 
 ::-webkit-scrollbar-corner {
