@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'svg-иконки из Figma экспорта', date: '23 апр' },
             { text: 'inline-редактирование задач, архив, напоминания, повторения', date: '23 апр' },
             { text: 'унификация scrollbar, squircle на daily-challenge', date: '23 апр' },
             { text: 'убрать hint-мигалку, a11y role и cursor на CSS :hover', date: '23 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'add productivity hub with tasks, habits, challenges, trash', date: '16 апр' },
             { text: 'use post-commit + amend, env guard prevents recursion', date: '2 апр' },
             { text: 'use cwd in git add so staged file lands in commit', date: '2 апр' },
-            { text: 'limit to 10 entries, trim oldest on overflow', date: '2 апр' },
 ],
     },
     {
