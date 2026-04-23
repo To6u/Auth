@@ -1,9 +1,10 @@
-import { Trash2 } from 'lucide-react';
+import { Archive, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatedPageWrapper } from '@/components/layout/AnimatedPageWrapper';
 import { useAnimationMode } from '@/context/AnimationModeContext';
 import { useAuthInfo } from '@/hooks/useAuthInfo';
+import { ArchiveDrawer } from './components/ArchiveDrawer/ArchiveDrawer';
 import { ChallengeSection } from './components/ChallengeSection/ChallengeSection';
 import { HabitBoard } from './components/HabitBoard/HabitBoard';
 import { TaskSidebar } from './components/TaskSidebar/TaskSidebar';
@@ -12,6 +13,8 @@ import { useArchiveCleanup } from './hooks/useArchiveCleanup';
 import { useChallengeStorage } from './hooks/useChallengeStorage';
 import { useDailyPlan } from './hooks/useDailyPlan';
 import { useHabitStorage } from './hooks/useHabitStorage';
+import { useRecurringReactivation } from './hooks/useRecurringReactivation';
+import { useReminders } from './hooks/useReminders';
 import { useTaskStorage } from './hooks/useTaskStorage';
 import { useTrash } from './hooks/useTrash';
 import type { HabitViewMode, TrashItem } from './types';
@@ -35,10 +38,12 @@ interface DashboardHeaderProps {
     email: string | undefined;
     isExiting: boolean;
     trashCount: number;
+    archiveCount: number;
     isSavingMode: boolean;
     onLogout: () => void;
     onGoToProfile: () => void;
     onOpenTrash: () => void;
+    onOpenArchive: () => void;
     onToggleSavingMode: () => void;
 }
 
@@ -46,10 +51,12 @@ function DashboardHeader({
     email,
     isExiting,
     trashCount,
+    archiveCount,
     isSavingMode,
     onLogout,
     onGoToProfile,
     onOpenTrash,
+    onOpenArchive,
     onToggleSavingMode,
 }: DashboardHeaderProps) {
     return (
@@ -78,6 +85,18 @@ function DashboardHeader({
                     disabled={isExiting}
                 >
                     Профиль
+                </button>
+                <button
+                    type="button"
+                    className="dashboard__header-btn dashboard__header-btn--archive"
+                    onClick={onOpenArchive}
+                    disabled={isExiting}
+                    title="Архив"
+                >
+                    <Archive size={13} />
+                    {archiveCount > 0 && (
+                        <span className="dashboard__trash-badge">{archiveCount}</span>
+                    )}
                 </button>
                 <button
                     type="button"
@@ -122,6 +141,10 @@ export const DashboardPage = () => {
         updateSection,
         deleteSection,
         getTasksBySection,
+        archivedTasks,
+        restoreTask,
+        doneAtBottom,
+        setDoneAtBottom,
     } = useTaskStorage();
 
     const { habits, logs, addHabit, updateHabit, deleteHabit, logCompletion, logDecrement } =
@@ -145,10 +168,13 @@ export const DashboardPage = () => {
     const [activeSection, setActiveSection] = useState('all');
     const [habitViewMode, setHabitViewMode] = useState<HabitViewMode>('today');
     const [trashOpen, setTrashOpen] = useState(false);
+    const [archiveOpen, setArchiveOpen] = useState(false);
 
     const { copyDailyPlan } = useDailyPlan(tasks);
 
     useArchiveCleanup(tasks, tasksLoading, updateTask);
+    useRecurringReactivation(tasks, tasksLoading, updateTask);
+    useReminders(tasks);
 
     useEffect(() => {
         return () => {
@@ -242,10 +268,12 @@ export const DashboardPage = () => {
                         email={user?.email}
                         isExiting={isExiting}
                         trashCount={trashItems.length}
+                        archiveCount={archivedTasks.length}
                         isSavingMode={isSavingMode}
                         onLogout={() => handleLogout(triggerExit)}
                         onGoToProfile={() => handleGoToProfile(triggerExit)}
                         onOpenTrash={() => setTrashOpen(true)}
+                        onOpenArchive={() => setArchiveOpen(true)}
                         onToggleSavingMode={toggleSavingMode}
                     />
                     <div className="dashboard__body">
@@ -264,6 +292,8 @@ export const DashboardPage = () => {
                             onDeleteSection={deleteSection}
                             onReorderTasks={reorderTasks}
                             onCopyDailyPlan={copyDailyPlan}
+                            doneAtBottom={doneAtBottom}
+                            onToggleDoneAtBottom={() => setDoneAtBottom(!doneAtBottom)}
                         />
                         <main className="dashboard__main">
                             <ChallengeSection
@@ -297,6 +327,14 @@ export const DashboardPage = () => {
                         trashItems={trashItems}
                         onRestore={restoreItem}
                         onPermanentDelete={permanentDelete}
+                    />
+                    <ArchiveDrawer
+                        isOpen={archiveOpen}
+                        onClose={() => setArchiveOpen(false)}
+                        tasks={archivedTasks}
+                        sections={sections}
+                        onRestore={restoreTask}
+                        onDelete={handleDeleteTask}
                     />
                 </div>
             )}

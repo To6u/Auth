@@ -9,6 +9,17 @@ const router = Router();
 
 // --- Zod schemas ---
 
+const recurrenceSchema = z.object({
+    type: z.enum(['daily', 'weekly', 'biweekly', 'monthly', 'yearly', 'custom']),
+    interval: z.number().int().positive().optional(),
+    unit: z.enum(['day', 'week', 'month']).optional(),
+});
+
+const remindersSchema = z.object({
+    enabled: z.boolean(),
+    times: z.array(z.string().regex(/^\d{2}:\d{2}$/)),
+});
+
 const taskSchema = z.object({
     id: z.string().uuid(),
     title: z.string().min(1).max(500),
@@ -23,6 +34,10 @@ const taskSchema = z.object({
     estimatedMinutes: z.number().int().positive().optional(),
     completedAt: z.string().optional(),
     createdAt: z.string(),
+    recurrence: recurrenceSchema.optional(),
+    reminders: remindersSchema.optional(),
+    completionLog: z.array(z.string()).optional(),
+    completedCount: z.number().int().min(0).optional(),
 });
 
 const taskUpdateSchema = z.object({
@@ -37,6 +52,10 @@ const taskUpdateSchema = z.object({
     notification: z.string().optional().nullable(),
     estimatedMinutes: z.number().int().positive().optional().nullable(),
     completedAt: z.string().optional().nullable(),
+    recurrence: recurrenceSchema.optional().nullable(),
+    reminders: remindersSchema.optional().nullable(),
+    completionLog: z.array(z.string()).optional(),
+    completedCount: z.number().int().min(0).optional(),
 });
 
 const reorderSchema = z.array(
@@ -53,20 +72,21 @@ const stmtArchiveStale = db.prepare(`
     WHERE user_id = ? AND status = 'done' AND completed_at < ?
 `);
 
+const SELECT_COLS =
+    'id, user_id, title, description, section_id, tags, status, pinned, "order", due_date, notification, estimated_minutes, completed_at, created_at, recurrence, reminders, completion_log, completed_count';
+
 const stmtGetTasks = db.prepare(
-    'SELECT id, user_id, title, description, section_id, tags, status, pinned, "order", due_date, notification, estimated_minutes, completed_at, created_at FROM tasks WHERE user_id = ? ORDER BY "order" ASC'
+    `SELECT ${SELECT_COLS} FROM tasks WHERE user_id = ? ORDER BY "order" ASC`
 );
 
 const stmtInsertTask = db.prepare(`
-    INSERT INTO tasks (id, user_id, title, description, section_id, tags, status, pinned, "order", due_date, notification, estimated_minutes, completed_at, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO tasks (id, user_id, title, description, section_id, tags, status, pinned, "order", due_date, notification, estimated_minutes, completed_at, created_at, recurrence, reminders, completion_log, completed_count)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 const stmtFindTaskById = db.prepare('SELECT id FROM tasks WHERE id = ? AND user_id = ?');
 
-const stmtGetTaskById = db.prepare(
-    'SELECT id, user_id, title, description, section_id, tags, status, pinned, "order", due_date, notification, estimated_minutes, completed_at, created_at FROM tasks WHERE id = ? AND user_id = ?'
-);
+const stmtGetTaskById = db.prepare(`SELECT ${SELECT_COLS} FROM tasks WHERE id = ? AND user_id = ?`);
 
 const stmtUpdateTask = db.prepare(`
     UPDATE tasks SET
@@ -80,7 +100,11 @@ const stmtUpdateTask = db.prepare(`
         due_date = ?,
         notification = ?,
         estimated_minutes = ?,
-        completed_at = ?
+        completed_at = ?,
+        recurrence = ?,
+        reminders = ?,
+        completion_log = COALESCE(?, completion_log),
+        completed_count = COALESCE(?, completed_count)
     WHERE id = ? AND user_id = ?
 `);
 
@@ -105,6 +129,19 @@ interface TaskRow {
     estimated_minutes?: number;
     completed_at?: string;
     created_at: string;
+    recurrence?: string;
+    reminders?: string;
+    completion_log?: string;
+    completed_count?: number;
+}
+
+function parseJSON<T>(raw: string | undefined, fallback: T): T {
+    if (!raw) return fallback;
+    try {
+        return JSON.parse(raw) as T;
+    } catch {
+        return fallback;
+    }
 }
 
 // --- Row mapper ---
@@ -115,13 +152,7 @@ function mapTask(row: TaskRow) {
         title: row.title,
         description: row.description ?? undefined,
         sectionId: row.section_id,
-        tags: (() => {
-            try {
-                return JSON.parse(row.tags) as string[];
-            } catch {
-                return [];
-            }
-        })(),
+        tags: parseJSON<string[]>(row.tags, []),
         status: row.status as 'active' | 'done' | 'archived',
         pinned: Boolean(row.pinned),
         order: row.order,
@@ -130,19 +161,25 @@ function mapTask(row: TaskRow) {
         estimatedMinutes: row.estimated_minutes ?? undefined,
         completedAt: row.completed_at ?? undefined,
         createdAt: row.created_at,
+        recurrence: row.recurrence
+            ? parseJSON<z.infer<typeof recurrenceSchema> | undefined>(row.recurrence, undefined)
+            : undefined,
+        reminders: row.reminders
+            ? parseJSON<z.infer<typeof remindersSchema> | undefined>(row.reminders, undefined)
+            : undefined,
+        completionLog: parseJSON<string[]>(row.completion_log, []),
+        completedCount: row.completed_count ?? 0,
     };
 }
 
 // --- Routes ---
 
-// GET /api/tasks — возвращает все задачи; архивация устаревших — на стороне клиента (useArchiveCleanup) или POST /archive-stale
 router.get('/', authenticate, (req: AuthRequest, res) => {
     const userId = req.user!.userId;
     const rows = stmtGetTasks.all(userId) as TaskRow[];
     res.json(rows.map(mapTask));
 });
 
-// POST /api/tasks/archive-stale
 router.post('/archive-stale', authenticate, (req: AuthRequest, res) => {
     const userId = req.user!.userId;
     const todayStart = new Date();
@@ -152,7 +189,6 @@ router.post('/archive-stale', authenticate, (req: AuthRequest, res) => {
     res.json({ archived: result.changes });
 });
 
-// PATCH /api/tasks/reorder — MUST be before /:id
 router.patch('/reorder', authenticate, (req: AuthRequest, res) => {
     const userId = req.user!.userId;
     const parsed = reorderSchema.safeParse(req.body);
@@ -171,7 +207,6 @@ router.patch('/reorder', authenticate, (req: AuthRequest, res) => {
     res.json({ ok: true });
 });
 
-// POST /api/tasks
 router.post('/', authenticate, validateRequest(taskSchema), (req: AuthRequest, res) => {
     const userId = req.user!.userId;
     const data = req.body as z.infer<typeof taskSchema>;
@@ -195,31 +230,18 @@ router.post('/', authenticate, validateRequest(taskSchema), (req: AuthRequest, r
         data.notification ?? null,
         data.estimatedMinutes ?? null,
         data.completedAt ?? null,
-        data.createdAt
+        data.createdAt,
+        data.recurrence ? JSON.stringify(data.recurrence) : null,
+        data.reminders ? JSON.stringify(data.reminders) : null,
+        JSON.stringify(data.completionLog ?? []),
+        data.completedCount ?? 0
     );
     logger.info(`Задача создана: ${data.id} user=${userId}`);
 
-    res.status(201).json(
-        mapTask({
-            id: data.id,
-            user_id: userId,
-            title: data.title,
-            description: data.description,
-            section_id: data.sectionId,
-            tags: JSON.stringify(data.tags),
-            status: data.status,
-            pinned: data.pinned ? 1 : 0,
-            order: data.order,
-            due_date: data.dueDate,
-            notification: data.notification,
-            estimated_minutes: data.estimatedMinutes,
-            completed_at: data.completedAt,
-            created_at: data.createdAt,
-        })
-    );
+    const created = stmtGetTaskById.get(data.id, userId) as TaskRow;
+    res.status(201).json(mapTask(created));
 });
 
-// PUT /api/tasks/:id
 router.put('/:id', authenticate, validateRequest(taskSchema), (req: AuthRequest, res) => {
     const userId = req.user!.userId;
     const id = req.params.id as string;
@@ -242,32 +264,19 @@ router.put('/:id', authenticate, validateRequest(taskSchema), (req: AuthRequest,
         data.notification ?? null,
         data.estimatedMinutes ?? null,
         data.completedAt ?? null,
+        data.recurrence ? JSON.stringify(data.recurrence) : null,
+        data.reminders ? JSON.stringify(data.reminders) : null,
+        JSON.stringify(data.completionLog ?? []),
+        data.completedCount ?? 0,
         id,
         userId
     );
     logger.info(`Задача обновлена: ${id} user=${userId}`);
 
-    res.json(
-        mapTask({
-            id,
-            user_id: userId,
-            title: data.title,
-            description: data.description,
-            section_id: data.sectionId,
-            tags: JSON.stringify(data.tags),
-            status: data.status,
-            pinned: data.pinned ? 1 : 0,
-            order: data.order,
-            due_date: data.dueDate,
-            notification: data.notification,
-            estimated_minutes: data.estimatedMinutes,
-            completed_at: data.completedAt,
-            created_at: data.createdAt,
-        })
-    );
+    const updated = stmtGetTaskById.get(id, userId) as TaskRow;
+    res.json(mapTask(updated));
 });
 
-// PATCH /api/tasks/:id — partial update
 router.patch('/:id', authenticate, validateRequest(taskUpdateSchema), (req: AuthRequest, res) => {
     const userId = req.user!.userId;
     const id = req.params.id as string;
@@ -298,6 +307,18 @@ router.patch('/:id', authenticate, validateRequest(taskUpdateSchema), (req: Auth
         patch.completedAt !== undefined
             ? (patch.completedAt ?? null)
             : (current.completed_at ?? null),
+        patch.recurrence !== undefined
+            ? patch.recurrence === null
+                ? null
+                : JSON.stringify(patch.recurrence)
+            : (current.recurrence ?? null),
+        patch.reminders !== undefined
+            ? patch.reminders === null
+                ? null
+                : JSON.stringify(patch.reminders)
+            : (current.reminders ?? null),
+        patch.completionLog !== undefined ? JSON.stringify(patch.completionLog) : null,
+        patch.completedCount ?? null,
         id,
         userId
     );
@@ -307,7 +328,6 @@ router.patch('/:id', authenticate, validateRequest(taskUpdateSchema), (req: Auth
     res.json(updated ? mapTask(updated) : { id });
 });
 
-// DELETE /api/tasks/:id
 router.delete('/:id', authenticate, (req: AuthRequest, res) => {
     const userId = req.user!.userId;
     const id = req.params.id as string;

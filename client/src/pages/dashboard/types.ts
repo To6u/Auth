@@ -1,3 +1,18 @@
+export type RecurrenceType = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly' | 'custom';
+
+export type RecurrenceUnit = 'day' | 'week' | 'month';
+
+export interface Recurrence {
+    type: RecurrenceType;
+    interval?: number;
+    unit?: RecurrenceUnit;
+}
+
+export interface Reminders {
+    enabled: boolean;
+    times: string[];
+}
+
 export interface Task {
     id: string;
     title: string;
@@ -15,6 +30,10 @@ export interface Task {
     estimatedMinutes?: number;
     completedAt?: string;
     createdAt: string;
+    recurrence?: Recurrence;
+    reminders?: Reminders;
+    completionLog?: string[];
+    completedCount?: number;
 }
 
 export interface Section {

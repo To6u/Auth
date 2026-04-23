@@ -1,24 +1,36 @@
 import { useRef } from 'react';
-import type { Task } from '../../types';
+import type { Section, Task } from '../../types';
 import { TaskCard } from './TaskCard';
+
+const MULTI_SECTION_TABS = new Set(['all', 'today', 'recurring']);
 
 interface TaskListProps {
     tasks: Task[];
+    sections: Section[];
     sectionId: string;
+    creatingTask: Task | null;
     onToggleDone: (id: string) => void;
     onTogglePin: (id: string) => void;
     onDelete: (id: string) => void;
     onUpdate: (id: string, patch: Partial<Task>) => void;
+    onAddNew: (data: Omit<Task, 'id' | 'createdAt' | 'order'>) => void;
+    onCancelNew: () => void;
     onReorder: (sectionId: string, orderedIds: string[]) => void;
 }
 
+const noop = () => {};
+
 export function TaskList({
     tasks,
+    sections,
     sectionId,
+    creatingTask,
     onToggleDone,
     onTogglePin,
     onDelete,
     onUpdate,
+    onAddNew,
+    onCancelNew,
     onReorder,
 }: TaskListProps) {
     const draggedIdRef = useRef<string | null>(null);
@@ -60,16 +72,44 @@ export function TaskList({
         onReorder(sectionId, reordered);
     };
 
-    if (tasks.length === 0) {
+    const showSectionBadgeForView = MULTI_SECTION_TABS.has(sectionId);
+
+    const getSectionName = (id: string): string | undefined =>
+        sections.find((s) => s.id === id)?.name;
+
+    if (tasks.length === 0 && !creatingTask) {
         return <div className="task-list__empty">Нет задач</div>;
     }
 
     return (
         <ul className="task-list" onDragOver={(e) => e.preventDefault()}>
+            {creatingTask && (
+                <TaskCard
+                    key="__new"
+                    task={creatingTask}
+                    sections={sections}
+                    showSectionBadge={false}
+                    isNew
+                    onAddNew={onAddNew}
+                    onCancelNew={onCancelNew}
+                    onToggleDone={noop}
+                    onTogglePin={noop}
+                    onDelete={noop}
+                    onUpdate={noop}
+                    isDragOver={false}
+                    onDragStart={noop}
+                    onDragOver={noop}
+                    onDrop={noop}
+                    onDragEnd={noop}
+                />
+            )}
             {tasks.map((task) => (
                 <TaskCard
                     key={task.id}
                     task={task}
+                    sections={sections}
+                    sectionName={getSectionName(task.sectionId)}
+                    showSectionBadge={showSectionBadgeForView && task.sectionId !== 'all'}
                     onToggleDone={onToggleDone}
                     onTogglePin={onTogglePin}
                     onDelete={onDelete}

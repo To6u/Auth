@@ -1,16 +1,18 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SYSTEM_SECTIONS } from '../constants';
 import type { Section, Task } from '../types';
+import { nextOccurrence, todayISO } from '../utils/recurrence';
 
 const today = (): string => new Date().toISOString().split('T')[0];
 
-function sortTasks(tasks: Task[]): Task[] {
-    return [...tasks].sort((a, b) => {
-        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-        if (a.status === 'done' && b.status !== 'done') return 1;
-        if (a.status !== 'done' && b.status === 'done') return -1;
-        return a.order - b.order;
-    });
+const DONE_AT_BOTTOM_KEY = 'dashboard.doneAtBottom';
+
+function readDoneAtBottom(): boolean {
+    try {
+        return localStorage.getItem(DONE_AT_BOTTOM_KEY) === 'true';
+    } catch {
+        return false;
+    }
 }
 
 export function useTaskStorage() {
@@ -18,6 +20,29 @@ export function useTaskStorage() {
     const [sections, setSections] = useState<Section[]>(SYSTEM_SECTIONS);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [doneAtBottom, setDoneAtBottomState] = useState<boolean>(readDoneAtBottom);
+
+    const setDoneAtBottom = useCallback((v: boolean) => {
+        setDoneAtBottomState(v);
+        try {
+            localStorage.setItem(DONE_AT_BOTTOM_KEY, String(v));
+        } catch {
+            // ignore storage errors
+        }
+    }, []);
+
+    const sortTasks = useCallback(
+        (list: Task[]): Task[] =>
+            [...list].sort((a, b) => {
+                if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+                if (doneAtBottom) {
+                    if (a.status === 'done' && b.status !== 'done') return 1;
+                    if (a.status !== 'done' && b.status === 'done') return -1;
+                }
+                return a.order - b.order;
+            }),
+        [doneAtBottom]
+    );
 
     useEffect(() => {
         let cancelled = false;
@@ -130,6 +155,28 @@ export function useTaskStorage() {
         async (id: string) => {
             const task = tasks.find((t) => t.id === id);
             if (!task) return;
+
+            if (task.recurrence) {
+                if (task.status === 'done') {
+                    await updateTask(id, {
+                        status: 'active',
+                        completedAt: null,
+                    } as Partial<Task>);
+                    return;
+                }
+                const now = new Date().toISOString();
+                const base = task.dueDate ?? todayISO();
+                const nextDue = nextOccurrence(base, task.recurrence);
+                const patch: Partial<Task> = {
+                    status: 'done',
+                    completedAt: now,
+                    dueDate: nextDue,
+                    completionLog: [...(task.completionLog ?? []), now],
+                    completedCount: (task.completedCount ?? 0) + 1,
+                };
+                await updateTask(id, patch);
+                return;
+            }
 
             let patch: Partial<Task> & { completedAt?: string | null };
             if (task.status === 'done') {
@@ -263,13 +310,19 @@ export function useTaskStorage() {
                 case 'today':
                     filtered = tasks.filter(
                         (t) =>
-                            (t.dueDate === todayStr || t.tags.includes('today')) &&
+                            (t.sectionId === 'today' ||
+                                t.dueDate === todayStr ||
+                                t.tags.includes('today')) &&
                             t.status !== 'archived'
                     );
                     break;
                 case 'recurring':
                     filtered = tasks.filter(
-                        (t) => t.tags.includes('recurring') && t.status !== 'archived'
+                        (t) =>
+                            (t.sectionId === 'recurring' ||
+                                t.tags.includes('recurring') ||
+                                t.recurrence !== undefined) &&
+                            t.status !== 'archived'
                     );
                     break;
                 case 'profile':
@@ -287,7 +340,24 @@ export function useTaskStorage() {
 
             return sortTasks(filtered);
         },
+        [tasks, sortTasks]
+    );
+
+    const archivedTasks = useMemo(
+        () =>
+            [...tasks]
+                .filter((t) => t.status === 'archived')
+                .sort((a, b) => {
+                    const aTime = a.completedAt ?? a.createdAt;
+                    const bTime = b.completedAt ?? b.createdAt;
+                    return bTime.localeCompare(aTime);
+                }),
         [tasks]
+    );
+
+    const restoreTask = useCallback(
+        (id: string) => updateTask(id, { status: 'active' }),
+        [updateTask]
     );
 
     return {
@@ -305,5 +375,9 @@ export function useTaskStorage() {
         updateSection,
         deleteSection,
         getTasksBySection,
+        archivedTasks,
+        restoreTask,
+        doneAtBottom,
+        setDoneAtBottom,
     };
 }

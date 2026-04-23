@@ -18,7 +18,11 @@ export function useArchiveCleanup(
         const startOfTodayISO = startOfToday.toISOString();
 
         const toArchive = tasks.filter(
-            (t) => t.status === 'done' && t.completedAt && t.completedAt < startOfTodayISO
+            (t) =>
+                t.status === 'done' &&
+                !t.recurrence &&
+                t.completedAt &&
+                t.completedAt < startOfTodayISO
         );
 
         cleanedRef.current = true;

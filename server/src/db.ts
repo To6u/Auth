@@ -110,4 +110,24 @@ db.exec(`
     CREATE INDEX IF NOT EXISTS idx_trash_user ON trash_items(user_id);
 `);
 
+interface ColumnInfo {
+    name: string;
+}
+
+const taskColumns = db.prepare('PRAGMA table_info(tasks)').all() as ColumnInfo[];
+const taskColumnNames = new Set(taskColumns.map((c) => c.name));
+
+if (!taskColumnNames.has('recurrence')) {
+    db.exec('ALTER TABLE tasks ADD COLUMN recurrence TEXT');
+}
+if (!taskColumnNames.has('reminders')) {
+    db.exec('ALTER TABLE tasks ADD COLUMN reminders TEXT');
+}
+if (!taskColumnNames.has('completion_log')) {
+    db.exec("ALTER TABLE tasks ADD COLUMN completion_log TEXT NOT NULL DEFAULT '[]'");
+}
+if (!taskColumnNames.has('completed_count')) {
+    db.exec('ALTER TABLE tasks ADD COLUMN completed_count INTEGER NOT NULL DEFAULT 0');
+}
+
 export default db;
