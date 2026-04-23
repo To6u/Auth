@@ -54,6 +54,8 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'убрать hint-мигалку, a11y role и cursor на CSS :hover', date: '23 апр' },
+            { text: 'a11y role и cursor через CSS :hover', date: '23 апр' },
             { text: 'add 3D assets, icons, integration tests; ignore test-results', date: '16 апр' },
             { text: 'remove orphaned brace in projects.data.ts changelog', date: '16 апр' },
             { text: 'add productivity hub with tasks, habits, challenges, trash', date: '16 апр' },
@@ -62,8 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'limit to 10 entries, trim oldest on overflow', date: '2 апр' },
             { text: 'use prepare-commit-msg hook so file lands in same commit', date: '2 апр' },
             { text: 'stop hint cycle on interaction, restart on mouse leave', date: '2 апр' },
-            { text: 'NiAz title + az.svg favicon', date: '2 апр' },
-            { text: 'build date auto-injection via Vite define', date: '2 апр' },
 ],
     },
     {

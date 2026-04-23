@@ -18,45 +18,12 @@
     to   { transform: scale(1); opacity: 1; }
 }
 
-.companion--interactive {
-    pointer-events: auto;
+.companion--loaded:hover {
     cursor: grab;
 }
 
-.companion--interactive:active {
+.companion--loaded:active {
     cursor: grabbing;
-}
-
-.companion__hint {
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-    width: 18px;
-    height: 18px;
-    color: rgba(255, 244, 234, 0.45);
-    pointer-events: none;
-}
-
-.companion__hint-icon {
-    display: flex;
-    animation: hint-spin 2.5s ease-in-out infinite;
-}
-
-@keyframes hint-spin {
-    0%, 60%, 100% { transform: rotate(0deg); }
-    30% { transform: rotate(180deg); }
-}
-
-@media (max-width: 767px) {
-    .companion {
-        width: 100px;
-        height: 100px;
-    }
-
-    .companion__hint {
-        width: 12px;
-        height: 12px;
-    }
 }
 
 .companion__canvas {
@@ -64,4 +31,11 @@
     height: 100%;
     -webkit-tap-highlight-color: transparent;
     touch-action: none;
+}
+
+@media (max-width: 767px) {
+    .companion {
+        width: 100px;
+        height: 100px;
+    }
 }
