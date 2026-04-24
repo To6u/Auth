@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System — NiAz</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS (extracted from project source) ─────────────────── */
+:root {
+  /* Background */
+  --bg-base:        hsl(246, 73%, 10%);
+  --bg-mid:         hsl(223, 76%, 21%);
+  --bg-deep:        hsl(213, 85%, 11%);
+  --bg-purple:      hsl(264, 80%, 12%);
+
+  /* Text */
+  --color-cream:    rgba(255, 244, 234, 1);
+  --color-cream-92: rgba(255, 244, 234, 0.92);
+  --color-cream-70: rgba(255, 244, 234, 0.70);
+  --color-cream-40: rgba(255, 244, 234, 0.40);
+  --color-cream-10: rgba(255, 244, 234, 0.10);
+
+  /* Accent */
+  --color-indigo:        rgb(99, 102, 241);
+  --color-indigo-subtle: rgba(99, 102, 241, 0.18);
+  --color-indigo-border: rgba(99, 102, 241, 0.35);
+  --color-indigo-text:   #a5b4fc;
+  --color-blue:          #4a90e2;
+
+  /* Status */
+  --color-success:  #4ade80;
+  --color-error:    #f87171;
+  --color-warning:  #fb923c;
+  --color-filling:  rgba(165, 180, 252, 0.55);
+
+  /* Aurora palette */
+  --aurora-cyan:    rgba(41, 182, 246, 0.55);
+  --aurora-green:   rgba(102, 187, 106, 0.50);
+  --aurora-purple:  rgba(171, 71, 188, 0.60);
+  --aurora-lime:    rgba(192, 220, 50, 0.40);
+  --aurora-pink:    rgba(236, 64, 122, 0.45);
+
+  /* Surfaces */
+  --surface-card:   rgba(22, 22, 26, 0.75);
+  --surface-input:  rgba(0, 0, 0, 0.15);
+  --surface-hover:  rgba(255, 244, 234, 0.05);
+  --surface-subtle: rgba(255, 255, 255, 0.04);
+
+  /* Border */
+  --border-dim:     rgba(255, 255, 255, 0.10);
+  --border-subtle:  rgba(255, 255, 255, 0.07);
+
+  /* Border radius */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-2xl:  24px;
+  --radius-3xl:  32px;
+  --radius-full: 9999px;
+
+  /* Spacing scale */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-11: 44px;
+  --space-12: 48px;
+
+  /* Typography */
+  --font-primary: 'Montserrat Alternates', sans-serif;
+  --font-display: 'Ganxy', 'Montserrat Alternates', serif;
+  --font-mono:    monospace;
+
+  /* Transitions */
+  --transition-fast:   0.15s ease;
+  --transition-base:   0.3s ease;
+  --transition-slow:   0.6s ease;
+  --transition-xslow:  0.9s ease;
+
+  /* Shadows */
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  --shadow-focus: 0 0 0 3px rgba(74, 144, 226, 0.3);
+}
+
+/* ── BASE ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  background: linear-gradient(57deg,
+    hsl(246,73%,10%) 0%,
+    hsl(223,76%,21%) 36%,
+    hsl(213,85%,11%) 75%,
+    hsl(264,80%,12%) 100%) fixed;
+  min-height: 100vh;
+  color: var(--color-cream);
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.18) transparent;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
+
+body { padding: 60px 0 120px; }
+
+/* ── LAYOUT ─────────────────────────────────────────────────── */
+.page { max-width: 1120px; margin: 0 auto; padding: 0 40px; }
+
+.section {
+  margin-bottom: 80px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-cream-40);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-dim);
+}
+
+.section-title {
+  font-size: clamp(28px, 4.5vw, 48px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #f0f4ff;
+  margin-bottom: 8px;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 0 30px rgba(167, 139, 250, 0.4),
+    0 0 60px rgba(102, 126, 234, 0.2);
+}
+
+/* ── TASK SIDEBAR ───────────────────────────────────────────── */
+.task-sidebar-demo {
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+  background: rgba(255,255,255,0.02);
+  border-right: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: 1px solid var(--border-dim);
+}
+
+.section-tabs-demo {
+  padding: 12px 12px 0;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.stab {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: none;
+  border: 1px solid transparent;
+  color: rgba(255,244,234,0.5);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-weight: 400;
+  transition: color 0.15s, background 0.15s;
+}
+.stab:hover { color: rgba(255,244,234,0.8); background: rgba(255,255,255,0.06); }
+.stab.active {
+  color: rgba(255,244,234,0.95);
+  background: rgba(108,143,255,0.18);
+  border-color: rgba(108,143,255,0.3);
+}
+
+.task-card-demo {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.01);
+  cursor: pointer;
+  transition: background 0.15s;
+  margin: 2px 12px;
+}
+.task-card-demo:hover { background: rgba(255,255,255,0.07); }
+.task-card-demo.pinned { border-color: rgba(255,200,100,0.3); background: rgba(255,200,100,0.04); }
+.task-card-demo.done { opacity: 0.5; }
+
+.tcd-drag { color: rgba(255,255,255,0.2); padding-top: 2px; font-size: 10px; }
+.tcd-body { flex: 1; min-width: 0; }
+.tcd-title { font-size: 13px; font-weight: 400; color: rgba(255,244,234,0.9); line-height: 1.4; }
+.tcd-title.done { text-decoration: line-through; color: rgba(255,244,234,0.4); }
+.tcd-meta { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.tcd-badge { font-size: 11px; font-weight: 400; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.08); color: rgba(255,244,234,0.6); }
+.tcd-badge.overdue { background: rgba(255,80,80,0.2); color: rgba(255,130,130,0.9); }
+.tcd-badge.today { background: rgba(255,200,80,0.2); color: rgba(255,220,100,0.9); }
+.tcd-badge.tag { background: rgba(108,143,255,0.15); color: rgba(140,170,255,0.9); }
+
+/* ── CHALLENGE SECTION ──────────────────────────────────────── */
+.challenge-card-demo {
+  border-radius: 24px;
+  border: 4px solid rgba(108,143,255,0.05);
+  background: rgba(108,143,255,0.07);
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  overflow: hidden;
+}
+
+.ccd-main { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.ccd-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(255,244,234,0.35); }
+.ccd-title { font-size: 22px; font-weight: 500; color: rgba(255,244,234,0.95); line-height: 1.25; }
+.ccd-desc { font-size: 13px; font-weight: 300; color: rgba(255,244,234,0.5); line-height: 1.5; }
+.ccd-actions { display: flex; gap: 8px; margin-top: 4px; }
+.ccd-btn { display: flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 10px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-primary); }
+.ccd-btn.complete { background: rgba(80,200,120,0.18); color: rgba(100,220,140,0.95); }
+.ccd-btn.fail { background: rgba(255,80,80,0.14); color: rgba(255,120,120,0.95); }
+
+.ccd-history { padding: 16px; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 8px; }
+.ccd-history-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,244,234,0.35); }
+.ccd-history-item { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 300; color: rgba(255,244,234,0.5); }
+.ccd-history-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(80,200,120,0.7); flex-shrink: 0; }
+
+/* ── HABIT CIRCLE ───────────────────────────────────────────── */
+.habit-circle-demo {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.hcd-ring {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 8px solid rgba(255,255,255,0.06);
+}
+
+.hcd-progress {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 8px solid transparent;
+  border-top-color: var(--habit-color, #6c8fff);
+  border-right-color: var(--habit-color, #6c8fff);
+}
+
+.hcd-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 14px;
+  gap: 4px;
+}
+
+.hcd-num { font-size: 36px; font-weight: 900; color: var(--habit-color, #6c8fff); line-height: 1; }
+.hcd-name { font-size: 12px; font-weight: 500; color: var(--habit-color, #6c8fff); text-align: center; }
+
+/* ── WEEK PROGRESS DOTS ─────────────────────────────────────── */
+.week-dots { display: flex; gap: 6px; align-items: flex-end; }
+.wd-day { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 3px; border-radius: 6px; }
+.wd-dot { width: 8px; height: 8px; border-radius: 3px; }
+.wd-dot.done { background: rgba(80,200,120,0.8); }
+.wd-dot.fail { background: rgba(255,80,80,0.75); }
+.wd-dot.active { background: rgba(108,143,255,0.85); }
+.wd-dot.empty { background: rgba(255,244,234,0.1); }
+.wd-label { font-size: 10px; font-weight: 300; color: rgba(255,244,234,0.35); }
+
+.section-sub {
+  font-size: 14px;
+  color: var(--color-cream-40);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+/* ── PAGE HEADER ────────────────────────────────────────────── */
+.page-header {
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--border-dim);
+  margin-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header-label {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-cream-40);
+  margin-bottom: 16px;
+}
+
+.page-header h1 {
+  font-size: clamp(48px, 6vw, 88px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: var(--color-cream-92);
+  margin-bottom: 24px;
+}
+
+.page-header h1 span {
+  color: var(--color-indigo-text);
+}
+
+.page-header-meta {
+  display: flex;
+  gap: 32px;
+  font-size: 13px;
+  color: var(--color-cream-40);
+}
+
+.page-header-bg {
+  position: absolute;
+  right: -100px;
+  top: -40px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── NAV ────────────────────────────────────────────────────── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-dim);
+  padding: 12px 40px;
+  display: flex;
+  gap: 4px;
+  background: rgba(10, 8, 30, 0.6);
+}
+
+.nav a {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-cream-40);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.nav a:hover {
+  color: var(--color-cream-92);
+  background: var(--surface-hover);
+}
+
+/* ── GRID ───────────────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+/* ── TOKEN CARD ─────────────────────────────────────────────── */
+.token-card {
+  background: var(--surface-card);
+  backdrop-filter: blur(32px);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.token-card-label {
+  font-size: 11px;
+  color: var(--color-cream-40);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.token-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-cream-70);
+  font-family: var(--font-mono);
+}
+
+.token-card-value {
+  font-size: 11px;
+  color: var(--color-cream-40);
+  font-family: var(--font-mono);
+}
+
+/* ── COLOR SWATCH ───────────────────────────────────────────── */
+.swatch-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.swatch-row {
+  display: flex;
+  gap: 4px;
+  align-items: stretch;
+}
+
+.swatch {
+  flex: 1;
+  min-height: 72px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 8px;
+  position: relative;
+  cursor: default;
+  transition: transform var(--transition-fast);
+}
+
+.swatch:hover { transform: translateY(-2px); }
+
+.swatch-name {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.swatch-val {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+/* ── TYPE SPECIMEN ──────────────────────────────────────────── */
+.type-row {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border-dim);
+  display: grid;
+  grid-template-columns: 120px 1fr 120px;
+  gap: 24px;
+  align-items: baseline;
+}
+
+.type-row:last-child { border-bottom: none; }
+
+.type-meta {
+  font-size: 11px;
+  color: var(--color-cream-40);
+  font-family: var(--font-mono);
+  line-height: 1.8;
+}
+
+.type-sample {
+  color: var(--color-cream-92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── FONT WEIGHT SYSTEM ─────────────────────────────────────── */
+/* Allowed: 900 · 500 · 400 · 300 · 200                         */
+/* 800→900  700→500  600→500                                     */
+
+/* ── COMPONENT DEMO ─────────────────────────────────────────── */
+.demo-surface {
+  background: var(--surface-card);
+  backdrop-filter: blur(32px);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-2xl);
+  padding: 40px;
+  box-shadow: var(--shadow-card);
+}
+
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.demo-row:last-child { margin-bottom: 0; }
+
+.demo-label {
+  font-size: 11px;
+  color: var(--color-cream-40);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+/* ── BUTTONS ────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background var(--transition-base), border-color var(--transition-base), opacity var(--transition-base), scale var(--transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:active { scale: 0.96; }
+
+.btn-primary {
+  background: rgba(99,102,241,0.18);
+  border-color: rgba(99,102,241,0.35);
+  color: #a5b4fc;
+}
+.btn-primary:hover {
+  background: rgba(99,102,241,0.28);
+  border-color: rgba(99,102,241,0.55);
+}
+
+.btn-danger {
+  background: rgba(248,113,113,0.10);
+  border-color: rgba(248,113,113,0.25);
+  color: #fca5a5;
+}
+.btn-danger:hover {
+  background: rgba(248,113,113,0.20);
+  border-color: rgba(248,113,113,0.45);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border-dim);
+  color: var(--color-cream-70);
+}
+.btn-ghost:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255,255,255,0.20);
+  color: var(--color-cream-92);
+}
+
+.btn-submit {
+  background: linear-gradient(135deg,
+    rgba(99,102,241,0.9) 0%,
+    rgba(139,92,246,0.9) 100%);
+  border-color: rgba(165,180,252,0.3);
+  color: white;
+  width: 100%;
+  justify-content: center;
+  padding: 14px 24px;
+  font-size: 16px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 24px rgba(99,102,241,0.25);
+}
+.btn-submit:hover {
+  box-shadow: 0 6px 32px rgba(99,102,241,0.4);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: var(--radius-md); }
+.btn-lg { padding: 16px 32px; font-size: 17px; border-radius: 18px; }
+
+/* ── INPUTS ─────────────────────────────────────────────────── */
+.input-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+
+label.field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(224,224,224,0.9);
+}
+
+.input-field {
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: var(--font-primary);
+  color: white;
+  background: var(--surface-input);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 4px 24px rgba(0,0,0,0.2);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
+  outline: none;
+}
+
+.input-field::placeholder { color: rgba(255,255,255,0.35); }
+.input-field:hover { border-color: rgba(184,210,255,0.2); background: rgba(255,244,234,0.05); }
+.input-field:focus { border-color: var(--color-blue); box-shadow: 0 0 0 3px rgba(74,144,226,0.1); }
+.input-field.is-error { border-color: var(--color-error); }
+.input-field.is-error:focus { box-shadow: 0 0 0 3px rgba(248,113,113,0.12); }
+.input-field.is-success { border-color: var(--color-success); }
+
+.field-hint { font-size: 12px; color: rgba(255,255,255,0.35); }
+.field-error { font-size: 12px; color: var(--color-error); }
+
+/* ── STRENGTH BAR ───────────────────────────────────────────── */
+.strength-bar-wrap { position: relative; }
+.strength-bar {
+  position: absolute;
+  bottom: 1px; left: 1px; right: 1px;
+  height: 2px;
+  border-radius: 0 0 11px 11px;
+  transform-origin: left;
+  pointer-events: none;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.strength-1 { background: #f87171; transform: scaleX(0.25); }
+.strength-2 { background: #fb923c; transform: scaleX(0.5); }
+.strength-3 { background: #a3e635; transform: scaleX(0.75); }
+.strength-4 { background: #4ade80; transform: scaleX(1); }
+
+/* ── FORM PROGRESS ──────────────────────────────────────────── */
+.form-progress {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.fp-seg {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  transition: background 0.35s ease;
+}
+.fp-empty    { background: rgba(255,255,255,0.10); }
+.fp-filling  { background: var(--color-filling); animation: fp-pulse 1.6s ease-in-out infinite; }
+.fp-valid    { background: var(--color-success); }
+.fp-error    { background: var(--color-error); }
+
+@keyframes fp-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+/* ── TABS / MODE SELECTOR ───────────────────────────────────── */
+.tab-selector {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  border: 1px solid var(--border-dim);
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-cream-40);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  background: transparent;
+  font-family: var(--font-primary);
+}
+
+.tab-item:hover { color: var(--color-cream-70); background: var(--surface-hover); }
+
+.tab-item.active {
+  background: rgba(99,102,241,0.2);
+  color: var(--color-indigo-text);
+  border: 1px solid rgba(99,102,241,0.3);
+}
+
+.tab-icon { width: 16px; height: 16px; opacity: 0.8; }
+
+/* ── DASHBOARD CARD ─────────────────────────────────────────── */
+.dashboard-card {
+  background: var(--surface-card);
+  backdrop-filter: blur(32px);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-2xl);
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  box-shadow: var(--shadow-card);
+  max-width: 480px;
+}
+
+.dashboard-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-cream-92);
+}
+
+.user-info-block {
+  padding: 20px;
+  background: var(--surface-subtle);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-email { font-size: 15px; font-weight: 500; color: rgba(255,244,234,0.85); }
+.user-date  { font-size: 12px; color: rgba(255,255,255,0.35); letter-spacing: 0.03em; }
+
+/* ── AURORA BLOBS ───────────────────────────────────────────── */
+.aurora-demo {
+  position: relative;
+  height: 200px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: 1px solid var(--border-dim);
+  background: rgba(10,8,30,0.8);
+}
+
+.aurora-blob {
+  position: absolute;
+  left: 50%; top: 50%;
+  border-radius: 50%;
+  animation: aurora-spin 20s linear infinite;
+  filter: blur(30px);
+}
+
+@keyframes aurora-spin {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+@keyframes aurora-spin-r {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(-360deg); }
+}
+
+/* ── SPACING ────────────────────────────────────────────────── */
+.spacing-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.spacing-row:last-child { border-bottom: none; }
+
+.spacing-bar {
+  background: linear-gradient(90deg, rgba(99,102,241,0.5), rgba(139,92,246,0.3));
+  border-radius: 2px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.spacing-token { font-size: 12px; font-family: var(--font-mono); color: var(--color-indigo-text); width: 80px; }
+.spacing-value { font-size: 12px; color: var(--color-cream-40); width: 40px; font-family: var(--font-mono); }
+.spacing-desc  { font-size: 12px; color: var(--color-cream-40); }
+
+/* ── RADIUS ─────────────────────────────────────────────────── */
+.radius-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.radius-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.radius-box {
+  width: 80px;
+  height: 80px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.35);
+}
+
+.radius-token { font-size: 11px; font-family: var(--font-mono); color: var(--color-indigo-text); }
+.radius-val   { font-size: 10px; color: var(--color-cream-40); font-family: var(--font-mono); }
+
+/* ── ANIMATION DEMO ─────────────────────────────────────────── */
+.anim-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+.anim-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-xl);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.anim-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.4);
+  border: 1px solid rgba(99,102,241,0.5);
+}
+
+.anim-pulse .anim-dot { animation: demo-pulse 2s ease-in-out infinite; }
+@keyframes demo-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); transform: scale(1); }
+  50% { box-shadow: 0 0 0 12px rgba(99,102,241,0); transform: scale(1.05); }
+}
+
+.anim-float .anim-dot { animation: demo-float 3s ease-in-out infinite; }
+@keyframes demo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.anim-spin .anim-dot {
+  border-radius: 12px;
+  animation: demo-spin 4s linear infinite;
+}
+@keyframes demo-spin {
+  to { transform: rotate(360deg); }
+}
+
+.anim-name  { font-size: 13px; font-weight: 600; color: var(--color-cream-70); }
+.anim-value { font-size: 11px; font-family: var(--font-mono); color: var(--color-cream-40); }
+
+/* ── CONTACT CARD ───────────────────────────────────────────── */
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-dim);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+.contact-card:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+
+.contact-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.contact-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-cream-40); }
+.contact-handle { font-size: 14px; color: var(--color-cream-70); margin-top: 2px; }
+
+/* ── LOGO AREA ──────────────────────────────────────────────── */
+.logo-demo {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 40px;
+  background: rgba(10,8,30,0.6);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-2xl);
+}
+
+.logo-az {
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--color-cream-92);
+  font-family: var(--font-primary);
+  line-height: 1;
+  position: relative;
+}
+
+.logo-az .az-highlight {
+  background: linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.9));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-wave {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg,
+    rgba(41,75,225,0.1) 0%,
+    rgba(57,87,236,0.77) 20%,
+    rgba(17,40,75,0.88) 50%,
+    rgba(143,104,246,0.75) 70%,
+    rgba(130,54,206,0.1) 100%);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 5 C25 5 5 25 5 50 C5 75 25 95 50 95 C75 95 95 75 95 50 C95 25 75 5 50 5Z' fill='white'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 5 C25 5 5 25 5 50 C5 75 25 95 50 95 C75 95 95 75 95 50 C95 25 75 5 50 5Z' fill='white'/%3E%3C/svg%3E") no-repeat center / contain;
+  border-radius: 50%;
+}
+
+/* ── WAVE PREVIEW ───────────────────────────────────────────── */
+.wave-preview {
+  height: 160px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: 1px solid var(--border-dim);
+  position: relative;
+}
+
+.wave-preview canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── SCROLL PROGRESS ─────────────────────────────────────────── */
+.scroll-progress-demo {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.sp-line {
+  width: 3px;
+  height: 80px;
+  border-radius: 2px;
+  background: var(--border-dim);
+  position: relative;
+  overflow: hidden;
+}
+
+.sp-fill {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  border-radius: 2px;
+  animation: sp-fill 2s ease-in-out infinite alternate;
+}
+
+@keyframes sp-fill {
+  from { height: 20%; background: var(--color-filling); }
+  to   { height: 90%; background: var(--color-success); }
+}
+
+/* ── CHANGELOG ITEM ──────────────────────────────────────────── */
+.changelog-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-dim);
+  gap: 16px;
+}
+.changelog-item:last-child { border-bottom: none; }
+.changelog-text { font-size: 13px; color: var(--color-cream-70); line-height: 1.4; }
+.changelog-date { font-size: 11px; color: var(--color-cream-40); white-space: nowrap; font-family: var(--font-mono); }
+
+/* ── STATUS BADGE ────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.badge-live    { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+.badge-live::before { background: #4ade80; box-shadow: 0 0 4px #4ade80; animation: blink 2s ease-in-out infinite; }
+.badge-wip     { background: rgba(251,146,60,0.12); color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
+.badge-wip::before { background: #fb923c; }
+.badge-archived{ background: rgba(255,255,255,0.06); color: var(--color-cream-40); border: 1px solid var(--border-dim); }
+.badge-archived::before { background: var(--color-cream-40); }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="#tokens">Токены</a>
+  <a href="#colors">Цвета</a>
+  <a href="#type">Типографика</a>
+  <a href="#components">Компоненты</a>
+  <a href="#spacing">Отступы</a>
+  <a href="#motion">Анимации</a>
+  <a href="#patterns">Паттерны</a>
+  <a href="#dashboard">Дашборд</a>
+</nav>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="page-header-bg"></div>
+    <p class="page-header-label">Design System v1.0 · April 2026</p>
+    <h1>Ni<span>Az</span><br>Design<br>Tokens</h1>
+    <div class="page-header-meta">
+      <span>React 19 · TypeScript · Vite 7</span>
+      <span>Montserrat Alternates · Ganxy</span>
+      <span>Three.js · WebGL · Framer Motion</span>
+    </div>
+  </div>
+
+  <!-- TOKENS -->
+  <section class="section" id="tokens">
+    <p class="section-label">00 — Tokens</p>
+    <h2 class="section-title">CSS Custom Properties</h2>
+    <p class="section-sub">Источник истины: <code style="font-family:monospace;font-size:13px;color:var(--color-indigo-text)">client/src/styles/tokens.css</code></p>
+
+    <style>
+      .tok-table { width:100%; border-collapse:collapse; font-size:13px; }
+      .tok-table th { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.1em; color:var(--color-cream-40); padding:8px 12px; text-align:left; border-bottom:1px solid var(--border-dim); }
+      .tok-table td { padding:10px 12px; border-bottom:1px solid var(--border-subtle); vertical-align:top; }
+      .tok-table tr:last-child td { border-bottom:none; }
+      .tok-table tr:hover td { background:var(--surface-hover); }
+      .tok-name { font-family:var(--font-mono); color:var(--color-indigo-text); white-space:nowrap; }
+      .tok-val  { font-family:var(--font-mono); color:var(--color-cream-70); white-space:nowrap; }
+      .tok-desc { color:var(--color-cream-40); }
+      .tok-swatch { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:middle; margin-right:6px; border:1px solid rgba(255,255,255,0.1); }
+      .tok-group { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.12em; color:var(--color-cream-40); padding:20px 12px 8px; }
+    </style>
+
+    <div class="demo-surface" style="padding:0;overflow:hidden">
+      <table class="tok-table">
+        <thead>
+          <tr>
+            <th style="width:260px">Токен</th>
+            <th style="width:180px">Значение</th>
+            <th>Где используется</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Colors -->
+          <tr><td colspan="3" class="tok-group">Colors</td></tr>
+          <tr>
+            <td class="tok-name">--color-cream-rgb</td>
+            <td class="tok-val">255, 244, 234</td>
+            <td class="tok-desc">Базовый кремовый — текст, border, фон. Использовать только с alpha: <code style="font-family:monospace;color:var(--color-indigo-text)">rgba(var(--color-cream-rgb), 0.5)</code></td>
+          </tr>
+          <tr>
+            <td class="tok-name">--color-brand-primary</td>
+            <td class="tok-val"><span class="tok-swatch" style="background:#4a90e2"></span>#4a90e2</td>
+            <td class="tok-desc">Кнопки, focus-ring, outline/ghost-акценты</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--color-brand-primary-rgb</td>
+            <td class="tok-val">74, 144, 226</td>
+            <td class="tok-desc">Бренд с alpha: <code style="font-family:monospace;color:var(--color-indigo-text)">rgba(var(--color-brand-primary-rgb), 0.15)</code></td>
+          </tr>
+          <tr>
+            <td class="tok-name">--color-success</td>
+            <td class="tok-val"><span class="tok-swatch" style="background:#4ade80"></span>#4ade80</td>
+            <td class="tok-desc">Password strength, form progress, статус выполнено</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--color-error</td>
+            <td class="tok-val"><span class="tok-swatch" style="background:#f87171"></span>#f87171</td>
+            <td class="tok-desc">Ошибки валидации, input states, статус провал</td>
+          </tr>
+
+          <!-- Radius -->
+          <tr><td colspan="3" class="tok-group">Border Radius</td></tr>
+          <tr>
+            <td class="tok-name">--radius-sm</td>
+            <td class="tok-val">8px</td>
+            <td class="tok-desc">Header кнопки, мелкие элементы</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-md / --radius-button</td>
+            <td class="tok-val">14px</td>
+            <td class="tok-desc">Основные кнопки</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-lg</td>
+            <td class="tok-val">16px</td>
+            <td class="tok-desc">Модалки, карточки</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-xl</td>
+            <td class="tok-val">24px</td>
+            <td class="tok-desc">Большие карточки, drawer</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-button-squircle</td>
+            <td class="tok-val">25px</td>
+            <td class="tok-desc">Squircle-кнопки. Добавлять <code style="font-family:monospace;color:var(--color-indigo-text)">corner-shape: squircle</code> через @supports</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-full</td>
+            <td class="tok-val">9999px</td>
+            <td class="tok-desc">Pill-badges, теги</td>
+          </tr>
+
+          <!-- Transitions -->
+          <tr><td colspan="3" class="tok-group">Transitions</td></tr>
+          <tr>
+            <td class="tok-name">--transition-fast</td>
+            <td class="tok-val">0.15s ease</td>
+            <td class="tok-desc">Hover-состояния (scale, color, background)</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--transition-base</td>
+            <td class="tok-val">0.3s ease</td>
+            <td class="tok-desc">Цвета, borders, opacity</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--transition-slow</td>
+            <td class="tok-val">0.6s ease</td>
+            <td class="tok-desc">Page exits, масштабные анимации</td>
+          </tr>
+
+          <!-- Spacing (style-guide only) -->
+          <tr><td colspan="3" class="tok-group">Spacing <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:.6">(style-guide only, не в tokens.css)</span></td></tr>
+          <tr>
+            <td class="tok-name">--space-1 … --space-12</td>
+            <td class="tok-val">4px … 48px</td>
+            <td class="tok-desc">4, 8, 12, 16, 20, 24, 32, 40, 44, 48px — scale × 4</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="demo-surface" style="margin-top:24px">
+      <p style="font-size:13px;font-weight:500;color:var(--color-cream-70);margin-bottom:16px">corner-shape: squircle</p>
+      <p style="font-size:13px;color:var(--color-cream-40);margin-bottom:16px">Добавляй везде к <code style="font-family:monospace;color:var(--color-indigo-text)">border-radius</code> через <code style="font-family:monospace;color:var(--color-indigo-text)">@supports</code> (Chrome 133+):</p>
+      <pre style="font-family:monospace;font-size:12px;color:var(--color-cream-70);background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;overflow-x:auto;line-height:1.7">border-radius: var(--radius-lg);
+
+@supports (corner-shape: squircle) {
+  .element { corner-shape: squircle; }
+}</pre>
+      <div style="display:flex;gap:16px;margin-top:20px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="width:80px;height:80px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);border-radius:16px"></div>
+          <span style="font-size:10px;color:var(--color-cream-40)">border-radius only</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="width:80px;height:80px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);border-radius:16px;corner-shape:squircle"></div>
+          <span style="font-size:10px;color:var(--color-cream-40)">+ corner-shape: squircle</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD COMPONENTS -->
+  <section class="section" id="dashboard">
+    <p class="section-label">07 — Dashboard</p>
+    <h2 class="section-title">Компоненты дашборда</h2>
+    <p class="section-sub">TaskSidebar · ChallengeSection · HabitBoard — из нового дашборда</p>
+
+    <!-- Task Sidebar -->
+    <p class="section-sub" style="margin-bottom:12px">TaskSidebar — список задач</p>
+    <div class="grid-2" style="margin-bottom:32px;gap:24px">
+      <div class="task-sidebar-demo">
+        <div class="section-tabs-demo">
+          <button class="stab active">Все</button>
+          <button class="stab">Работа</button>
+          <button class="stab">Личное</button>
+          <button class="stab">Учёба</button>
+          <button class="stab" style="padding:5px 8px;color:rgba(255,244,234,0.3)">+</button>
+        </div>
+        <div style="padding:8px 0;flex:1">
+          <div class="task-card-demo pinned">
+            <div class="tcd-drag">⠿</div>
+            <div class="tcd-body">
+              <div class="tcd-title">Обновить style guide</div>
+              <div class="tcd-meta">
+                <span class="tcd-badge today">Сегодня</span>
+                <span class="tcd-badge tag">Дизайн</span>
+              </div>
+            </div>
+          </div>
+          <div class="task-card-demo" style="margin-top:4px">
+            <div class="tcd-drag">⠿</div>
+            <div class="tcd-body">
+              <div class="tcd-title">Написать tokens.css для проекта</div>
+              <div class="tcd-meta"><span class="tcd-badge tag">Dev</span></div>
+            </div>
+          </div>
+          <div class="task-card-demo done" style="margin-top:4px">
+            <div class="tcd-drag">⠿</div>
+            <div class="tcd-body">
+              <div class="tcd-title done">Проанализировать код репо</div>
+            </div>
+          </div>
+          <div class="task-card-demo" style="margin-top:4px">
+            <div class="tcd-drag">⠿</div>
+            <div class="tcd-body">
+              <div class="tcd-title">Починить ModeSelector labels</div>
+              <div class="tcd-meta"><span class="tcd-badge overdue">Просрочено</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid rgba(255,255,255,0.07)">
+          <button style="width:100%;padding:9px 12px;border-radius:10px;background:rgba(108,143,255,0.12);border:1px dashed rgba(108,143,255,0.35);color:rgba(180,200,255,0.9);font-size:13px;font-family:var(--font-primary);font-weight:400;cursor:pointer">
+            + Новая задача
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <p class="section-sub" style="margin-bottom:4px">Task badge variants</p>
+        <div class="demo-surface" style="padding:20px">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tcd-badge" style="font-weight:500">Default</span>
+              <span style="font-size:11px;color:var(--color-cream-40)">rgba(255,255,255,0.08)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tcd-badge overdue" style="font-weight:500">Просрочено</span>
+              <span style="font-size:11px;color:var(--color-cream-40)">rgba(255,80,80,0.2)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tcd-badge today" style="font-weight:500">Сегодня</span>
+              <span style="font-size:11px;color:var(--color-cream-40)">rgba(255,200,80,0.2)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tcd-badge tag" style="font-weight:500">Тег</span>
+              <span style="font-size:11px;color:var(--color-cream-40)">rgba(108,143,255,0.15)</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="section-sub" style="margin-bottom:4px">Week progress dots</p>
+        <div class="demo-surface" style="padding:20px">
+          <div class="week-dots">
+            <div class="wd-day"><div class="wd-dot done"></div><span class="wd-label">Пн</span></div>
+            <div class="wd-day"><div class="wd-dot done"></div><span class="wd-label">Вт</span></div>
+            <div class="wd-day"><div class="wd-dot fail"></div><span class="wd-label">Ср</span></div>
+            <div class="wd-day"><div class="wd-dot done"></div><span class="wd-label">Чт</span></div>
+            <div class="wd-day"><div class="wd-dot active"></div><span class="wd-label" style="color:rgba(255,244,234,0.75)">Пт</span></div>
+            <div class="wd-day"><div class="wd-dot empty"></div><span class="wd-label">Сб</span></div>
+            <div class="wd-day"><div class="wd-dot empty"></div><span class="wd-label">Вс</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenge Section -->
+    <p class="section-sub" style="margin-bottom:12px">ChallengeSection — карточка дневного челленджа</p>
+    <div style="margin-bottom:32px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,200,80,0.1);border:2px solid rgba(255,200,80,0.2);display:flex;align-items:center;justify-content:center;font-size:28px">🏅</div>
+        <span style="font-size:48px;font-weight:900;color:rgba(255,244,234,0.9)">Челленджи</span>
+      </div>
+      <div class="challenge-card-demo">
+        <div class="ccd-main">
+          <div class="ccd-label">Ежедневный · Активен</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:24px">🏃</span>
+            <div class="ccd-title">Пробежка 5 км</div>
+          </div>
+          <div class="ccd-desc">Ежедневное кардио для поддержания выносливости. Разрешается разбить на 2 подхода.</div>
+          <div class="ccd-actions">
+            <button class="ccd-btn complete">✓ Выполнено</button>
+            <button class="ccd-btn fail">✗ Пропустил</button>
+          </div>
+        </div>
+        <div class="ccd-history">
+          <div class="ccd-history-label">История <span style="color:rgba(255,244,234,0.75);font-weight:500">4×</span></div>
+          <div class="ccd-history-item"><div class="ccd-history-dot"></div>23 апр</div>
+          <div class="ccd-history-item"><div class="ccd-history-dot"></div>22 апр</div>
+          <div class="ccd-history-item"><div class="ccd-history-dot"></div>20 апр</div>
+          <div class="ccd-history-item"><div class="ccd-history-dot" style="background:rgba(255,80,80,0.7)"></div>18 апр</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Habit Board -->
+    <p class="section-sub" style="margin-bottom:12px">HabitBoard — трекер привычек</p>
+    <div class="demo-surface">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(99,102,241,0.1);border:2px solid rgba(99,102,241,0.2);display:flex;align-items:center;justify-content:center;font-size:26px">🧠</div>
+        <span style="font-size:48px;font-weight:900;color:rgba(255,244,234,0.9)">Привычки</span>
+      </div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div class="habit-circle-demo" style="--habit-color:#6c8fff">
+          <div style="position:absolute;inset:0;border-radius:50%;background:rgba(108,143,255,0.08)"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(108,143,255,0.7)" stroke-width="10" stroke-dasharray="352" stroke-dashoffset="88" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+          </svg>
+          <div class="hcd-inner">
+            <div class="hcd-num">18</div>
+            <div class="hcd-name">Медитация</div>
+          </div>
+        </div>
+        <div class="habit-circle-demo" style="--habit-color:#4ade80">
+          <div style="position:absolute;inset:0;border-radius:50%;background:rgba(74,222,128,0.08)"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(74,222,128,0.8)" stroke-width="10" stroke-dasharray="352" stroke-dashoffset="176" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+          </svg>
+          <div class="hcd-inner">
+            <div class="hcd-num">9</div>
+            <div class="hcd-name">Бег</div>
+          </div>
+        </div>
+        <div class="habit-circle-demo" style="--habit-color:#f87171">
+          <div style="position:absolute;inset:0;border-radius:50%;background:rgba(248,113,113,0.08)"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(248,113,113,0.7)" stroke-width="10" stroke-dasharray="352" stroke-dashoffset="264" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+          </svg>
+          <div class="hcd-inner">
+            <div class="hcd-num">5</div>
+            <div class="hcd-name">Чтение</div>
+          </div>
+        </div>
+        <div class="habit-circle-demo" style="--habit-color:#fb923c">
+          <div style="position:absolute;inset:0;border-radius:50%;background:rgba(251,146,60,0.08)"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(251,146,60,0.8)" stroke-width="10" stroke-dasharray="352" stroke-dashoffset="35" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+          </svg>
+          <div class="hcd-inner">
+            <div class="hcd-num">28</div>
+            <div class="hcd-name">Вода</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="colors">
+    <p class="section-label">01 — Colors</p>
+    <h2 class="section-title">Цветовая система</h2>
+    <p class="section-sub">Извлечено из App.css, dashboard.css, contacts.css, input.css, button.css</p>
+
+    <p class="section-label" style="margin-top:0;margin-bottom:12px">Фон (Background)</p>
+    <div class="swatch-row" style="margin-bottom:32px">
+      <div class="swatch" style="background:hsl(246,73%,10%); min-height:100px">
+        <span class="swatch-name">bg-base</span>
+        <span class="swatch-val">hsl(246,73%,10%)</span>
+      </div>
+      <div class="swatch" style="background:hsl(223,76%,21%)">
+        <span class="swatch-name">bg-mid</span>
+        <span class="swatch-val">hsl(223,76%,21%)</span>
+      </div>
+      <div class="swatch" style="background:hsl(213,85%,11%)">
+        <span class="swatch-name">bg-deep</span>
+        <span class="swatch-val">hsl(213,85%,11%)</span>
+      </div>
+      <div class="swatch" style="background:hsl(264,80%,12%)">
+        <span class="swatch-name">bg-purple</span>
+        <span class="swatch-val">hsl(264,80%,12%)</span>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:0;margin-bottom:12px">Текст (Cream)</p>
+    <div class="swatch-row" style="margin-bottom:32px">
+      <div class="swatch" style="background:rgba(255,244,234,1); color:#1a1a2e">
+        <span class="swatch-name">cream</span>
+        <span class="swatch-val">100%</span>
+      </div>
+      <div class="swatch" style="background:rgba(255,244,234,0.92); color:#1a1a2e">
+        <span class="swatch-name">cream-92</span>
+        <span class="swatch-val">headings</span>
+      </div>
+      <div class="swatch" style="background:rgba(255,244,234,0.70)">
+        <span class="swatch-name">cream-70</span>
+        <span class="swatch-val">body</span>
+      </div>
+      <div class="swatch" style="background:rgba(255,244,234,0.40)">
+        <span class="swatch-name">cream-40</span>
+        <span class="swatch-val">muted</span>
+      </div>
+      <div class="swatch" style="background:rgba(255,244,234,0.10)">
+        <span class="swatch-name">cream-10</span>
+        <span class="swatch-val">border</span>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:0;margin-bottom:12px">Акцент (tokens.css)</p>
+    <div class="swatch-row" style="margin-bottom:32px">
+      <div class="swatch" style="background:#4a90e2">
+        <span class="swatch-name">--color-brand-primary</span>
+        <span class="swatch-val">#4a90e2</span>
+      </div>
+      <div class="swatch" style="background:rgb(99,102,241)">
+        <span class="swatch-name">indigo</span>
+        <span class="swatch-val">rgb(99,102,241)</span>
+      </div>
+      <div class="swatch" style="background:rgba(99,102,241,0.28)">
+        <span class="swatch-name">indigo-hover</span>
+        <span class="swatch-val">28%</span>
+      </div>
+      <div class="swatch" style="background:rgba(99,102,241,0.18)">
+        <span class="swatch-name">indigo-subtle</span>
+        <span class="swatch-val">18%</span>
+      </div>
+      <div class="swatch" style="background:#a5b4fc; color:#1a1a2e">
+        <span class="swatch-name">indigo-text</span>
+        <span class="swatch-val">#a5b4fc</span>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:0;margin-bottom:12px">Статусы (tokens.css)</p>
+    <div class="swatch-row" style="margin-bottom:32px">
+      <div class="swatch" style="background:#4ade80; color:#1a1a2e">
+        <span class="swatch-name">--color-success</span>
+        <span class="swatch-val">#4ade80</span>
+      </div>
+      <div class="swatch" style="background:#f87171">
+        <span class="swatch-name">--color-error</span>
+        <span class="swatch-val">#f87171</span>
+      </div>
+      <div class="swatch" style="background:#fb923c">
+        <span class="swatch-name">warning</span>
+        <span class="swatch-val">#fb923c</span>
+      </div>
+      <div class="swatch" style="background:rgba(165,180,252,0.55)">
+        <span class="swatch-name">filling</span>
+        <span class="swatch-val">indigo 55%</span>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:0;margin-bottom:12px">Aurora (Contacts section)</p>
+    <div class="swatch-row">
+      <div class="swatch" style="background:rgba(41,182,246,0.55)"><span class="swatch-name">cyan</span></div>
+      <div class="swatch" style="background:rgba(102,187,106,0.50)"><span class="swatch-name">green</span></div>
+      <div class="swatch" style="background:rgba(171,71,188,0.60)"><span class="swatch-name">purple</span></div>
+      <div class="swatch" style="background:rgba(192,220,50,0.40)"><span class="swatch-name">lime</span></div>
+      <div class="swatch" style="background:rgba(236,64,122,0.45)"><span class="swatch-name">pink</span></div>
+    </div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section class="section" id="type">
+    <p class="section-label">02 — Typography</p>
+    <h2 class="section-title">Типографика</h2>
+    <p class="section-sub">Montserrat Alternates (основной) · Ganxy (display) · Postertoaster (акцент)</p>
+
+    <!-- Weight system -->
+    <div style="display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px;padding:16px 20px;background:var(--surface-card);border:1px solid var(--border-dim);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:32px;font-weight:900;letter-spacing:-0.03em;color:var(--color-cream-92)">900</span>
+        <span style="font-size:11px;font-weight:400;color:var(--color-cream-40);text-transform:uppercase;letter-spacing:0.1em">Black</span>
+        <span style="font-size:11px;font-weight:300;color:var(--color-cream-40)">заголовки, hero, section titles</span>
+      </div>
+      <div style="flex:1;min-width:120px;padding:16px 20px;background:var(--surface-card);border:1px solid var(--border-dim);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:32px;font-weight:500;letter-spacing:-0.02em;color:var(--color-cream-92)">500</span>
+        <span style="font-size:11px;font-weight:400;color:var(--color-cream-40);text-transform:uppercase;letter-spacing:0.1em">Medium</span>
+        <span style="font-size:11px;font-weight:300;color:var(--color-cream-40)">кнопки, labels, badges, подзаголовки</span>
+      </div>
+      <div style="flex:1;min-width:120px;padding:16px 20px;background:var(--surface-card);border:1px solid var(--border-dim);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:32px;font-weight:400;letter-spacing:-0.01em;color:var(--color-cream-92)">400</span>
+        <span style="font-size:11px;font-weight:400;color:var(--color-cream-40);text-transform:uppercase;letter-spacing:0.1em">Regular</span>
+        <span style="font-size:11px;font-weight:300;color:var(--color-cream-40)">основной текст, task titles, body</span>
+      </div>
+      <div style="flex:1;min-width:120px;padding:16px 20px;background:var(--surface-card);border:1px solid var(--border-dim);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:32px;font-weight:300;letter-spacing:-0.01em;color:var(--color-cream-92)">300</span>
+        <span style="font-size:11px;font-weight:400;color:var(--color-cream-40);text-transform:uppercase;letter-spacing:0.1em">Light</span>
+        <span style="font-size:11px;font-weight:300;color:var(--color-cream-40)">descriptions, secondary text, hints</span>
+      </div>
+      <div style="flex:1;min-width:120px;padding:16px 20px;background:var(--surface-card);border:1px solid var(--border-dim);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:32px;font-weight:200;letter-spacing:-0.01em;color:var(--color-cream-92)">200</span>
+        <span style="font-size:11px;font-weight:400;color:var(--color-cream-40);text-transform:uppercase;letter-spacing:0.1em">ExtraLight</span>
+        <span style="font-size:11px;font-weight:300;color:var(--color-cream-40)">timestamps, captions, metadata</span>
+      </div>
+    </div>
+
+    <div class="demo-surface">
+      <div class="type-row">
+        <div class="type-meta">Hero<br>200px / <b style="color:#a5b4fc">900</b><br>Ganxy</div>
+        <div class="type-sample" style="font-size:80px;font-weight:900;font-family:'Montserrat Alternates',serif;letter-spacing:-0.03em;color:rgba(255,244,234,0.8)">DEER</div>
+        <div class="type-meta">hero.css<br>letter-spacing<br>−0.03em</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Display<br>clamp(28–48px)<br><b style="color:#a5b4fc">900</b></div>
+        <div class="type-sample" style="font-size:42px;font-weight:900;letter-spacing:-0.02em;text-shadow:0 0 30px rgba(167,139,250,0.4)">Форма входа</div>
+        <div class="type-meta">auth-container<br>purple glow<br>text-shadow</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Section H<br>48px / <b style="color:#a5b4fc">900</b></div>
+        <div class="type-sample" style="font-size:40px;font-weight:900;color:rgba(255,244,234,0.9)">Челленджи</div>
+        <div class="type-meta">challenge-section<br>habit-board<br>__title</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">H Section<br>5rem / <b style="color:#a5b4fc">900</b></div>
+        <div class="type-sample" style="font-size:36px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em">СВЯЗЬ</div>
+        <div class="type-meta">contacts.css<br>uppercase</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Card title<br>22px / <b style="color:#a5b4fc">500</b></div>
+        <div class="type-sample" style="font-size:22px;font-weight:500;color:rgba(255,244,234,0.95)">Пробежка 5 км</div>
+        <div class="type-meta">challenge card<br>daily title</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Body<br>13–16px / <b style="color:#a5b4fc">400</b></div>
+        <div class="type-sample" style="font-size:15px;font-weight:400;color:rgba(255,244,234,0.85)">Пароль хэшируется, токен хранится в httpOnly cookie.</div>
+        <div class="type-meta">text-wrap: pretty<br>line-height: 1.5</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Description<br>13px / <b style="color:#a5b4fc">300</b></div>
+        <div class="type-sample" style="font-size:13px;font-weight:300;color:rgba(255,244,234,0.5);line-height:1.5">Ежедневное кардио для поддержания выносливости и здоровья сердца.</div>
+        <div class="type-meta">challenge__desc<br>habit desc</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Label<br>11px / <b style="color:#a5b4fc">500</b><br>uppercase</div>
+        <div class="type-sample" style="font-size:11px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,244,234,0.4)">Section Label</div>
+        <div class="type-meta">ls: 0.2em<br>cream-40</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Caption<br>11–12px / <b style="color:#a5b4fc">200</b></div>
+        <div class="type-sample" style="font-size:12px;font-weight:200;color:rgba(255,255,255,0.35);letter-spacing:0.04em">Аккаунт создан: 2 апреля 2026</div>
+        <div class="type-meta">timestamps<br>created dates</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Mono<br>system mono<br>hints</div>
+        <div class="type-sample" style="font-size:13px;font-family:monospace;color:#a5b4fc">--color-indigo: rgb(99, 102, 241)</div>
+        <div class="type-meta">tokens<br>code</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section class="section" id="components">
+    <p class="section-label">03 — Components</p>
+    <h2 class="section-title">Компоненты</h2>
+
+    <!-- BUTTONS -->
+    <p class="section-sub" style="margin-bottom:20px">Кнопки</p>
+    <div class="demo-surface" style="margin-bottom:24px">
+      <div class="demo-row">
+        <span class="demo-label">Основные варианты</span>
+        <button class="btn btn-primary">Перейти к профилю</button>
+        <button class="btn btn-danger">Выйти</button>
+        <button class="btn btn-ghost">Отмена</button>
+        <button class="btn btn-primary" disabled>Disabled</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-label">Размеры</span>
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-label">Submit (full width)</span>
+      </div>
+      <button class="btn btn-submit">Войти</button>
+    </div>
+
+    <!-- INPUTS -->
+    <p class="section-sub" style="margin-bottom:20px">Поля ввода</p>
+    <div class="demo-surface" style="margin-bottom:24px">
+      <div class="grid-2" style="gap:24px">
+        <div class="input-group">
+          <label class="field-label">Email</label>
+          <input class="input-field" type="email" placeholder="example@mail.com">
+        </div>
+        <div class="input-group">
+          <label class="field-label">Пароль</label>
+          <div class="strength-bar-wrap">
+            <input class="input-field" type="password" placeholder="Минимум 8 символов" value="StrongPa$$">
+            <div class="strength-bar strength-4"></div>
+          </div>
+          <span class="field-hint">Уровень безопасности: сильный</span>
+        </div>
+        <div class="input-group">
+          <label class="field-label">С ошибкой</label>
+          <input class="input-field is-error" type="email" placeholder="wrong@" value="wrong@">
+          <span class="field-error">Некорректный адрес электронной почты</span>
+        </div>
+        <div class="input-group">
+          <label class="field-label">Подтверждено</label>
+          <input class="input-field is-success" type="text" value="Данные верны">
+        </div>
+      </div>
+
+      <div style="margin-top:32px">
+        <span class="demo-label" style="display:block;margin-bottom:12px">FormProgress — заполнение формы</span>
+        <div class="form-progress">
+          <div class="fp-seg fp-valid"></div>
+          <div class="fp-seg fp-filling"></div>
+          <div class="fp-seg fp-empty"></div>
+        </div>
+        <div style="display:flex;gap:24px;margin-top:12px">
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-cream-40)"><span style="width:24px;height:3px;background:#4ade80;border-radius:2px;display:inline-block"></span>valid</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-cream-40)"><span style="width:24px;height:3px;background:rgba(165,180,252,0.55);border-radius:2px;display:inline-block"></span>filling (pulsing)</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-cream-40)"><span style="width:24px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;display:inline-block"></span>empty</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--color-cream-40)"><span style="width:24px;height:3px;background:#f87171;border-radius:2px;display:inline-block"></span>error</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE SELECTOR / TABS -->
+    <p class="section-sub" style="margin-bottom:20px">Табы (ModeSelector)</p>
+    <div class="demo-surface" style="margin-bottom:24px">
+      <div style="display:flex;justify-content:flex-end">
+        <div class="tab-selector">
+          <button class="tab-item active">
+            <svg class="tab-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Вход
+          </button>
+          <button class="tab-item">
+            <svg class="tab-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Регистрация
+          </button>
+          <button class="tab-item">
+            <svg class="tab-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" stroke="currentColor" stroke-width="1.5"/><path d="M4 14s-.5-4 4-4 4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Сброс
+          </button>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--color-cream-40);margin-top:12px">
+        ⚠️ Рекомендация: labels должны быть видны рядом с иконками — не только в aria-label
+      </p>
+    </div>
+
+    <!-- STATUS BADGES -->
+    <p class="section-sub" style="margin-bottom:20px">Статусы проектов</p>
+    <div class="demo-surface" style="margin-bottom:24px">
+      <div class="demo-row">
+        <span class="badge badge-live">Live</span>
+        <span class="badge badge-wip">Work in Progress</span>
+        <span class="badge badge-archived">Archived</span>
+      </div>
+    </div>
+
+    <!-- DASHBOARD CARD -->
+    <p class="section-sub" style="margin-bottom:20px">Dashboard карточка</p>
+    <div class="dashboard-card">
+      <div class="dashboard-title">Панель управления</div>
+      <div class="user-info-block">
+        <div class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="503e312a3d3137253c3f2610373d31393c7e333f3d">[email&#160;protected]</a></div>
+        <div class="user-date">Аккаунт создан: 2 апреля 2026</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <button class="btn btn-primary" style="width:100%;justify-content:center;min-height:52px">Перейти к профилю</button>
+        <button class="btn btn-danger" style="width:100%;justify-content:center;min-height:52px">Выйти</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPACING -->
+  <section class="section" id="spacing">
+    <p class="section-label">04 — Spacing & Radius</p>
+    <h2 class="section-title">Отступы и скругления</h2>
+
+    <div class="grid-2" style="gap:40px">
+      <div>
+        <p class="section-sub" style="margin-bottom:20px">Spacing Scale</p>
+        <div class="demo-surface">
+          <div class="spacing-row"><span class="spacing-token">--space-1</span><span class="spacing-value">4px</span><div class="spacing-bar" style="width:4px"></div><span class="spacing-desc">icon gap</span></div>
+          <div class="spacing-row"><span class="spacing-token">--space-2</span><span class="spacing-value">8px</span><div class="spacing-bar" style="width:8px"></div></div>
+          <div class="spacing-row"><span class="spacing-token">--space-3</span><span class="spacing-value">12px</span><div class="spacing-bar" style="width:12px"></div><span class="spacing-desc">btn gap</span></div>
+          <div class="spacing-row"><span class="spacing-token">--space-4</span><span class="spacing-value">16px</span><div class="spacing-bar" style="width:16px"></div><span class="spacing-desc">input pad</span></div>
+          <div class="spacing-row"><span class="spacing-token">--space-5</span><span class="spacing-value">20px</span><div class="spacing-bar" style="width:20px"></div><span class="spacing-desc">user block</span></div>
+          <div class="spacing-row"><span class="spacing-token">--space-6</span><span class="spacing-value">24px</span><div class="spacing-bar" style="width:24px"></div><span class="spacing-desc">form gap</span></div>
+          <div class="spacing-row"><span class="spacing-token">--space-8</span><span class="spacing-value">32px</span><div class="spacing-bar" style="width:32px"></div><span class="spacing-desc">card gap</span></div>
+          <div class="spacing-row"><span class="spacing-token">--space-10</span><span class="spacing-value">40px</span><div class="spacing-bar" style="width:40px"></div><span class="spacing-desc">section pad</span></div>
+          <div class="spacing-row"><span class="spacing-token">--space-11</span><span class="spacing-value">44px</span><div class="spacing-bar" style="width:44px"></div><span class="spacing-desc">logo mb</span></div>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-sub" style="margin-bottom:20px">Border Radius <span style="font-size:11px;color:var(--color-cream-40)">(tokens.css)</span></p>
+        <div class="demo-surface">
+          <div class="radius-grid">
+            <div class="radius-item"><div class="radius-box" style="border-radius:8px"></div><span class="radius-token">--radius-sm</span><span class="radius-val">8px · header btns</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:14px"></div><span class="radius-token">--radius-md</span><span class="radius-val">14px · buttons</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:16px"></div><span class="radius-token">--radius-lg</span><span class="radius-val">16px · modals</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:24px"></div><span class="radius-token">--radius-xl</span><span class="radius-val">24px · cards</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:25px;corner-shape:squircle"></div><span class="radius-token">--radius-button-squircle</span><span class="radius-val">25px · squircle</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:9999px"></div><span class="radius-token">--radius-full</span><span class="radius-val">9999px · pill</span></div>
+          </div>
+          <p style="font-size:11px;color:var(--color-cream-40);margin-top:20px;font-family:monospace">
+            @supports (corner-shape: squircle) { corner-shape: squircle }
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTION -->
+  <section class="section" id="motion">
+    <p class="section-label">05 — Motion</p>
+    <h2 class="section-title">Анимации и переходы</h2>
+    <p class="section-sub">Framer Motion + CSS transitions + WebGL canvas</p>
+
+    <div class="anim-grid" style="margin-bottom:32px">
+      <div class="anim-card anim-pulse">
+        <div class="anim-dot"></div>
+        <div class="anim-name">shadow-pulse</div>
+        <div class="anim-value">2s ease-in-out infinite</div>
+        <div class="anim-value" style="color:var(--color-cream-40)">hero letters · live badge</div>
+      </div>
+      <div class="anim-card anim-float">
+        <div class="anim-dot" style="background:rgba(74,222,128,0.3);border-color:rgba(74,222,128,0.4)"></div>
+        <div class="anim-name">float</div>
+        <div class="anim-value">3s ease-in-out infinite</div>
+        <div class="anim-value" style="color:var(--color-cream-40)">companion · floating-balls</div>
+      </div>
+      <div class="anim-card anim-spin">
+        <div class="anim-dot" style="background:rgba(171,71,188,0.3);border-color:rgba(171,71,188,0.4)"></div>
+        <div class="anim-name">aurora-spin</div>
+        <div class="anim-value">42–85s linear infinite</div>
+        <div class="anim-value" style="color:var(--color-cream-40)">contacts aurora blobs</div>
+      </div>
+    </div>
+
+    <div class="demo-surface">
+      <p style="font-size:13px;font-weight:600;color:var(--color-cream-70);margin-bottom:20px">Transition tokens</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:16px">
+          <span style="font-size:12px;font-family:monospace;color:var(--color-indigo-text);width:160px">--transition-fast</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">0.15s ease</span>
+          <span style="font-size:11px;color:var(--color-cream-40)">hover scale, tab switch, contact card hover</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span style="font-size:12px;font-family:monospace;color:var(--color-indigo-text);width:160px">--transition-base</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">0.3s ease</span>
+          <span style="font-size:11px;color:var(--color-cream-40)">button bg, input border, strength bar color</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span style="font-size:12px;font-family:monospace;color:var(--color-indigo-text);width:160px">--transition-slow</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">0.6s ease</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">page exit animation, auth form slide out</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span style="font-size:12px;font-family:monospace;color:var(--color-indigo-text);width:160px">--transition-xslow</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">0.9s ease</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">app-loader fade out</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span style="font-size:12px;font-family:monospace;color:var(--color-indigo-text);width:160px">framer: easeInOut</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">duration: 0.6</span>
+          <span style="font-size:12px;color:var(--color-cream-40)">auth container exit (blur+x+opacity)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PATTERNS -->
+  <section class="section" id="patterns">
+    <p class="section-label">06 — Patterns</p>
+    <h2 class="section-title">Паттерны интерфейса</h2>
+
+    <div class="grid-2" style="gap:24px;margin-bottom:32px">
+
+      <!-- Aurora preview -->
+      <div>
+        <p class="section-sub" style="margin-bottom:12px">Aurora (contacts background)</p>
+        <div class="aurora-demo">
+          <div class="aurora-blob" style="width:80px;height:300px;background:linear-gradient(to bottom,transparent,rgba(41,182,246,0.55),transparent);animation:aurora-spin 20s linear infinite"></div>
+          <div class="aurora-blob" style="width:90px;height:300px;background:linear-gradient(to bottom,transparent,rgba(102,187,106,0.5),transparent);animation:aurora-spin-r 30s linear infinite"></div>
+          <div class="aurora-blob" style="width:70px;height:300px;background:linear-gradient(to bottom,transparent,rgba(171,71,188,0.6),transparent);animation:aurora-spin 14s linear infinite"></div>
+          <div class="aurora-blob" style="width:100px;height:300px;background:linear-gradient(to bottom,transparent,rgba(236,64,122,0.45),transparent);animation:aurora-spin-r 25s linear infinite"></div>
+        </div>
+      </div>
+
+      <!-- Contact cards -->
+      <div>
+        <p class="section-sub" style="margin-bottom:12px">Контакт-карточки (glass)</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="contact-card">
+            <div class="contact-icon">✉️</div>
+            <div>
+              <div class="contact-label">Email</div>
+              <div class="contact-handle"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="315f504b5c5056445d5e4771565c50585d1f525e5c">[email&#160;protected]</a></div>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-icon">🐙</div>
+            <div>
+              <div class="contact-label">GitHub</div>
+              <div class="contact-handle">github.com/To6u</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Changelog -->
+      <div>
+        <p class="section-sub" style="margin-bottom:12px">Changelog (projects.data.ts)</p>
+        <div class="demo-surface" style="padding:24px">
+          <div class="changelog-item"><span class="changelog-text">NiAz title + az.svg favicon</span><span class="changelog-date">2 апр</span></div>
+          <div class="changelog-item"><span class="changelog-text">scroll-progress paths fill full height on mobile</span><span class="changelog-date">2 апр</span></div>
+          <div class="changelog-item"><span class="changelog-text">expandable cards with inner scroll + 0.8s bottom lock</span><span class="changelog-date">24 мар</span></div>
+          <div class="changelog-item"><span class="changelog-text">WebGL wave — phase accumulator, no time jump on resume</span><span class="changelog-date">14 мар</span></div>
+        </div>
+      </div>
+
+      <!-- Glass surface -->
+      <div>
+        <p class="section-sub" style="margin-bottom:12px">Glass surface</p>
+        <div class="demo-surface" style="padding:24px">
+          <p style="font-size:12px;color:var(--color-cream-40);margin-bottom:16px;font-family:monospace">backdrop-filter: blur(32px)</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--color-indigo-text)">background</span>
+              <span style="color:var(--color-cream-40);font-family:monospace">rgba(22,22,26,0.75)</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--color-indigo-text)">border</span>
+              <span style="color:var(--color-cream-40);font-family:monospace">rgba(255,255,255,0.10)</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--color-indigo-text)">inset shadow</span>
+              <span style="color:var(--color-cream-40);font-family:monospace">0 1px 0 rgba(255,255,255,0.06)</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--color-indigo-text)">outer shadow</span>
+              <span style="color:var(--color-cream-40);font-family:monospace">0 8px 32px rgba(0,0,0,0.4)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth layout diagram -->
+    <p class="section-sub" style="margin-bottom:12px">Auth Layout: grid-template-columns</p>
+    <div class="demo-surface">
+      <div style="display:grid;grid-template-columns:minmax(320px,55%) auto;gap:8px;height:140px">
+        <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
+          <span style="font-size:12px;color:var(--color-indigo-text);font-weight:600">.auth-form-section</span>
+          <span style="font-size:10px;color:var(--color-cream-40)">minmax(320px, 55%) · padding: 40px 60px</span>
+        </div>
+        <div style="background:rgba(171,71,188,0.08);border:1px dashed rgba(171,71,188,0.25);border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center">
+          <span style="font-size:11px;color:rgba(171,71,188,0.7)">wave canvas bg</span>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--color-cream-40);margin-top:12px">На &lt;968px: форма занимает весь экран, фон — position:absolute за ней</p>
+    </div>
+  </section>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Интерактивность вкладок
+document.querySelectorAll('.tab-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.tab-selector').querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
