@@ -44,11 +44,6 @@
     font-weight: 200;
 }
 
-.dashboard__title {
-    font-weight: 900;
-    text-shadow: 0 0 30px rgba(167, 139, 250, 0.4), 0 0 60px rgba(102, 126, 234, 0.2);
-}
-
 .dashboard__header-actions {
     display: flex;
     align-items: center;

@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'удалить неиспользуемый .dashboard__title', date: '24 апр' },
             { text: 'убрать text-shadow с блочных заголовков, font-weight с h3 card-title', date: '24 апр' },
             { text: 'убрать redundant font-weight: 900 с h-элементов — покрыто глобальным правилом', date: '24 апр' },
             { text: 'h1–h6 font-weight 900 глобально; обновлена дизайн-система и style-guide', date: '24 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'унификация font-weight по дизайн-системе 900/500/400/300/200, text-shadow на section titles', date: '24 апр' },
             { text: 'living style guide — секция tokens, corner-shape, синхронизация radius/colors', date: '24 апр' },
             { text: 'radius и transitions токены в дизайн-систему', date: '24 апр' },
-            { text: 'svg-иконки из Figma экспорта', date: '23 апр' },
 ],
     },
     {
