@@ -13,12 +13,6 @@
     gap: 0;
 }
 
-.profile-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .error {
     color: #ff6b6b;
     text-align: center;

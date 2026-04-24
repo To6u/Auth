@@ -38,17 +38,6 @@
     margin-top: -15px;
 }
 
-/* Subtitle - контейнер с градиентом */
-.hero__subtitle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    isolation: isolate;
-    contain: layout style;
-}
 
 .hero__letters {
     display: flex;

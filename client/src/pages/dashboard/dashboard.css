@@ -40,10 +40,6 @@
     margin: 0;
 }
 
-.dashboard__created {
-    font-weight: 200;
-}
-
 .dashboard__header-actions {
     display: flex;
     align-items: center;

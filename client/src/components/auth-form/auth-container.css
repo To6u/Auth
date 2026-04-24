@@ -135,36 +135,6 @@
     grid-gap: 24px;
 }
 
-/* Правая часть - волны на весь экран */
-.auth-image-section {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    opacity: 0;
-    animation: fadeIn 1s ease-in-out forwards;
-}
-
-.auth-image-thin-2 {
-    opacity: 0.3;
-}
-
-.auth-image-overlay {
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding: 40px;
-    text-align: center;
-    color: #fff;
-    pointer-events: none;
-}
 
 .wave-trip-logo {
     width: 300px;
@@ -183,22 +153,6 @@
     margin-bottom: 44px;
 }
 
-.auth-image-overlay h1 {
-    font-size: 52px;
-    margin-bottom: 20px;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-}
-
-.auth-image-overlay p {
-    font-size: 20px;
-    font-weight: 400;
-    opacity: 0.95;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    line-height: 1.6;
-}
 
 .thin-waves-canvas {
     position: fixed;
@@ -233,25 +187,10 @@
         max-width: 100%;
     }
 
-    .auth-image-section {
-        position: absolute;
-        width: 100vw;
-        height: 100vh;
-        z-index: 1;
-    }
-
     .auth-form-section {
         padding: 40px 30px;
         flex: 1;
         min-height: 0;
-    }
-
-    .auth-image-overlay h1 {
-        font-size: 36px;
-    }
-
-    .auth-image-overlay p {
-        font-size: 17px;
     }
 
     .wave-trip-logo {
@@ -260,11 +199,6 @@
     }
 }
 
-@media (max-width: 860px) {
-    .auth-image-overlay {
-        display: none;
-    }
-}
 
 @media (max-width: 768px) {
     .auth-container-layout {
@@ -278,14 +212,6 @@
     }
     .auth-form-section {
         padding: 30px 20px;
-    }
-
-    .auth-image-overlay h1 {
-        font-size: 28px;
-    }
-
-    .auth-image-overlay p {
-        font-size: 15px;
     }
 
     .wave-trip-logo {

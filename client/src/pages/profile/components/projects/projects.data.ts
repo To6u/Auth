@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'удалить мёртвый CSS и неиспользуемый util — auth-image, page-home/login, hero__subtitle, profile-container, contacts-card__icon, noiseGenerator', date: '24 апр' },
             { text: 'удалить неиспользуемый .dashboard__title', date: '24 апр' },
             { text: 'убрать text-shadow с блочных заголовков, font-weight с h3 card-title', date: '24 апр' },
             { text: 'убрать redundant font-weight: 900 с h-элементов — покрыто глобальным правилом', date: '24 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'правки по ревью дизайн-системы — corner-shape глобально, font-weight 200, text-shadow заголовки, transitions токены', date: '24 апр' },
             { text: 'унификация font-weight по дизайн-системе 900/500/400/300/200, text-shadow на section titles', date: '24 апр' },
             { text: 'living style guide — секция tokens, corner-shape, синхронизация radius/colors', date: '24 апр' },
-            { text: 'radius и transitions токены в дизайн-систему', date: '24 апр' },
 ],
     },
     {

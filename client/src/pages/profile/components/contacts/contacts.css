@@ -302,19 +302,6 @@
     color: rgba(255, 255, 255, 1);
 }
 
-.contacts-card__icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.contacts-card__icon svg {
-    width: 100%;
-    height: 100%;
-}
-
 .contacts-card__label {
     font-family: 'Ganxy', serif;
     font-size: 13px;
@@ -429,10 +416,6 @@
         gap: 24px;
     }
 
-    .contacts-card__icon {
-        width: 36px;
-        height: 36px;
-    }
 }
 
 /* ── Reduce motion ──────────────────────────────────────────────── */
