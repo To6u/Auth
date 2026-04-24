@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'правки по ревью дизайн-системы — corner-shape глобально, font-weight 200, text-shadow заголовки, transitions токены', date: '24 апр' },
             { text: 'унификация font-weight по дизайн-системе 900/500/400/300/200, text-shadow на section titles', date: '24 апр' },
             { text: 'living style guide — секция tokens, corner-shape, синхронизация radius/colors', date: '24 апр' },
             { text: 'radius и transitions токены в дизайн-систему', date: '24 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'убрать hint-мигалку, a11y role и cursor на CSS :hover', date: '23 апр' },
             { text: 'a11y role и cursor через CSS :hover', date: '23 апр' },
             { text: 'add 3D assets, icons, integration tests; ignore test-results', date: '16 апр' },
-            { text: 'remove orphaned brace in projects.data.ts changelog', date: '16 апр' },
 ],
     },
     {

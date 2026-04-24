@@ -26,7 +26,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
 
 .header a {
     opacity: 0.8;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--transition-fast);
 }
 
 .header a:hover {
@@ -112,7 +112,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     align-items: center;
     gap: 0.4em;
     opacity: 0.8;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--transition-fast);
     font-family: inherit;
     font-size: inherit;
     font-weight: inherit;
@@ -140,7 +140,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     align-items: center;
     gap: 0.4em;
     opacity: 0.45;
-    transition: opacity 0.2s ease, color 0.2s ease;
+    transition: opacity var(--transition-fast), color var(--transition-fast);
     font-family: inherit;
     font-size: inherit;
     font-weight: inherit;
@@ -336,7 +336,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     letter-spacing: 0.08em;
     color: rgba(var(--color-cream-rgb), 0.75);
     text-decoration: none;
-    transition: color 0.2s ease, font-weight 0.2s ease;
+    transition: color var(--transition-fast), font-weight var(--transition-fast);
 }
 
 .header__mobile-menu a.header__link--active {
@@ -363,7 +363,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     padding: 0;
     font-family: inherit;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color var(--transition-fast);
 }
 
 .header__mobile-auth:hover {

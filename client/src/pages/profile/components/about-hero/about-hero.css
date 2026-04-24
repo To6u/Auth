@@ -107,13 +107,14 @@
     line-height: 5rem;
     font-weight: 900;
     margin: 0;
+    text-shadow: 0 0 30px rgba(167, 139, 250, 0.4), 0 0 60px rgba(102, 126, 234, 0.2);
 }
 
 .about-hero-section-heading span {
     font-size: 1.5rem;
     color: rgba(var(--color-cream-rgb), 0.7);
     font-style: italic;
-    font-weight: 100;
+    font-weight: 200;
 }
 
 /* Модификатор для выравнивания справа */
@@ -161,6 +162,7 @@
     font-weight: 900;
     line-height: 4rem;
     margin: 0;
+    text-shadow: 0 0 30px rgba(167, 139, 250, 0.4), 0 0 60px rgba(102, 126, 234, 0.2);
 }
 
 .about-section__content {

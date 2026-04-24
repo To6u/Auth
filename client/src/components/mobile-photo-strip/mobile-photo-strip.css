@@ -101,7 +101,7 @@
     justify-content: center;
     cursor: pointer;
     padding: 0;
-    transition: background 0.2s ease;
+    transition: background var(--transition-fast);
     -webkit-tap-highlight-color: transparent;
     -webkit-appearance: none;
     appearance: none;

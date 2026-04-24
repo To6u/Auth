@@ -102,3 +102,10 @@ textarea:focus,
 select:focus {
     outline: none;
 }
+
+/* corner-shape: squircle наследуется — одно место для всего дерева */
+@supports (corner-shape: squircle) {
+    :root {
+        corner-shape: squircle;
+    }
+}

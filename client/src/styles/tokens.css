@@ -13,6 +13,8 @@
     --color-error: #f87171;
 
     /* Радиусы */
+    --radius-xs: 4px;
+    --radius-chip: 6px;
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 16px;

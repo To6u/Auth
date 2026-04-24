@@ -265,6 +265,7 @@
     color: rgba(var(--color-cream-rgb), 0.92);
     letter-spacing: -0.02em;
     line-height: 1;
+    text-shadow: 0 0 30px rgba(167, 139, 250, 0.4), 0 0 60px rgba(102, 126, 234, 0.2);
 }
 
 /* ── Glass-карточки ─────────────────────────────────────────────── */
