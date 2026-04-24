@@ -34,8 +34,9 @@
 .challenge-section__title {
     font-size: 48px;
     font-weight: 900;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     margin-left: -40px;
+    text-shadow: 0 0 30px rgba(167, 139, 250, 0.4), 0 0 60px rgba(102, 126, 234, 0.2);
 }
 
 .challenge-section__add-btn {
@@ -47,7 +48,7 @@
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.06);
     border: none;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     font-size: 13px;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
@@ -56,7 +57,7 @@
 
 .challenge-section__add-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 244, 234, 0.85);
+    color: rgba(var(--color-cream-rgb), 0.85);
 }
 
 /* ── Daily challenge card ── */
@@ -103,7 +104,7 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    color: rgba(255, 244, 234, 0.35);
+    color: rgba(var(--color-cream-rgb), 0.35);
 }
 
 .daily-challenge-card__heading {
@@ -114,8 +115,8 @@
 
 .daily-challenge-card__title {
     font-size: 22px;
-    font-weight: 700;
-    color: rgba(255, 244, 234, 0.95);
+    font-weight: 500;
+    color: rgba(var(--color-cream-rgb), 0.95);
     line-height: 1.25;
 }
 
@@ -127,7 +128,8 @@
 
 .daily-challenge-card__desc {
     font-size: 13px;
-    color: rgba(255, 244, 234, 0.5);
+    font-weight: 300;
+    color: rgba(var(--color-cream-rgb), 0.5);
     line-height: 1.5;
 }
 
@@ -190,7 +192,7 @@
     border-radius: 6px;
     border: none;
     background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 244, 234, 0.45);
+    color: rgba(var(--color-cream-rgb), 0.45);
     font-size: 13px;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
@@ -198,7 +200,7 @@
 
 .daily-challenge-card__undo-btn:hover {
     background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 244, 234, 0.75);
+    color: rgba(var(--color-cream-rgb), 0.75);
 }
 
 /* Правая колонка — история */
@@ -215,15 +217,16 @@
 
 .daily-challenge-card__history-label {
     font-size: 11px;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: rgba(255, 244, 234, 0.35);
+    color: rgba(var(--color-cream-rgb), 0.35);
     white-space: nowrap;
 }
 
 .daily-challenge-card__history-count {
-    color: rgba(255, 244, 234, 0.75);
-    font-weight: 600;
+    color: rgba(var(--color-cream-rgb), 0.75);
+    font-weight: 500;
 }
 
 .daily-challenge-card__history-list {
@@ -251,13 +254,13 @@
 
 .daily-challenge-card__history-date {
     font-size: 12px;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     font-variant-numeric: tabular-nums;
 }
 
 .daily-challenge-card__history-empty {
     font-size: 12px;
-    color: rgba(255, 244, 234, 0.25);
+    color: rgba(var(--color-cream-rgb), 0.25);
     font-style: italic;
 }
 
@@ -301,12 +304,12 @@
 
 .week-progress__label {
     font-size: 10px;
-    color: rgba(255, 244, 234, 0.35);
+    color: rgba(var(--color-cream-rgb), 0.35);
     letter-spacing: 0.02em;
 }
 
 .week-progress__label--today {
-    color: rgba(255, 244, 234, 0.75);
+    color: rgba(var(--color-cream-rgb), 0.75);
 }
 
 .week-progress__dot--done {
@@ -322,11 +325,11 @@
 }
 
 .week-progress__dot--empty {
-    background: rgba(255, 244, 234, 0.1);
+    background: rgba(var(--color-cream-rgb), 0.1);
 }
 
 .week-progress__dot--today {
-    outline: 1.5px solid rgba(255, 244, 234, 0.3);
+    outline: 1.5px solid rgba(var(--color-cream-rgb), 0.3);
     outline-offset: 1.5px;
 }
 
@@ -343,7 +346,7 @@
 .achievements-list__summary {
     padding: 10px 14px;
     font-size: 13px;
-    color: rgba(255, 244, 234, 0.55);
+    color: rgba(var(--color-cream-rgb), 0.55);
     cursor: pointer;
     user-select: none;
 }
@@ -362,13 +365,13 @@
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: rgba(255, 244, 234, 0.7);
+    color: rgba(var(--color-cream-rgb), 0.7);
 }
 
 .achievements-list__date {
     margin-left: auto;
     font-size: 11px;
-    color: rgba(255, 244, 234, 0.3);
+    color: rgba(var(--color-cream-rgb), 0.3);
 }
 
 /* ── Чипсы челленджей ── */
@@ -412,7 +415,7 @@
     padding: 6px 10px;
     font-size: 11px;
     line-height: 1.5;
-    color: rgba(255, 244, 234, 0.8);
+    color: rgba(var(--color-cream-rgb), 0.8);
     min-width: 200px;
     max-width: 220px;
     white-space: normal;
@@ -496,21 +499,21 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    color: rgba(255, 244, 234, 0.3);
+    color: rgba(var(--color-cream-rgb), 0.3);
     transition: color 0.15s;
     line-height: 1;
 }
 
 .challenge-section__chip-desc-btn:hover,
 .challenge-section__chip-desc-btn--active {
-    color: rgba(255, 244, 234, 0.85);
+    color: rgba(var(--color-cream-rgb), 0.85);
 }
 
 .challenge-section__chip-desc-input {
     width: 100%;
     font-size: 10px;
     font-family: inherit;
-    color: rgba(255, 244, 234, 0.6);
+    color: rgba(var(--color-cream-rgb), 0.6);
     background: none;
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -562,7 +565,7 @@
     height: 10px;
     border-radius: 50%;
     font-size: 6px;
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1;
     flex-shrink: 0;
     padding-top: 1px;
@@ -622,7 +625,7 @@
     border: none;
     padding: 0 2px;
     cursor: pointer;
-    color: #4ade80;
+    color: var(--color-success);
     transition: color 0.15s;
     line-height: 1;
     margin-left: 4px;
@@ -644,7 +647,7 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    color: rgba(255, 244, 234, 0.35);
+    color: rgba(var(--color-cream-rgb), 0.35);
     transition: color 0.15s;
     line-height: 1;
     margin-left: 4px;
@@ -652,7 +655,7 @@
 }
 
 .challenge-section__chip-gear:hover {
-    color: rgba(255, 244, 234, 0.8);
+    color: rgba(var(--color-cream-rgb), 0.8);
 }
 
 /* Панель управления — открывается по клику на шестерёнку */
@@ -680,7 +683,7 @@
     border-radius: 4px;
     background: none;
     border: none;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     font-size: 13px;
     line-height: 1;
     cursor: pointer;
@@ -689,7 +692,7 @@
 }
 
 .challenge-section__chip-btn:hover {
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     background: rgba(255, 255, 255, 0.08);
 }
 
@@ -768,13 +771,13 @@
 
 .week-pool-picker__label {
     font-size: 13px;
-    font-weight: 600;
-    color: rgba(255, 244, 234, 0.7);
+    font-weight: 500;
+    color: rgba(var(--color-cream-rgb), 0.7);
 }
 
 .week-pool-picker__count {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     color: rgba(255, 200, 80, 0.6);
 }
 
@@ -798,7 +801,7 @@
 
 .week-pool-picker__item {
     font-size: 13px;
-    color: rgba(255, 244, 234, 0.8);
+    color: rgba(var(--color-cream-rgb), 0.8);
     padding: 4px 8px;
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.04);
@@ -832,7 +835,7 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
     padding: 24px;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     overflow-y: auto;
 }
 
@@ -843,7 +846,7 @@
 
 .challenge-modal__title {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 500;
     margin-bottom: 20px;
 }
 
@@ -856,7 +859,7 @@
 
 .challenge-modal__label {
     font-size: 12px;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -866,7 +869,7 @@
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     font-size: 14px;
     padding: 8px 12px;
     outline: none;
@@ -912,7 +915,7 @@
 
 .challenge-modal__btn--cancel {
     background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 244, 234, 0.7);
+    color: rgba(var(--color-cream-rgb), 0.7);
 }
 
 .challenge-modal__btn--save {

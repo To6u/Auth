@@ -37,8 +37,8 @@
 
 .archive-drawer__title {
     font-size: 16px;
-    font-weight: 600;
-    color: rgba(255, 244, 234, 0.9);
+    font-weight: 500;
+    color: rgba(var(--color-cream-rgb), 0.9);
 }
 
 .archive-drawer__close-btn {
@@ -50,7 +50,7 @@
     border-radius: 8px;
     background: none;
     border: none;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     cursor: pointer;
     transition:
         background 0.15s,
@@ -59,7 +59,7 @@
 
 .archive-drawer__close-btn:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
 }
 
 .archive-drawer__list {
@@ -74,7 +74,7 @@
 .archive-drawer__empty {
     padding: 40px 20px;
     text-align: center;
-    color: rgba(255, 244, 234, 0.3);
+    color: rgba(var(--color-cream-rgb), 0.3);
     font-size: 13px;
 }
 
@@ -95,14 +95,14 @@
 
 .archive-item__name {
     font-size: 13px;
-    color: rgba(255, 244, 234, 0.8);
+    color: rgba(var(--color-cream-rgb), 0.8);
     word-break: break-word;
     line-height: 1.35;
 }
 
 .archive-item__meta {
     font-size: 11px;
-    color: rgba(255, 244, 234, 0.35);
+    color: rgba(var(--color-cream-rgb), 0.35);
     margin-top: 4px;
 }
 
@@ -112,9 +112,9 @@
     font-size: 11px;
     padding: 1px 6px;
     border-radius: 4px;
-    background: rgba(255, 244, 234, 0.08);
-    color: rgba(255, 244, 234, 0.55);
-    border: 1px solid rgba(255, 244, 234, 0.1);
+    background: rgba(var(--color-cream-rgb), 0.08);
+    color: rgba(var(--color-cream-rgb), 0.55);
+    border: 1px solid rgba(var(--color-cream-rgb), 0.1);
 }
 
 .archive-item__actions {

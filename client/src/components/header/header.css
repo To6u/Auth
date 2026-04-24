@@ -38,7 +38,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
 .header__save-toggle:focus-visible,
 .header__mobile-menu a:focus-visible,
 .header__mobile-auth:focus-visible {
-    outline: 2px solid rgba(255, 244, 234, 0.5);
+    outline: 2px solid rgba(var(--color-cream-rgb), 0.5);
     outline-offset: 4px;
     border-radius: 4px;
 }
@@ -84,7 +84,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
 }
 
 .header__companion:focus-visible {
-    outline: 2px solid rgba(255, 244, 234, 0.5);
+    outline: 2px solid rgba(var(--color-cream-rgb), 0.5);
     outline-offset: 4px;
     border-radius: 4px;
 }
@@ -170,7 +170,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     font-size: 1.1rem;
     font-weight: 400;
     letter-spacing: 0.02em;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     background: rgba(255, 120, 30, 0.15);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -282,7 +282,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     display: block;
     width: 20px;
     height: 2px;
-    background: rgba(255, 244, 234, 0.9);
+    background: rgba(var(--color-cream-rgb), 0.9);
     border-radius: 2px;
     transform-origin: center;
     transition: transform 0.3s ease, opacity 0.3s ease;
@@ -334,18 +334,18 @@ html:has(.projects-scene__nav.visible) .header:hover {
     font-size: 2.2rem;
     font-weight: 200;
     letter-spacing: 0.08em;
-    color: rgba(255, 244, 234, 0.75);
+    color: rgba(var(--color-cream-rgb), 0.75);
     text-decoration: none;
     transition: color 0.2s ease, font-weight 0.2s ease;
 }
 
 .header__mobile-menu a.header__link--active {
-    color: rgba(255, 244, 234, 1);
+    color: rgba(var(--color-cream-rgb), 1);
     font-weight: 900;
 }
 
 .header__mobile-menu a:hover {
-    color: rgba(255, 244, 234, 1);
+    color: rgba(var(--color-cream-rgb), 1);
 }
 
 /* Войти / Выйти как пункт меню */
@@ -356,7 +356,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
     font-size: 2.2rem;
     font-weight: 200;
     letter-spacing: 0.08em;
-    color: rgba(255, 244, 234, 0.75);
+    color: rgba(var(--color-cream-rgb), 0.75);
     background: none;
     border: none;
     cursor: pointer;
@@ -367,7 +367,7 @@ html:has(.projects-scene__nav.visible) .header:hover {
 }
 
 .header__mobile-auth:hover {
-    color: rgba(255, 244, 234, 1);
+    color: rgba(var(--color-cream-rgb), 1);
 }
 
 /* ── Адаптив ─────────────────────────────────────────────────────── */

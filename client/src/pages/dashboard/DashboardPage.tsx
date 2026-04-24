@@ -186,6 +186,7 @@ export const DashboardPage = () => {
     const handleLogout = useCallback(
         (triggerExit: () => void) => {
             triggerExit();
+            clearTimeout(logoutTimerRef.current ?? undefined);
             logoutTimerRef.current = setTimeout(async () => {
                 await logout();
                 navigate('/');
@@ -197,6 +198,7 @@ export const DashboardPage = () => {
     const handleGoToProfile = useCallback(
         (triggerExit: () => void) => {
             triggerExit();
+            clearTimeout(profileTimerRef.current ?? undefined);
             profileTimerRef.current = setTimeout(() => {
                 navigate('/');
             }, 600);

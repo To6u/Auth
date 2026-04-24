@@ -17,7 +17,7 @@
 /* Трек — едва заметная волна (незаполненная часть) */
 .scroll-progress-indicator__track-path {
     fill: none;
-    stroke: rgba(255, 244, 234, 0.1);
+    stroke: rgba(var(--color-cream-rgb), 0.1);
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -29,7 +29,7 @@
    SVG filter="url()" применяется после dash-рендеринга — баг обходится. */
 .scroll-progress-indicator__progress-path {
     fill: none;
-    stroke: rgba(255, 244, 234, 0.85);
+    stroke: rgba(var(--color-cream-rgb), 0.85);
     stroke-width: 2.5;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -37,7 +37,7 @@
 
 /* Заполнение точки */
 .scroll-progress-indicator__dot-fill-svg {
-    fill: rgba(255, 244, 234, 0.9);
+    fill: rgba(var(--color-cream-rgb), 0.9);
 }
 
 @media (max-width: 767px) {

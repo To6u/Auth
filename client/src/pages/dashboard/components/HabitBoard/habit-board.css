@@ -33,8 +33,9 @@
 .habit-board__title {
     font-size: 48px;
     font-weight: 900;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     margin-left: -40px;
+    text-shadow: 0 0 30px rgba(167, 139, 250, 0.4), 0 0 60px rgba(102, 126, 234, 0.2);
 }
 
 .habit-board__nav {
@@ -53,7 +54,7 @@
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.06);
     border: none;
-    color: rgba(255, 244, 234, 0.7);
+    color: rgba(var(--color-cream-rgb), 0.7);
     cursor: pointer;
     transition: background 0.15s;
 }
@@ -64,7 +65,7 @@
 
 .habit-board__nav-label {
     font-size: 13px;
-    color: rgba(255, 244, 234, 0.6);
+    color: rgba(var(--color-cream-rgb), 0.6);
     min-width: 80px;
     text-align: center;
 }
@@ -97,7 +98,7 @@
     border-radius: 5px;
     border: none;
     background: transparent;
-    color: rgba(255, 244, 234, 0.6);
+    color: rgba(var(--color-cream-rgb), 0.6);
     font-size: 16px;
     line-height: 1;
     cursor: pointer;
@@ -106,26 +107,26 @@
 
 .habit-board__col-btn:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 244, 234, 1);
+    color: rgba(var(--color-cream-rgb), 1);
 }
 
 .habit-board__col-btn:disabled {
     opacity: 0.2;
-    color: rgba(255, 244, 234, 0.3);
+    color: rgba(var(--color-cream-rgb), 0.3);
     cursor: default;
 }
 
 .habit-board__col-label {
     font-size: 13px;
-    font-weight: 600;
-    color: rgba(255, 244, 234, 0.7);
+    font-weight: 500;
+    color: rgba(var(--color-cream-rgb), 0.7);
     min-width: 14px;
     text-align: center;
 }
 
 .habit-board__col-title {
     font-size: 12px;
-    color: rgba(255, 244, 234, 0.4);
+    color: rgba(var(--color-cream-rgb), 0.4);
     padding-right: 4px;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     margin-right: 2px;
@@ -141,7 +142,7 @@
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.06);
     border: none;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     font-size: 13px;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
@@ -149,7 +150,7 @@
 
 .habit-board__add-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 244, 234, 0.85);
+    color: rgba(var(--color-cream-rgb), 0.85);
 }
 
 .view-mode-toggle {
@@ -165,7 +166,7 @@
     border-radius: 6px;
     background: none;
     border: none;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     font-size: 12px;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
@@ -177,7 +178,7 @@
 
 .view-mode-toggle__btn--active {
     background: rgba(108, 143, 255, 0.25);
-    color: rgba(255, 244, 234, 0.95);
+    color: rgba(var(--color-cream-rgb), 0.95);
 }
 
 .view-mode-toggle__btn--today.view-mode-toggle__btn--active {
@@ -204,7 +205,7 @@
     border-radius: 4px;
     background: none;
     border: none;
-    color: rgba(255, 244, 234, 0.75);
+    color: rgba(var(--color-cream-rgb), 0.75);
     font-size: 13px;
     cursor: pointer;
     transition: background 0.1s;

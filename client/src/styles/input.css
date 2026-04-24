@@ -36,15 +36,15 @@ input {
 
 /* Состояние фокуса */
 input:focus {
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    border-color: var(--color-brand-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-brand-primary-rgb), 0.1);
     outline: none;
 }
 
 /* Состояние hover */
 input:hover:not(:disabled) {
     border-color: rgba(184, 210, 255, 0.2);
-    background-color: rgba(255, 244, 234, 0.05);
+    background-color: rgba(var(--color-cream-rgb), 0.05);
 }
 
 /* Состояние disabled */
@@ -197,7 +197,7 @@ label {
 }
 
 .input-strength-bar--level-1 {
-    background: #f87171;
+    background: var(--color-error);
     transform: scaleX(0.25);
 }
 
@@ -212,7 +212,7 @@ label {
 }
 
 .input-strength-bar--level-4 {
-    background: #4ade80;
+    background: var(--color-success);
     transform: scaleX(1);
 }
 
@@ -228,7 +228,7 @@ label {
     overflow: hidden;
     border-radius: 16px;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 500;
     flex-shrink: 0;
     background-color: rgba(42, 42, 42, 0.2);
     color: transparent;
@@ -252,21 +252,21 @@ label {
 }
 
 .input-match-icon--match {
-    color: #4ade80;
+    color: var(--color-success);
 }
 
 .input-match-icon--mismatch {
-    color: #f87171;
+    color: var(--color-error);
 }
 
 .password-toggle-btn {
     background-color: rgba(42, 42, 42, 0.2);
     padding: 8px;
-    color: rgba(255, 244, 234, 0.6);
+    color: rgba(var(--color-cream-rgb), 0.6);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .password-toggle-btn:hover {
     background-color: rgba(42, 42, 42, 0.3);
-    color: rgba(255, 244, 234, 1);
+    color: rgba(var(--color-cream-rgb), 1);
 }

@@ -31,7 +31,7 @@
 .hero__content.visible {
     opacity: 1;
     transform: translateY(0) translateZ(0);
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
 }
 
 .hero__content:last-child {
@@ -62,7 +62,7 @@
 .letter {
     display: inline-block;
     will-change: transform, opacity;
-    color: rgba(255, 244, 234, 0.8);
+    color: rgba(var(--color-cream-rgb), 0.8);
     user-select: none;
 }
 

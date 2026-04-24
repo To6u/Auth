@@ -45,6 +45,7 @@ function TabSelectorInner<T extends string>({
                                 checked={isActive}
                                 onChange={() => onTabChange(value)}
                                 className="tab-radio"
+                                aria-label={label}
                             />
                             {Icon && <Icon className="tab-icon" />}
                             {(showLabels || !hasIcon) && <span className="tab-text">{label}</span>}

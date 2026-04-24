@@ -1,4 +1,5 @@
 /* Импорт стилей */
+@import 'styles/tokens.css';
 @import 'styles/input.css';
 @import 'styles/button.css';
 

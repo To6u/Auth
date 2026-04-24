@@ -6,7 +6,7 @@
     font-size: 1.1rem;
     font-weight: 400;
     letter-spacing: 0.02em;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     background: rgba(40, 40, 60, 0.55);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);

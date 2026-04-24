@@ -6,7 +6,7 @@
     backdrop-filter: blur(10px);
     border-radius: 8px;
     border: 0 solid transparent;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     font-size: 0.95rem;
     line-height: 1.5rem;
     max-width: 280px;

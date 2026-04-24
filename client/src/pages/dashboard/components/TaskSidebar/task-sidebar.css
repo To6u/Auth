@@ -26,7 +26,7 @@
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    color: rgba(255, 244, 234, 0.45);
+    color: rgba(var(--color-cream-rgb), 0.45);
     font-size: 11px;
     font-family: inherit;
     cursor: pointer;
@@ -38,7 +38,7 @@
 }
 
 .task-sidebar__sort-toggle:hover {
-    color: rgba(255, 244, 234, 0.85);
+    color: rgba(var(--color-cream-rgb), 0.85);
     background: rgba(255, 255, 255, 0.08);
 }
 
@@ -62,7 +62,7 @@
     border-radius: 6px;
     background: none;
     border: 1px solid transparent;
-    color: rgba(255, 244, 234, 0.5);
+    color: rgba(var(--color-cream-rgb), 0.5);
     font-size: 12px;
     cursor: pointer;
     white-space: nowrap;
@@ -70,12 +70,12 @@
 }
 
 .section-tabs__tab:hover {
-    color: rgba(255, 244, 234, 0.8);
+    color: rgba(var(--color-cream-rgb), 0.8);
     background: rgba(255, 255, 255, 0.06);
 }
 
 .section-tabs__tab--active {
-    color: rgba(255, 244, 234, 0.95);
+    color: rgba(var(--color-cream-rgb), 0.95);
     background: rgba(108, 143, 255, 0.18);
     border-color: rgba(108, 143, 255, 0.3);
 }
@@ -86,7 +86,7 @@
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(108, 143, 255, 0.4);
     border-radius: 6px;
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
     font-size: 12px;
     outline: none;
     width: 100px;
@@ -103,13 +103,13 @@
     border-radius: 6px;
     background: none;
     border: none;
-    color: rgba(255, 244, 234, 0.4);
+    color: rgba(var(--color-cream-rgb), 0.4);
     cursor: pointer;
     transition: color 0.15s, background 0.15s;
 }
 
 .section-tabs__add-btn:hover {
-    color: rgba(255, 244, 234, 0.8);
+    color: rgba(var(--color-cream-rgb), 0.8);
     background: rgba(255, 255, 255, 0.08);
 }
 
@@ -131,7 +131,7 @@
     border-radius: 4px;
     background: none;
     border: none;
-    color: rgba(255, 244, 234, 0.75);
+    color: rgba(var(--color-cream-rgb), 0.75);
     font-size: 13px;
     cursor: pointer;
     transition: background 0.1s;
@@ -155,7 +155,7 @@
 .task-list__empty {
     padding: 24px 12px;
     text-align: center;
-    color: rgba(255, 244, 234, 0.3);
+    color: rgba(var(--color-cream-rgb), 0.3);
     font-size: 13px;
 }
 
@@ -219,7 +219,7 @@
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.06);
     border: none;
-    color: rgba(255, 244, 234, 0.6);
+    color: rgba(var(--color-cream-rgb), 0.6);
     font-size: 12px;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
@@ -227,7 +227,7 @@
 
 .daily-plan-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 244, 234, 0.9);
+    color: rgba(var(--color-cream-rgb), 0.9);
 }
 
 .task-sidebar__trash-btn {
@@ -238,7 +238,7 @@
     border-radius: 8px;
     background: none;
     border: none;
-    color: rgba(255, 244, 234, 0.4);
+    color: rgba(var(--color-cream-rgb), 0.4);
     font-size: 12px;
     cursor: pointer;
     transition: color 0.15s;

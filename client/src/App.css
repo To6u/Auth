@@ -83,7 +83,7 @@ html {
 body,
 html {
     overflow-x: clip;
-    color: rgba(255, 244, 234, 1);
+    color: rgba(var(--color-cream-rgb), 1);
     overscroll-behavior-y: none;
     scroll-behavior: smooth;
 }

@@ -154,7 +154,6 @@
 
 @font-face {
     font-family: 'Ganxy';
-    /*src: url('/fonts/Postertoaster.woff') format('woff');*/
     src: url('/fonts/ganxy/Ganxy.woff') format('woff');
     font-display: swap;
 }
