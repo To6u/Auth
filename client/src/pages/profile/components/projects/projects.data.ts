@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'полная токенизация border-radius — xs/chip/sm/input/md/lg/xl/pill/card-lg/challenge-card/full', date: '24 апр' },
             { text: 'правки по ревью дизайн-системы — corner-shape глобально, font-weight 200, text-shadow заголовки, transitions токены', date: '24 апр' },
             { text: 'унификация font-weight по дизайн-системе 900/500/400/300/200, text-shadow на section titles', date: '24 апр' },
             { text: 'living style guide — секция tokens, corner-shape, синхронизация radius/colors', date: '24 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'унификация scrollbar, squircle на daily-challenge', date: '23 апр' },
             { text: 'убрать hint-мигалку, a11y role и cursor на CSS :hover', date: '23 апр' },
             { text: 'a11y role и cursor через CSS :hover', date: '23 апр' },
-            { text: 'add 3D assets, icons, integration tests; ignore test-results', date: '16 апр' },
 ],
     },
     {

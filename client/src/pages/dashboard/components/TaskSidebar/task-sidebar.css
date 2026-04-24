@@ -23,7 +23,7 @@
     gap: 6px;
     margin: 0 12px 6px;
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
     color: rgba(var(--color-cream-rgb), 0.45);
@@ -59,7 +59,7 @@
 .section-tabs__tab {
     flex-shrink: 0;
     padding: 5px 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     background: none;
     border: 1px solid transparent;
     color: rgba(var(--color-cream-rgb), 0.5);
@@ -85,7 +85,7 @@
     padding: 4px 8px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(108, 143, 255, 0.4);
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     color: rgba(var(--color-cream-rgb), 0.9);
     font-size: 12px;
     outline: none;
@@ -100,7 +100,7 @@
     justify-content: center;
     width: 24px;
     height: 24px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     background: none;
     border: none;
     color: rgba(var(--color-cream-rgb), 0.4);
@@ -117,7 +117,7 @@
     z-index: 200;
     background: #1e1e2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     padding: 4px;
     min-width: 140px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -128,7 +128,7 @@
     width: 100%;
     text-align: left;
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: none;
     border: none;
     color: rgba(var(--color-cream-rgb), 0.75);
@@ -181,7 +181,7 @@
     justify-content: center;
     width: 100%;
     padding: 9px 12px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: rgba(108, 143, 255, 0.12);
     border: 1px dashed rgba(108, 143, 255, 0.35);
     color: rgba(180, 200, 255, 0.9);
@@ -216,7 +216,7 @@
     align-items: center;
     gap: 6px;
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.06);
     border: none;
     color: rgba(var(--color-cream-rgb), 0.6);
@@ -235,7 +235,7 @@
     align-items: center;
     gap: 4px;
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: none;
     border: none;
     color: rgba(var(--color-cream-rgb), 0.4);

@@ -3,7 +3,7 @@
     align-items: flex-start;
     gap: 8px;
     padding: 8px 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.01);
     cursor: pointer;
@@ -113,7 +113,7 @@
 .task-card__badge {
     font-size: 11px;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: rgba(255, 255, 255, 0.08);
     color: rgba(var(--color-cream-rgb), 0.6);
 }
@@ -131,7 +131,7 @@
 .task-card__tag {
     font-size: 11px;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: rgba(108, 143, 255, 0.15);
     color: rgba(140, 170, 255, 0.9);
 }
@@ -139,7 +139,7 @@
 .task-card__section {
     font-size: 11px;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: rgba(var(--color-cream-rgb), 0.08);
     color: rgba(var(--color-cream-rgb), 0.55);
     border: 1px solid rgba(var(--color-cream-rgb), 0.1);
@@ -159,7 +159,7 @@
     justify-content: center;
     width: 24px;
     height: 24px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: none;
     border: none;
     color: rgba(var(--color-cream-rgb), 0.35);
@@ -197,7 +197,7 @@
     justify-content: center;
     width: 44px;
     height: 44px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid transparent;
     color: rgba(var(--color-cream-rgb), 0.4);
@@ -240,7 +240,7 @@
     flex: 1;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     color: rgba(var(--color-cream-rgb), 0.9);
     font-size: 12px;
     padding: 5px 8px;
@@ -296,7 +296,7 @@
     align-items: center;
     gap: 4px;
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     background: rgba(108, 143, 255, 0.1);
     border: 1px dashed rgba(108, 143, 255, 0.3);
     color: rgba(140, 170, 255, 0.9);
@@ -333,7 +333,7 @@
     align-items: center;
     justify-content: center;
     width: 24px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: rgba(var(--color-cream-rgb), 0.5);
@@ -355,7 +355,7 @@
 
 .task-card__edit-btn {
     padding: 4px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     border: none;
     font-size: 12px;
     cursor: pointer;
@@ -386,7 +386,7 @@
     z-index: 1000;
     background: #1e1e2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     padding: 4px;
     min-width: 160px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -397,7 +397,7 @@
     width: 100%;
     text-align: left;
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: none;
     border: none;
     color: rgba(var(--color-cream-rgb), 0.75);

@@ -6,7 +6,7 @@
     max-height: 90vh;
     background: #1a1a2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 24px;
     color: rgba(var(--color-cream-rgb), 0.9);
     overflow-y: auto;
@@ -40,7 +40,7 @@
 .habit-modal__input {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     color: rgba(var(--color-cream-rgb), 0.9);
     font-size: 14px;
     padding: 8px 12px;
@@ -62,7 +62,7 @@
 .habit-modal__color-input {
     width: 40px;
     height: 36px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: none;
     cursor: pointer;
@@ -113,7 +113,7 @@
     width: 28px;
     height: 28px;
     flex-shrink: 0;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     border: none;
     background: rgba(255, 80, 80, 0.12);
     color: rgba(255, 120, 120, 0.8);
@@ -130,7 +130,7 @@
     align-items: center;
     gap: 6px;
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     border: 1px dashed rgba(255, 255, 255, 0.15);
     background: none;
     color: rgba(var(--color-cream-rgb), 0.5);
@@ -157,7 +157,7 @@
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 13px;
     cursor: pointer;
     border: none;

@@ -61,7 +61,7 @@
 
 /* Левая часть - форма с блюром */
 .auth-form-section {
-    border-radius: 32px;
+    border-radius: var(--radius-card-lg);
     margin: 20px;
     flex: 1;
     padding: 40px 60px;

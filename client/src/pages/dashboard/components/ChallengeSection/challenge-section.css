@@ -45,7 +45,7 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.06);
     border: none;
     color: rgba(var(--color-cream-rgb), 0.5);
@@ -69,7 +69,7 @@
 }
 
 .daily-challenge-card {
-    border-radius: 44px;
+    border-radius: var(--radius-challenge-card);
     border: 8px solid rgba(108, 143, 255, 0.02);
     background: rgba(108, 143, 255, 0.07);
     transition: background var(--transition-base), border-color var(--transition-base);
@@ -145,7 +145,7 @@
     align-items: center;
     gap: 5px;
     padding: 8px 14px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     border: none;
     font-size: 13px;
     font-weight: 500;
@@ -173,7 +173,7 @@
     font-size: 13px;
     font-weight: 500;
     padding: 6px 14px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
 }
 
 .daily-challenge-card__status-badge--done {
@@ -188,7 +188,7 @@
 
 .daily-challenge-card__undo-btn {
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     border: none;
     background: rgba(255, 255, 255, 0.06);
     color: rgba(var(--color-cream-rgb), 0.45);
@@ -277,7 +277,7 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     padding: 4px 3px 2px;
     transition: background 0.15s;
 }
@@ -297,7 +297,7 @@
 .week-progress__dot {
     width: 8px;
     height: 8px;
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     transition: opacity 0.15s;
 }
 
@@ -336,7 +336,7 @@
 /* ── Achievements (existing <details>) ── */
 
 .achievements-list {
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.07);
     overflow: hidden;
@@ -389,7 +389,7 @@
     gap: 5px;
     padding: 0 12px;
     height: 26px;
-    border-radius: 20px;
+    border-radius: var(--radius-pill);
     border: 1px solid;
     font-size: 11px;
     transition: filter 0.15s;
@@ -410,7 +410,7 @@
     transform: translateX(-50%);
     background: #1e1e2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     padding: 6px 10px;
     font-size: 11px;
     line-height: 1.5;
@@ -437,7 +437,7 @@
     min-height: 26px;
     flex-direction: column;
     align-items: stretch;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     padding: 5px 12px;
     gap: 4px;
     cursor: default;
@@ -470,7 +470,7 @@
     font-size: 13px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 5px;
+    border-radius: var(--radius-chip);
     padding: 0;
     min-height: 0;
     outline: none;
@@ -668,7 +668,7 @@
     padding: 3px 5px;
     background: #1e1e2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 7px;
+    border-radius: var(--radius-chip);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     z-index: 10;
 }
@@ -679,7 +679,7 @@
     justify-content: center;
     width: 20px;
     height: 20px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     background: none;
     border: none;
     color: rgba(var(--color-cream-rgb), 0.5);
@@ -717,7 +717,7 @@
     padding: 6px;
     background: #1e1e2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     z-index: 30;
     width: 140px;
@@ -729,7 +729,7 @@
     justify-content: center;
     width: 24px;
     height: 24px;
-    border-radius: 5px;
+    border-radius: var(--radius-chip);
     background: none;
     border: none;
     font-size: 15px;
@@ -754,7 +754,7 @@
 
 .week-pool-picker {
     padding: 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-input);
     background: rgba(255, 200, 80, 0.05);
     border: 1px solid rgba(255, 200, 80, 0.18);
     display: flex;
@@ -802,14 +802,14 @@
     font-size: 13px;
     color: rgba(var(--color-cream-rgb), 0.8);
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
     background: rgba(255, 255, 255, 0.04);
 }
 
 .week-pool-picker__confirm-btn {
     align-self: flex-start;
     padding: 7px 14px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(255, 200, 80, 0.18);
     border: none;
     color: rgba(255, 220, 100, 0.9);
@@ -832,7 +832,7 @@
     max-height: 90vh;
     background: #1a1a2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 24px;
     color: rgba(var(--color-cream-rgb), 0.9);
     overflow-y: auto;
@@ -867,7 +867,7 @@
 .challenge-modal__textarea {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     color: rgba(var(--color-cream-rgb), 0.9);
     font-size: 14px;
     padding: 8px 12px;
@@ -901,7 +901,7 @@
 
 .challenge-modal__btn {
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 13px;
     cursor: pointer;
     border: none;

@@ -8,7 +8,7 @@
 
     background: rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(7, 7, 7, 0.1);
-    border-radius: 18px;
+    border-radius: var(--radius-tab-container);
 
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
@@ -39,7 +39,7 @@
 
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 12px;
+    border-radius: var(--radius-input);
 
     transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: visible;
@@ -48,7 +48,7 @@
 
 @supports (corner-shape: squircle) {
     .tab-label {
-        border-radius: 25px;
+        border-radius: var(--radius-button-squircle);
         corner-shape: squircle;
     }
 }
@@ -149,7 +149,7 @@
 .tab-radio:focus-visible ~ .tab-text {
     outline: 2px solid rgba(var(--color-cream-rgb), 0.5);
     outline-offset: 3px;
-    border-radius: 6px;
+    border-radius: var(--radius-chip);
 }
 
 /* Появление */

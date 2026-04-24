@@ -11,7 +11,7 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     padding: 5px 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     pointer-events: none;
     user-select: none;
     opacity: 0;

@@ -283,7 +283,7 @@
     align-items: center;
     gap: 12px;
     padding: 28px 20px;
-    border-radius: 20px;
+    border-radius: var(--radius-pill);
     text-decoration: none;
     cursor: pointer;
     transform-style: flat;

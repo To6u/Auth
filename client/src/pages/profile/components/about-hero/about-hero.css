@@ -133,7 +133,7 @@
     width: 100%;
     max-width: 900px;
     padding: 3rem;
-    border-radius: 32px;
+    border-radius: var(--radius-card-lg);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -223,7 +223,7 @@
 }
 
 .photo-gallery img {
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
 }
 
 @supports (corner-shape: squircle) {
