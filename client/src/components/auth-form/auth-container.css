@@ -113,10 +113,6 @@
     color: #f0f4ff;
     margin-bottom: 12px;
     letter-spacing: -0.02em;
-    text-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.2),
-        0 0 30px rgba(167, 139, 250, 0.4),
-        0 0 60px rgba(102, 126, 234, 0.2);
 }
 
 .login-container .wave-trip-logo {
