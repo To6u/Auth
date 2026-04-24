@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'убрать redundant font-weight: 900 с h-элементов — покрыто глобальным правилом', date: '24 апр' },
             { text: 'h1–h6 font-weight 900 глобально; обновлена дизайн-система и style-guide', date: '24 апр' },
             { text: 'синхронизация radius-токенов — xs/chip/input/pill/card-lg/challenge-card', date: '24 апр' },
             { text: 'полная токенизация border-radius — xs/chip/sm/input/md/lg/xl/pill/card-lg/challenge-card/full', date: '24 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'radius и transitions токены в дизайн-систему', date: '24 апр' },
             { text: 'svg-иконки из Figma экспорта', date: '23 апр' },
             { text: 'inline-редактирование задач, архив, напоминания, повторения', date: '23 апр' },
-            { text: 'унификация scrollbar, squircle на daily-challenge', date: '23 апр' },
 ],
     },
     {

@@ -260,7 +260,6 @@
 .contacts-heading {
     margin: 0;
     font-size: 5rem;
-    font-weight: 900;
     text-transform: uppercase;
     color: rgba(var(--color-cream-rgb), 0.92);
     letter-spacing: -0.02em;

@@ -110,7 +110,6 @@
 .login-container h2 {
     font-family: 'Montserrat Alternates', sans-serif;
     font-size: clamp(28px, 4.5vw, 48px);
-    font-weight: 900;
     color: #f0f4ff;
     margin-bottom: 12px;
     letter-spacing: -0.02em;
@@ -190,7 +189,6 @@
 
 .auth-image-overlay h1 {
     font-size: 52px;
-    font-weight: 900;
     margin-bottom: 20px;
     text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     letter-spacing: -0.02em;
