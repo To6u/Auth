@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'radius и transitions токены в дизайн-систему', date: '24 апр' },
             { text: 'svg-иконки из Figma экспорта', date: '23 апр' },
             { text: 'inline-редактирование задач, архив, напоминания, повторения', date: '23 апр' },
             { text: 'унификация scrollbar, squircle на daily-challenge', date: '23 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'remove orphaned brace in projects.data.ts changelog', date: '16 апр' },
             { text: 'add productivity hub with tasks, habits, challenges, trash', date: '16 апр' },
             { text: 'use post-commit + amend, env guard prevents recursion', date: '2 апр' },
-            { text: 'use cwd in git add so staged file lands in commit', date: '2 апр' },
 ],
     },
     {

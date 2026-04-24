@@ -1,0 +1,28 @@
+/* Дизайн-токены — повторяющиеся цвета проекта */
+
+:root {
+    /* Базовый кремовый — текст, border, фон с alpha */
+    --color-cream-rgb: 255, 244, 234;
+
+    /* Brand primary — кнопки, focus-ring, outline/ghost-акценты */
+    --color-brand-primary: #4a90e2;
+    --color-brand-primary-rgb: 74, 144, 226;
+
+    /* Статусы — password strength, form progress, input states */
+    --color-success: #4ade80;
+    --color-error: #f87171;
+
+    /* Радиусы */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+    --radius-button: 14px;          /* алиас → --radius-md */
+    --radius-button-squircle: 25px; /* алиас → squircle */
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.6s ease;
+}
