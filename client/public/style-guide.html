@@ -1097,34 +1097,69 @@ label.field-label {
           <!-- Radius -->
           <tr><td colspan="3" class="tok-group">Border Radius</td></tr>
           <tr>
+            <td class="tok-name">--radius-xs</td>
+            <td class="tok-val">4px</td>
+            <td class="tok-desc">Micro-badges, секционные теги в task-card</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-chip</td>
+            <td class="tok-val">6px</td>
+            <td class="tok-desc">Chips, nav-кнопки, edit-контролы (покрывает 5–7px)</td>
+          </tr>
+          <tr>
             <td class="tok-name">--radius-sm</td>
             <td class="tok-val">8px</td>
-            <td class="tok-desc">Header кнопки, мелкие элементы</td>
+            <td class="tok-desc">Header-кнопки, tooltips, context-меню, drawer close-btn</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-input</td>
+            <td class="tok-val">12px</td>
+            <td class="tok-desc">Input, tab-label, week-pool-picker</td>
           </tr>
           <tr>
             <td class="tok-name">--radius-md / --radius-button</td>
             <td class="tok-val">14px</td>
-            <td class="tok-desc">Основные кнопки</td>
+            <td class="tok-desc">Task-card, quick-add, daily-challenge__btn (покрывает 10px)</td>
           </tr>
           <tr>
             <td class="tok-name">--radius-lg</td>
             <td class="tok-val">16px</td>
-            <td class="tok-desc">Модалки, карточки</td>
+            <td class="tok-desc">Модалки (habit-modal, challenge-modal), card-images</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-pill</td>
+            <td class="tok-val">20px</td>
+            <td class="tok-desc">contacts-card, submit-button, swap-chip, mobile card-image</td>
           </tr>
           <tr>
             <td class="tok-name">--radius-xl</td>
             <td class="tok-val">24px</td>
-            <td class="tok-desc">Большие карточки, drawer</td>
+            <td class="tok-desc">projects-scene__card-body</td>
           </tr>
           <tr>
             <td class="tok-name">--radius-button-squircle</td>
             <td class="tok-val">25px</td>
-            <td class="tok-desc">Squircle-кнопки. Добавлять <code style="font-family:monospace;color:var(--color-indigo-text)">corner-shape: squircle</code> через @supports</td>
+            <td class="tok-desc">Squircle-кнопки, input @supports override</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-card-lg</td>
+            <td class="tok-val">32px</td>
+            <td class="tok-desc">auth-form-section, glass-card (profile)</td>
+          </tr>
+          <tr>
+            <td class="tok-name">--radius-challenge-card</td>
+            <td class="tok-val">44px</td>
+            <td class="tok-desc">daily-challenge-card</td>
           </tr>
           <tr>
             <td class="tok-name">--radius-full</td>
             <td class="tok-val">9999px</td>
-            <td class="tok-desc">Pill-badges, теги</td>
+            <td class="tok-desc">Pill-badges, теги, scrollbar-thumb</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="tok-desc" style="font-size:11px;padding:8px 12px;color:var(--color-cream-40);font-style:italic">
+              Хардкодить разрешено только: <code style="font-family:monospace">2px</code> (progress bar caps, burger), <code style="font-family:monospace">50%</code> (circles), <code style="font-family:monospace">40–80px</code> внутри @supports squircle
+            </td>
           </tr>
 
           <!-- Transitions -->
@@ -1693,15 +1728,21 @@ label.field-label {
         <p class="section-sub" style="margin-bottom:20px">Border Radius <span style="font-size:11px;color:var(--color-cream-40)">(tokens.css)</span></p>
         <div class="demo-surface">
           <div class="radius-grid">
-            <div class="radius-item"><div class="radius-box" style="border-radius:8px"></div><span class="radius-token">--radius-sm</span><span class="radius-val">8px · header btns</span></div>
-            <div class="radius-item"><div class="radius-box" style="border-radius:14px"></div><span class="radius-token">--radius-md</span><span class="radius-val">14px · buttons</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:4px;width:40px;height:40px"></div><span class="radius-token">--radius-xs</span><span class="radius-val">4px · badges</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:6px;width:50px;height:50px"></div><span class="radius-token">--radius-chip</span><span class="radius-val">6px · chips</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:8px"></div><span class="radius-token">--radius-sm</span><span class="radius-val">8px · btns</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:12px"></div><span class="radius-token">--radius-input</span><span class="radius-val">12px · input</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:14px"></div><span class="radius-token">--radius-md</span><span class="radius-val">14px · task-card</span></div>
             <div class="radius-item"><div class="radius-box" style="border-radius:16px"></div><span class="radius-token">--radius-lg</span><span class="radius-val">16px · modals</span></div>
-            <div class="radius-item"><div class="radius-box" style="border-radius:24px"></div><span class="radius-token">--radius-xl</span><span class="radius-val">24px · cards</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:20px"></div><span class="radius-token">--radius-pill</span><span class="radius-val">20px · pill</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:24px"></div><span class="radius-token">--radius-xl</span><span class="radius-val">24px · project card</span></div>
             <div class="radius-item"><div class="radius-box" style="border-radius:25px;corner-shape:squircle"></div><span class="radius-token">--radius-button-squircle</span><span class="radius-val">25px · squircle</span></div>
-            <div class="radius-item"><div class="radius-box" style="border-radius:9999px"></div><span class="radius-token">--radius-full</span><span class="radius-val">9999px · pill</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:32px"></div><span class="radius-token">--radius-card-lg</span><span class="radius-val">32px · auth/glass</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:44px"></div><span class="radius-token">--radius-challenge-card</span><span class="radius-val">44px · challenge</span></div>
+            <div class="radius-item"><div class="radius-box" style="border-radius:9999px"></div><span class="radius-token">--radius-full</span><span class="radius-val">9999px · pill-badge</span></div>
           </div>
           <p style="font-size:11px;color:var(--color-cream-40);margin-top:20px;font-family:monospace">
-            @supports (corner-shape: squircle) { corner-shape: squircle }
+            corner-shape: squircle — глобально на :root в index.css (наследуется)
           </p>
         </div>
       </div>
