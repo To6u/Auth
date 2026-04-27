@@ -8,6 +8,7 @@
     color: #ffffff;
     position: relative;
     overflow: hidden;
+    isolation: isolate;
     background: transparent;
     border: none;
     border-radius: var(--radius-pill);
@@ -139,45 +140,45 @@ html.saving-mode .submit-button .wave {
 /* Анимация влево (по умолчанию) */
 @keyframes waveMove1 {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-720px) scale(1); }
+    100% { transform: translateX(-20%) scale(1); }
 }
 
 @keyframes waveMove2 {
     0% { transform: translateX(0) scale(1); }
     50% { transform: scale(1.1); }
-    100% { transform: translateX(-720px) scale(1); }
+    100% { transform: translateX(-20%) scale(1); }
 }
 
 @keyframes waveMove3 {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-720px) scale(1.1); }
+    100% { transform: translateX(-20%) scale(1.1); }
 }
 
 @keyframes waveMove4 {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-720px) scale(1.1); }
+    100% { transform: translateX(-20%) scale(1.1); }
 }
 
 /* Анимация влево (изменено с вправо) */
 @keyframes waveMove1Right {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-720px) scale(1); }  /* было 720px */
+    100% { transform: translateX(-20%) scale(1); }  /* было 720px */
 }
 
 @keyframes waveMove2Right {
     0% { transform: translateX(0) scale(1); }
     50% { transform: scale(1.1); }
-    100% { transform: translateX(-720px) scale(1); }  /* было 720px */
+    100% { transform: translateX(-20%) scale(1); }  /* было 720px */
 }
 
 @keyframes waveMove3Right {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-720px) scale(1.1); }  /* было 720px */
+    100% { transform: translateX(-20%) scale(1.1); }  /* было 720px */
 }
 
 @keyframes waveMove4Right {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-720px) scale(1.1); }  /* было 720px */
+    100% { transform: translateX(-20%) scale(1.1); }  /* было 720px */
 }
 
 /* Реверс градиентов для левого направления (изменено с 270deg на 90deg) */
