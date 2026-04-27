@@ -102,7 +102,7 @@ const stmtGetCurrentWeekPool = db.prepare(
      WHERE user_id = ? AND week_start = ?`
 );
 const stmtGetWeekAssignments = db.prepare(
-    `SELECT challenge_id, date FROM challenge_assignments
+    `SELECT challenge_id, date, status FROM challenge_assignments
      WHERE user_id = ? AND date >= ? AND date <= ?`
 );
 const stmtGetAllChallengeIds = db.prepare(`SELECT id FROM challenges WHERE user_id = ?`);
@@ -156,6 +156,7 @@ interface WeekPoolPoolRow {
 interface WeekAssignmentRow {
     challenge_id: string;
     date: string;
+    status: 'active' | 'done' | 'failed';
 }
 
 interface TodayActiveRow {
@@ -364,17 +365,18 @@ router.post(
             return res.status(400).json({ error: 'Челлендж не входит в пул этой недели' });
         }
 
-        // 4. Check newChallengeId not used on another day this week
+        // 4. Check newChallengeId not successfully done on another day this week
+        // failed-челленджи можно переназначить для повтора
         const weekRows = stmtGetWeekAssignments.all(
             userId,
             weekStart,
             weekEnd
         ) as WeekAssignmentRow[];
-        const usedOnOtherDay = weekRows.some(
-            (r) => r.challenge_id === newChallengeId && r.date !== today
+        const doneOnOtherDay = weekRows.some(
+            (r) => r.challenge_id === newChallengeId && r.date !== today && r.status === 'done'
         );
-        if (usedOnOtherDay) {
-            return res.status(400).json({ error: 'Челлендж уже использован в эту неделю' });
+        if (doneOnOtherDay) {
+            return res.status(400).json({ error: 'Челлендж уже выполнен в эту неделю' });
         }
 
         // 5. Swap
