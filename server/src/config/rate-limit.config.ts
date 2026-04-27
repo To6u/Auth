@@ -7,7 +7,8 @@ export const authLimiter = rateLimit({
     message: { error: 'Слишком много попыток входа. Попробуйте через 15 минут' },
     standardHeaders: true,
     legacyHeaders: false,
-    skipSuccessfulRequests: false, // Считать успешные запросы
+    skipSuccessfulRequests: false,
+    skip: () => process.env.NODE_ENV === 'development',
 });
 
 // Rate limiter для обычных API запросов
@@ -17,4 +18,5 @@ export const apiLimiter = rateLimit({
     message: { error: 'Слишком много запросов. Попробуйте позже' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: () => process.env.NODE_ENV === 'development',
 });
