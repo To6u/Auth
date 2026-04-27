@@ -1,5 +1,6 @@
+import { LayoutDashboard } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LoginIcon, LogoutIcon } from '@/assets/icons';
 import { ModeAlert } from '@/components/mode-alert/ModeAlert';
 import { SubmitButton } from '@/components/submit-button/SubmitButton';
@@ -174,6 +175,17 @@ const Header = () => {
                         </a>
                     </li>
                 ))}
+                {!isLoading && isAuthenticated && (
+                    <li>
+                        <Link
+                            to="/dashboard"
+                            className="header__dashboard"
+                            aria-label="Перейти в дашборд"
+                        >
+                            <LayoutDashboard size={24} />
+                        </Link>
+                    </li>
+                )}
                 {!isLoading && (
                     <li>
                         {isAuthenticated ? (
@@ -277,7 +289,20 @@ const Header = () => {
                         </li>
                     ))}
 
-                    {/* Войти / Выйти как пункт меню */}
+                    {/* Дашборд / Войти / Выйти как пункты меню */}
+                    {!isLoading && isAuthenticated && (
+                        <li>
+                            <Link
+                                to="/dashboard"
+                                className="header__mobile-auth"
+                                onClick={() => setIsOpen(false)}
+                                aria-label="Перейти в дашборд"
+                            >
+                                <LayoutDashboard size={24} />
+                                Дашборд
+                            </Link>
+                        </li>
+                    )}
                     {!isLoading && (
                         <li>
                             {isAuthenticated ? (

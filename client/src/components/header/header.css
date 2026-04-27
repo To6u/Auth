@@ -100,6 +100,21 @@ html:has(.projects-scene__nav.visible) .header:hover {
     }
 }
 
+/* ── Dashboard icon link ─────────────────────────────────────────── */
+
+.header__dashboard {
+    display: flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity var(--transition-fast);
+}
+
+.header__dashboard:hover {
+    opacity: 1;
+}
+
 /* ── Desktop auth ────────────────────────────────────────────────── */
 
 .header__auth {

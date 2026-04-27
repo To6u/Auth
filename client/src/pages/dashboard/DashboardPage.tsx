@@ -168,9 +168,8 @@ export const DashboardPage = () => {
     useReminders(tasks);
 
     const handleLogout = useCallback(async () => {
-        navigate('/');
         await logout();
-    }, [logout, navigate]);
+    }, [logout]);
 
     const handleGoToProfile = useCallback(() => {
         navigate('/');
