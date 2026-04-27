@@ -54,7 +54,8 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
-            { text: 'добавить ссылку на дашборд в шапку и исправить редирект при логауте', date: '27 апр' },
+            { text: 'восстановить changelog после повреждения хуком', date: '28 апр' },
+            {
             { text: 'удалить мёртвый код и исправить a11y', date: '27 апр' },
             { text: 'NavigationDirectionContext + переработка анимаций переходов', date: '27 апр' },
             { text: 'разрешить swap failed-челленджей внутри недели', date: '27 апр' },
@@ -62,7 +63,6 @@ export const PROJECTS: Project[] = [
             { text: 'волны используют translateX(-20%) вместо -720px', date: '27 апр' },
             {
             { text: 'удалить неиспользуемый .dashboard__title', date: '24 апр' },
-            {
             {
 ],
     },
