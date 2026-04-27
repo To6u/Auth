@@ -9,15 +9,13 @@ import { Projects } from '@/pages/profile/components/projects';
 export const ProfilePage = () => {
     return (
         <AnimatedPageWrapper>
-            {() => (
-                <div className="page-profile">
-                    <Header />
-                    <Hero />
-                    <AboutHero />
-                    <Projects />
-                    <Contacts />
-                </div>
-            )}
+            <div className="page-profile">
+                <Header />
+                <Hero />
+                <AboutHero />
+                <Projects />
+                <Contacts />
+            </div>
         </AnimatedPageWrapper>
     );
 };

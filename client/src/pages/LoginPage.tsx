@@ -1,9 +1,9 @@
-import { AnimatedPageWrapper } from 'client/src/components/layout/AnimatedPageWrapper';
 import AuthContainer from '@/components/auth-form/AuthContainer.tsx';
+import { AnimatedPageWrapper } from '@/components/layout/AnimatedPageWrapper';
 
 export const LoginPage = () => {
     return (
-        <AnimatedPageWrapper enterFrom="left" exitTo="right">
+        <AnimatedPageWrapper>
             <AuthContainer />
         </AnimatedPageWrapper>
     );

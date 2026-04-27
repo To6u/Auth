@@ -6,20 +6,22 @@ import ThinWavesBackground from '@/components/wave-bg/thin-wave/ThinWavesBackgro
 import WavesBackground from '@/components/wave-bg/WavesBackground';
 import { AnimationModeProvider } from '@/context/AnimationModeContext';
 import { AuthInfoProvider } from '@/context/AuthInfoContext';
+import { NavigationDirectionProvider } from '@/context/NavigationDirectionContext';
 import { LoginPage } from '@/pages/LoginPage';
 import '@/components/layout/layout.css';
 import type * as React from 'react';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary.tsx';
 import { PageErrorFallback } from '@/components/error-boundary/PageErrorFallback.tsx';
-import { PageLoadingFallback } from '@/components/error-boundary/PageLoadingFallback.tsx';
+import LogoAZ from '@/components/logo/LogoAZ.tsx';
 import { StaticBackground } from '@/components/wave-bg/StaticBackground.tsx';
 import WavesWithText from '@/components/wave-bg/wave-with-text/WavesWithText.tsx';
 import { useMotionPreference } from '@/hooks/useMotionPreference.ts';
-import LogoAZ from '@/components/logo/LogoAZ.tsx';
 
-// Запускаем загрузку модуля сразу — чтобы AppLoader мог отследить готовность
+// Запускаем загрузку модулей сразу — Suspense fallback не выскочит между переходами
 const _profileModulePromise = import('@/pages/profile/ProfilePage.tsx');
+const _dashboardModulePromise = import('@/pages/dashboard/DashboardPage.tsx');
+
 // Флаг: показывать loader только при первом входе в сессии.
 // Module-level — сбрасывается только при полной перезагрузке страницы (не SPA-навигации).
 // В dev при HMR App.tsx сбрасывается автоматически; если нет — открой DevTools и сделай hard reload.
@@ -29,7 +31,7 @@ let _loaderDone = false;
 const ProfilePage = lazy(() => _profileModulePromise.then((m) => ({ default: m.ProfilePage })));
 
 const DashboardPage = lazy(() =>
-    import('@/pages/dashboard/DashboardPage.tsx').then((m) => ({ default: m.DashboardPage }))
+    _dashboardModulePromise.then((m) => ({ default: m.DashboardPage }))
 );
 
 /**
@@ -110,7 +112,7 @@ function AnimatedRoutes() {
                                         fallback={<PageErrorFallback />}
                                         name="ProfilePage"
                                     >
-                                        <Suspense fallback={<PageLoadingFallback />}>
+                                        <Suspense fallback={null}>
                                             <PageWrapper>
                                                 <ProfilePage />
                                             </PageWrapper>
@@ -142,7 +144,7 @@ function AnimatedRoutes() {
                                         fallback={<PageErrorFallback />}
                                         name="DashboardPage"
                                     >
-                                        <Suspense fallback={<PageLoadingFallback />}>
+                                        <Suspense fallback={null}>
                                             <PageWrapper>
                                                 <ProtectedRoute>
                                                     <DashboardPage />
@@ -201,7 +203,9 @@ function App() {
             <BrowserRouter>
                 <AnimationModeProvider>
                     <AuthInfoProvider>
-                        <AnimatedRoutes />
+                        <NavigationDirectionProvider>
+                            <AnimatedRoutes />
+                        </NavigationDirectionProvider>
                     </AuthInfoProvider>
                 </AnimationModeProvider>
             </BrowserRouter>
