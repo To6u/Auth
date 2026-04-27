@@ -31,14 +31,47 @@ if (!source.includes(MARKER)) {
 const entry = `            { text: '${description}', date: '${date}' },`;
 let updated = source.replace(MARKER, `${MARKER}\n${entry}`);
 
-// Обрезаем до MAX_ENTRIES
+// Обрезаем до MAX_ENTRIES.
+// Используем brace-depth tracking вместо построчного фильтра —
+// иначе multi-line объекты (после Biome lineWidth=100) будут сломаны.
 const markerIdx = updated.indexOf(MARKER);
 const afterMarker = updated.indexOf('\n', markerIdx) + 1;
 const changelogEnd = updated.indexOf(']', afterMarker);
-const lines = updated.slice(afterMarker, changelogEnd).split('\n').filter(l => l.trim().startsWith('{'));
-if (lines.length > MAX_ENTRIES) {
-    const trimmed = lines.slice(0, MAX_ENTRIES).join('\n') + '\n';
-    updated = updated.slice(0, afterMarker) + trimmed + updated.slice(changelogEnd);
+const slice = updated.slice(afterMarker, changelogEnd);
+
+let depth = 0;
+let count = 0;
+let cutPos = -1;
+
+for (let i = 0; i < slice.length; i++) {
+    if (slice[i] === '{') {
+        depth++;
+    } else if (slice[i] === '}') {
+        depth--;
+        if (depth === 0) {
+            count++;
+            if (count === MAX_ENTRIES) {
+                // Включаем запятую и символ новой строки
+                let end = i + 1;
+                if (slice[end] === ',') end++;
+                while (end < slice.length && slice[end] !== '\n') end++;
+                if (end < slice.length) end++; // включаем \n
+                cutPos = end;
+                break;
+            }
+        }
+    }
+}
+
+if (cutPos !== -1) {
+    // Проверяем, есть ли ещё объекты после cutPos
+    let hasMore = false;
+    for (let i = cutPos; i < slice.length; i++) {
+        if (slice[i] === '{') { hasMore = true; break; }
+    }
+    if (hasMore) {
+        updated = updated.slice(0, afterMarker) + slice.slice(0, cutPos) + updated.slice(changelogEnd);
+    }
 }
 
 writeFileSync(DATA_PATH, updated, 'utf8');
