@@ -10,6 +10,10 @@
     animation-delay: 0.3s;
 }
 
+.task-sidebar > h2 {
+    padding: 16px 16px 8px;
+}
+
 .section-tabs {
     flex-shrink: 0;
     padding: 12px 12px 0;

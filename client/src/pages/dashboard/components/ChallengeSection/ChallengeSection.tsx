@@ -1,18 +1,17 @@
 import { AlignLeft, Check, Plus, Settings2, Trash2, X } from 'lucide-react';
-import { Medal3DIcon } from './Medal3DIcon';
-import { ShieldIcon } from './ShieldIcon';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Challenge, ChallengeAssignment, WeeklyChallengePool } from '../../types';
+import { useEffect, useRef, useState } from 'react';
+import type { Challenge, ChallengeAssignment } from '../../types';
 import { getWeekStart } from '../../utils/dateUtils';
 import { AchievementsList } from './AchievementsList';
 import { DailyChallengeCard } from './DailyChallengeCard';
+import { Medal3DIcon } from './Medal3DIcon';
+import { ShieldIcon } from './ShieldIcon';
 import { WeekProgress } from './WeekProgress';
 import './challenge-section.css';
 
 interface ChallengeSectionProps {
     challenges: Challenge[];
     assignments: ChallengeAssignment[];
-    weekPool: WeeklyChallengePool | null;
     onAddChallenge: (data: Omit<Challenge, 'id' | 'createdAt'>) => void;
     onUpdateChallenge: (id: string, patch: Partial<Challenge>) => void;
     onDeleteChallenge: (id: string) => void;
@@ -107,6 +106,7 @@ function ChallengeChip({
     challenge,
     palette,
     pastStatus,
+    isTodayChallenge,
     onSwap,
     onUpdate,
     onDelete,
@@ -114,6 +114,7 @@ function ChallengeChip({
     challenge: Challenge;
     palette: (typeof CHIP_PALETTE)[number];
     pastStatus?: 'active' | 'done' | 'failed';
+    isTodayChallenge?: boolean;
     onSwap: () => void;
     onUpdate: (patch: Partial<Challenge>) => void;
     onDelete: () => void;
@@ -179,18 +180,31 @@ function ChallengeChip({
         }
     };
 
-    const isUsed = pastStatus !== undefined;
+    // done-чип нельзя выбрать повторно; failed — можно выбрать для повтора сегодня
+    const isDisabled = isTodayChallenge || pastStatus === 'done';
+    const hasStatus = pastStatus !== undefined;
 
     return (
+        // biome-ignore lint/a11y/useSemanticElements: содержит вложенные input/button — замена на <button> даёт невалидный HTML
         <div
             ref={chipRef}
-            className={`challenge-section__swap-chip${isUsed ? ' challenge-section__swap-chip--disabled' : ''}${editing ? ' challenge-section__swap-chip--editing' : ''}${menuOpen ? ' challenge-section__swap-chip--menu-open' : ''}`}
+            role="button"
+            tabIndex={!editing && !isDisabled ? 0 : undefined}
+            className={`challenge-section__swap-chip${isDisabled ? ' challenge-section__swap-chip--disabled' : ''}${editing ? ' challenge-section__swap-chip--editing' : ''}${menuOpen ? ' challenge-section__swap-chip--menu-open' : ''}`}
             style={{ background: palette.bg, borderColor: palette.border, color: palette.text }}
             data-tooltip={challenge.description || undefined}
-            onClick={!editing && !isUsed ? onSwap : undefined}
+            onClick={!editing && !isDisabled ? onSwap : undefined}
+            onKeyDown={
+                !editing && !isDisabled
+                    ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') onSwap();
+                      }
+                    : undefined
+            }
         >
-            {!editing && isUsed && (
+            {!editing && hasStatus && (
                 <span
+                    role="img"
                     className={`challenge-section__chip-status challenge-section__chip-status--${pastStatus}`}
                     aria-label={pastStatus === 'done' ? 'Выполнен' : 'Провален'}
                 >
@@ -469,7 +483,6 @@ function needsEnding(n: number): string {
 export function ChallengeSection({
     challenges,
     assignments,
-    weekPool,
     onAddChallenge,
     onUpdateChallenge,
     onDeleteChallenge,
@@ -500,18 +513,6 @@ export function ChallengeSection({
     const usedOnOtherDays = new Map(
         weekAssignments.filter((a) => a.date !== todayStr).map((a) => [a.challengeId, a.status])
     );
-    const weeklySummary = useMemo(() => {
-        const completed = weekAssignments.filter((a) => a.status === 'done');
-        const failed = weekAssignments.filter((a) => a.status === 'failed');
-        return {
-            weekStart,
-            completed,
-            failed,
-            totalCompleted: completed.length,
-            totalFailed: failed.length,
-        };
-    }, [weekAssignments, weekStart]);
-
     const remaining = 7 - challenges.length;
 
     const completionHistory = selectedChallenge
@@ -579,9 +580,9 @@ export function ChallengeSection({
                             return aUsed - bUsed;
                         })
                         .map((c, i) => {
+                            const isTodayChallenge = todayAssignment?.challengeId === c.id;
                             const todayStatus =
-                                todayAssignment?.challengeId === c.id &&
-                                todayAssignment.status !== 'active'
+                                isTodayChallenge && todayAssignment.status !== 'active'
                                     ? todayAssignment.status
                                     : undefined;
                             return (
@@ -590,6 +591,7 @@ export function ChallengeSection({
                                     challenge={c}
                                     palette={CHIP_PALETTE[i % CHIP_PALETTE.length]}
                                     pastStatus={todayStatus ?? usedOnOtherDays.get(c.id)}
+                                    isTodayChallenge={isTodayChallenge}
                                     onSwap={() => onSwapToday(c.id)}
                                     onUpdate={(patch) => onUpdateChallenge(c.id, patch)}
                                     onDelete={() => onDeleteChallenge(c.id)}

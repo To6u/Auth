@@ -1,5 +1,5 @@
 import { Archive, Trash2 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatedPageWrapper } from '@/components/layout/AnimatedPageWrapper';
 import { useAnimationMode } from '@/context/AnimationModeContext';
@@ -36,7 +36,6 @@ const LeafIcon = () => (
 
 interface DashboardHeaderProps {
     email: string | undefined;
-    isExiting: boolean;
     trashCount: number;
     archiveCount: number;
     isSavingMode: boolean;
@@ -49,7 +48,6 @@ interface DashboardHeaderProps {
 
 function DashboardHeader({
     email,
-    isExiting,
     trashCount,
     archiveCount,
     isSavingMode,
@@ -82,7 +80,6 @@ function DashboardHeader({
                     type="button"
                     className="dashboard__header-btn dashboard__header-btn--profile"
                     onClick={onGoToProfile}
-                    disabled={isExiting}
                 >
                     Профиль
                 </button>
@@ -90,7 +87,6 @@ function DashboardHeader({
                     type="button"
                     className="dashboard__header-btn dashboard__header-btn--archive"
                     onClick={onOpenArchive}
-                    disabled={isExiting}
                     title="Архив"
                 >
                     <Archive size={13} />
@@ -102,7 +98,6 @@ function DashboardHeader({
                     type="button"
                     className="dashboard__header-btn dashboard__header-btn--trash"
                     onClick={onOpenTrash}
-                    disabled={isExiting}
                 >
                     <Trash2 size={13} />
                     {trashCount > 0 && <span className="dashboard__trash-badge">{trashCount}</span>}
@@ -111,7 +106,6 @@ function DashboardHeader({
                     type="button"
                     className="dashboard__header-btn dashboard__header-btn--logout"
                     onClick={onLogout}
-                    disabled={isExiting}
                 >
                     Выйти
                 </button>
@@ -124,8 +118,6 @@ export const DashboardPage = () => {
     const { user, logout } = useAuthInfo();
     const { isSavingMode, toggleSavingMode } = useAnimationMode();
     const navigate = useNavigate();
-    const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const profileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const {
         tasks,
@@ -153,7 +145,6 @@ export const DashboardPage = () => {
     const {
         challenges,
         assignments,
-        weekPool,
         addChallenge,
         updateChallenge,
         deleteChallenge,
@@ -176,35 +167,14 @@ export const DashboardPage = () => {
     useRecurringReactivation(tasks, tasksLoading, updateTask);
     useReminders(tasks);
 
-    useEffect(() => {
-        return () => {
-            if (logoutTimerRef.current !== null) clearTimeout(logoutTimerRef.current);
-            if (profileTimerRef.current !== null) clearTimeout(profileTimerRef.current);
-        };
-    }, []);
+    const handleLogout = useCallback(async () => {
+        navigate('/');
+        await logout();
+    }, [logout, navigate]);
 
-    const handleLogout = useCallback(
-        (triggerExit: () => void) => {
-            triggerExit();
-            clearTimeout(logoutTimerRef.current ?? undefined);
-            logoutTimerRef.current = setTimeout(async () => {
-                await logout();
-                navigate('/');
-            }, 600);
-        },
-        [logout, navigate]
-    );
-
-    const handleGoToProfile = useCallback(
-        (triggerExit: () => void) => {
-            triggerExit();
-            clearTimeout(profileTimerRef.current ?? undefined);
-            profileTimerRef.current = setTimeout(() => {
-                navigate('/');
-            }, 600);
-        },
-        [navigate]
-    );
+    const handleGoToProfile = useCallback(() => {
+        navigate('/');
+    }, [navigate]);
 
     const handleDeleteTask = useCallback(
         (id: string) => {
@@ -263,83 +233,79 @@ export const DashboardPage = () => {
     const visibleTasks = getTasksBySection(activeSection);
 
     return (
-        <AnimatedPageWrapper enterFrom="right" exitTo="left">
-            {({ isExiting, triggerExit }) => (
-                <div className="dashboard">
-                    <DashboardHeader
-                        email={user?.email}
-                        isExiting={isExiting}
-                        trashCount={trashItems.length}
-                        archiveCount={archivedTasks.length}
-                        isSavingMode={isSavingMode}
-                        onLogout={() => handleLogout(triggerExit)}
-                        onGoToProfile={() => handleGoToProfile(triggerExit)}
-                        onOpenTrash={() => setTrashOpen(true)}
-                        onOpenArchive={() => setArchiveOpen(true)}
-                        onToggleSavingMode={toggleSavingMode}
-                    />
-                    <div className="dashboard__body">
-                        <TaskSidebar
-                            sections={sections}
-                            activeSection={activeSection}
-                            onSectionChange={setActiveSection}
-                            tasks={visibleTasks}
-                            onToggleDone={toggleDone}
-                            onTogglePin={togglePin}
-                            onDeleteTask={handleDeleteTask}
-                            onUpdateTask={updateTask}
-                            onAddTask={addTask}
-                            onAddSection={addSection}
-                            onUpdateSection={updateSection}
-                            onDeleteSection={deleteSection}
-                            onReorderTasks={reorderTasks}
-                            onCopyDailyPlan={copyDailyPlan}
-                            doneAtBottom={doneAtBottom}
-                            onToggleDoneAtBottom={() => setDoneAtBottom(!doneAtBottom)}
-                        />
-                        <main className="dashboard__main">
-                            <ChallengeSection
-                                challenges={challenges}
-                                assignments={assignments}
-                                weekPool={weekPool}
-                                onAddChallenge={addChallenge}
-                                onUpdateChallenge={updateChallenge}
-                                onDeleteChallenge={handleDeleteChallenge}
-                                onCompleteAssignment={completeAssignment}
-                                onFailAssignment={failAssignment}
-                                onReactivateAssignment={reactivateAssignment}
-                                onSwapToday={swapToday}
-                            />
-                            <HabitBoard
-                                habits={habits}
-                                logs={logs}
-                                viewMode={habitViewMode}
-                                onViewModeChange={setHabitViewMode}
-                                onLogCompletion={logCompletion}
-                                onLogDecrement={logDecrement}
-                                onAddHabit={addHabit}
-                                onUpdateHabit={updateHabit}
-                                onDeleteHabit={handleDeleteHabit}
-                            />
-                        </main>
-                    </div>
-                    <TrashDrawer
-                        isOpen={trashOpen}
-                        onClose={() => setTrashOpen(false)}
-                        trashItems={trashItems}
-                        onRestore={restoreItem}
-                        onPermanentDelete={permanentDelete}
-                    />
-                    <ArchiveDrawer
-                        isOpen={archiveOpen}
-                        onClose={() => setArchiveOpen(false)}
-                        tasks={archivedTasks}
+        <AnimatedPageWrapper>
+            <div className="dashboard">
+                <DashboardHeader
+                    email={user?.email}
+                    trashCount={trashItems.length}
+                    archiveCount={archivedTasks.length}
+                    isSavingMode={isSavingMode}
+                    onLogout={handleLogout}
+                    onGoToProfile={handleGoToProfile}
+                    onOpenTrash={() => setTrashOpen(true)}
+                    onOpenArchive={() => setArchiveOpen(true)}
+                    onToggleSavingMode={toggleSavingMode}
+                />
+                <div className="dashboard__body">
+                    <TaskSidebar
                         sections={sections}
-                        onRestore={restoreTask}
-                        onDelete={handleDeleteTask}
+                        activeSection={activeSection}
+                        onSectionChange={setActiveSection}
+                        tasks={visibleTasks}
+                        onToggleDone={toggleDone}
+                        onTogglePin={togglePin}
+                        onDeleteTask={handleDeleteTask}
+                        onUpdateTask={updateTask}
+                        onAddTask={addTask}
+                        onAddSection={addSection}
+                        onUpdateSection={updateSection}
+                        onDeleteSection={deleteSection}
+                        onReorderTasks={reorderTasks}
+                        onCopyDailyPlan={copyDailyPlan}
+                        doneAtBottom={doneAtBottom}
+                        onToggleDoneAtBottom={() => setDoneAtBottom(!doneAtBottom)}
                     />
+                    <main className="dashboard__main">
+                        <ChallengeSection
+                            challenges={challenges}
+                            assignments={assignments}
+                            onAddChallenge={addChallenge}
+                            onUpdateChallenge={updateChallenge}
+                            onDeleteChallenge={handleDeleteChallenge}
+                            onCompleteAssignment={completeAssignment}
+                            onFailAssignment={failAssignment}
+                            onReactivateAssignment={reactivateAssignment}
+                            onSwapToday={swapToday}
+                        />
+                        <HabitBoard
+                            habits={habits}
+                            logs={logs}
+                            viewMode={habitViewMode}
+                            onViewModeChange={setHabitViewMode}
+                            onLogCompletion={logCompletion}
+                            onLogDecrement={logDecrement}
+                            onAddHabit={addHabit}
+                            onUpdateHabit={updateHabit}
+                            onDeleteHabit={handleDeleteHabit}
+                        />
+                    </main>
                 </div>
-            )}
+                <TrashDrawer
+                    isOpen={trashOpen}
+                    onClose={() => setTrashOpen(false)}
+                    trashItems={trashItems}
+                    onRestore={restoreItem}
+                    onPermanentDelete={permanentDelete}
+                />
+                <ArchiveDrawer
+                    isOpen={archiveOpen}
+                    onClose={() => setArchiveOpen(false)}
+                    tasks={archivedTasks}
+                    sections={sections}
+                    onRestore={restoreTask}
+                    onDelete={handleDeleteTask}
+                />
+            </div>
         </AnimatedPageWrapper>
     );
 };

@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'удалить мёртвый код и исправить a11y', date: '27 апр' },
             { text: 'NavigationDirectionContext + переработка анимаций переходов', date: '27 апр' },
             { text: 'разрешить swap failed-челленджей внутри недели', date: '27 апр' },
             { text: 'отключить лимиты запросов в dev-режиме', date: '27 апр' },
@@ -63,7 +64,6 @@ export const PROJECTS: Project[] = [
             { text: 'убрать text-shadow с блочных заголовков, font-weight с h3 card-title', date: '24 апр' },
             { text: 'убрать redundant font-weight: 900 с h-элементов — покрыто глобальным правилом', date: '24 апр' },
             { text: 'h1–h6 font-weight 900 глобально; обновлена дизайн-система и style-guide', date: '24 апр' },
-            { text: 'синхронизация radius-токенов — xs/chip/input/pill/card-lg/challenge-card', date: '24 апр' },
 ],
     },
     {
