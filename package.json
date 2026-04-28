@@ -13,6 +13,7 @@
         "dev:server": "cd server && npm run dev",
         "build": "npm run build:client && npm run build:server",
         "build:client": "cd client && npm run build",
+        "typecheck": "cd client && tsc -b",
         "build:server": "cd server && npm run build",
         "clean": "rm -rf client/node_modules server/node_modules node_modules client/dist server/dist",
         "claude": "bash scripts/claude.sh",
