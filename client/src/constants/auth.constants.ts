@@ -11,6 +11,12 @@ import type {
 const TEST_USER_EMAIL = import.meta.env.VITE_TEST_EMAIL ?? '';
 const TEST_USER_PASS = import.meta.env.VITE_TEST_PASS ?? '';
 
+// Demo mode credentials — локальная переменная чтобы не импортировать из demoData.ts
+// (исключает циклическую зависимость: demoData → constants → demoData)
+const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL ?? '';
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD ?? '';
+
 // Validation constants
 export const MIN_PASSWORD_LENGTH = 6;
 
@@ -64,10 +70,15 @@ export const SUCCESS_MESSAGES: Record<ViewMode, string> = {
 export const getInitialFormData = (mode: ViewMode): FormData => {
     const isDev = import.meta.env.DEV;
 
-    const base: FormData = {
-        email: isDev ? TEST_USER_EMAIL : '', // Автозаполнение в dev
-        password: isDev && mode === 'login' ? TEST_USER_PASS : '', // Только для login
-    };
+    const email = IS_DEMO_MODE ? DEMO_EMAIL : isDev ? TEST_USER_EMAIL : '';
+    const password =
+        IS_DEMO_MODE && mode === 'login'
+            ? DEMO_PASSWORD
+            : isDev && mode === 'login'
+              ? TEST_USER_PASS
+              : '';
+
+    const base: FormData = { email, password };
 
     if (mode === 'register') {
         return {

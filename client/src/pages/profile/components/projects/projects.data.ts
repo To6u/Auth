@@ -54,6 +54,7 @@ export const PROJECTS: Project[] = [
         logo: true,
         changelog: [
             // CHANGELOG_INSERT
+            { text: 'добавить demo mode для Cloudflare Pages', date: '28 апр' },
             { text: 'исправить хук — brace-tracking вместо построчного фильтра, восстановить записи', date: '28 апр' },
             { text: 'восстановить changelog после повреждения хуком', date: '28 апр' },
             {
@@ -66,7 +67,6 @@ export const PROJECTS: Project[] = [
             { text: 'отключить лимиты запросов в dev-режиме', date: '27 апр' },
             { text: 'волны используют translateX(-20%) вместо -720px', date: '27 апр' },
             { text: 'удалить мёртвый CSS и неиспользуемый util', date: '24 апр' },
-            { text: 'удалить неиспользуемый .dashboard__title', date: '24 апр' },
 ],
     },
     {

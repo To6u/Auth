@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { DEMO_HABIT_LOGS, DEMO_HABITS, IS_DEMO } from '../demoData';
 import type { Habit, HabitLog } from '../types';
 
 const DEFAULT_HABITS: Omit<Habit, 'id' | 'createdAt' | 'order'>[] = [
@@ -32,8 +33,8 @@ const DEFAULT_HABITS: Omit<Habit, 'id' | 'createdAt' | 'order'>[] = [
 ];
 
 export function useHabitStorage() {
-    const [habits, setHabits] = useState<Habit[]>([]);
-    const [logs, setLogs] = useState<HabitLog[]>([]);
+    const [habits, setHabits] = useState<Habit[]>(IS_DEMO ? DEMO_HABITS : []);
+    const [logs, setLogs] = useState<HabitLog[]>(IS_DEMO ? DEMO_HABIT_LOGS : []);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +45,11 @@ export function useHabitStorage() {
     logsRef.current = logs;
 
     useEffect(() => {
+        if (IS_DEMO) {
+            setLoading(false);
+            return;
+        }
+
         let cancelled = false;
 
         async function load() {
@@ -114,6 +120,7 @@ export function useHabitStorage() {
             };
             const prev = cur;
             setHabits((h) => [...h, newHabit]);
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch('/api/habits', {
@@ -135,6 +142,7 @@ export function useHabitStorage() {
     const updateHabit = useCallback(async (id: string, patch: Partial<Habit>) => {
         const prev = habitsRef.current;
         setHabits((h) => h.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+        if (IS_DEMO) return;
 
         const habit = prev.find((h) => h.id === id);
         if (!habit) return;
@@ -156,6 +164,7 @@ export function useHabitStorage() {
     const deleteHabit = useCallback(async (id: string) => {
         const prev = habitsRef.current;
         setHabits((h) => h.filter((x) => x.id !== id));
+        if (IS_DEMO) return;
 
         try {
             const res = await fetch(`/api/habits/${id}`, {
@@ -180,6 +189,7 @@ export function useHabitStorage() {
                   )
                 : [...cur, { habitId, date, completions: 1 }]
         );
+        if (IS_DEMO) return;
 
         try {
             const res = await fetch('/api/habits/logs/increment', {
@@ -213,6 +223,7 @@ export function useHabitStorage() {
                           : l
                   )
         );
+        if (IS_DEMO) return;
 
         try {
             const res = await fetch('/api/habits/logs/decrement', {
@@ -259,6 +270,7 @@ export function useHabitStorage() {
                 return { ...h, order: idx };
             })
         );
+        if (IS_DEMO) return;
 
         const reorderPayload = orderedIds.map((id, idx) => ({ id, order: idx }));
         try {

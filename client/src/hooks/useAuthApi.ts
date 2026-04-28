@@ -14,6 +14,7 @@ import type { FormData, FormErrors, TouchedFields, ViewMode } from 'client/src/t
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthInfo } from '@/hooks/useAuthInfo';
+import { DEMO_USER, IS_DEMO } from '@/pages/dashboard/demoData';
 
 function getErrorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
@@ -81,6 +82,14 @@ export const useAuthApi = ({
                     setErrors(INITIAL_ERRORS);
                     setTouched(INITIAL_TOUCHED);
                 } else if (viewMode === 'login') {
+                    if (IS_DEMO) {
+                        login(DEMO_USER);
+                        setIsExiting(true);
+                        navigationTimerRef.current = setTimeout(() => {
+                            navigate('/dashboard');
+                        }, 600);
+                        return;
+                    }
                     const data = await loginUser({
                         email: formData.email,
                         password: formData.password,

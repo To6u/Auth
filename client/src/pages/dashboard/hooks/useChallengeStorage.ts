@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { DEMO_ASSIGNMENTS, DEMO_CHALLENGES, DEMO_WEEK_POOL, IS_DEMO } from '../demoData';
 import type {
     Challenge,
     ChallengeAssignment,
@@ -36,17 +37,23 @@ interface ChallengeStorageState {
 }
 
 export function useChallengeStorage() {
-    const [state, setState] = useState<ChallengeStorageState>({
-        challenges: [],
-        assignments: [],
-        weekPool: null,
-        loading: true,
-        error: null,
-    });
+    const [state, setState] = useState<ChallengeStorageState>(
+        IS_DEMO
+            ? {
+                  challenges: DEMO_CHALLENGES,
+                  assignments: DEMO_ASSIGNMENTS,
+                  weekPool: DEMO_WEEK_POOL,
+                  loading: false,
+                  error: null,
+              }
+            : { challenges: [], assignments: [], weekPool: null, loading: true, error: null }
+    );
     const assignmentsRef = useRef(state.assignments);
     assignmentsRef.current = state.assignments;
 
     useEffect(() => {
+        if (IS_DEMO) return;
+
         let cancelled = false;
 
         async function load() {
@@ -90,6 +97,7 @@ export function useChallengeStorage() {
             ...prev,
             challenges: [...prev.challenges, newChallenge],
         }));
+        if (IS_DEMO) return;
 
         try {
             await apiFetch<Challenge>(API_BASE, {
@@ -111,6 +119,7 @@ export function useChallengeStorage() {
                 ...prev,
                 challenges: prev.challenges.map((c) => (c.id === id ? { ...c, ...patch } : c)),
             }));
+            if (IS_DEMO) return;
 
             try {
                 await apiFetch<Challenge>(`${API_BASE}/${id}`, {
@@ -134,6 +143,7 @@ export function useChallengeStorage() {
             ...prev,
             challenges: prev.challenges.filter((c) => c.id !== id),
         }));
+        if (IS_DEMO) return;
 
         try {
             await apiFetch<void>(`${API_BASE}/${id}`, { method: 'DELETE' });
@@ -156,6 +166,7 @@ export function useChallengeStorage() {
                 a.id === id ? { ...a, status: 'done' as const, completedAt } : a
             ),
         }));
+        if (IS_DEMO) return;
 
         try {
             await apiFetch(`${API_BASE}/assignments/${id}`, {
@@ -190,6 +201,7 @@ export function useChallengeStorage() {
                 ),
             };
         });
+        if (IS_DEMO) return;
 
         try {
             await apiFetch(`${API_BASE}/assignments/${id}`, {
@@ -214,6 +226,7 @@ export function useChallengeStorage() {
                 a.id === id ? { ...a, status: 'failed' as const } : a
             ),
         }));
+        if (IS_DEMO) return;
 
         try {
             await apiFetch(`${API_BASE}/assignments/${id}`, {
@@ -243,6 +256,7 @@ export function useChallengeStorage() {
                     : a
             ),
         }));
+        if (IS_DEMO) return;
 
         try {
             await apiFetch<SwapTodayResponse>(`${API_BASE}/swap-today`, {

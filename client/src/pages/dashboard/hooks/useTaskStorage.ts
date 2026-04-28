@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SYSTEM_SECTIONS } from '../constants';
+import { DEMO_SECTIONS, DEMO_TASKS, IS_DEMO } from '../demoData';
 import type { Section, Task } from '../types';
 import { nextOccurrence, todayISO } from '../utils/recurrence';
 
@@ -16,8 +17,8 @@ function readDoneAtBottom(): boolean {
 }
 
 export function useTaskStorage() {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [sections, setSections] = useState<Section[]>(SYSTEM_SECTIONS);
+    const [tasks, setTasks] = useState<Task[]>(IS_DEMO ? DEMO_TASKS : []);
+    const [sections, setSections] = useState<Section[]>(IS_DEMO ? DEMO_SECTIONS : SYSTEM_SECTIONS);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [doneAtBottom, setDoneAtBottomState] = useState<boolean>(readDoneAtBottom);
@@ -45,6 +46,11 @@ export function useTaskStorage() {
     );
 
     useEffect(() => {
+        if (IS_DEMO) {
+            setLoading(false);
+            return;
+        }
+
         let cancelled = false;
 
         async function load() {
@@ -95,6 +101,7 @@ export function useTaskStorage() {
             };
             const prev = tasks;
             setTasks((cur) => [...cur, optimistic]);
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch('/api/tasks', {
@@ -117,6 +124,7 @@ export function useTaskStorage() {
         async (id: string, patch: Partial<Task>) => {
             const prev = tasks;
             setTasks((cur) => cur.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch(`/api/tasks/${id}`, {
@@ -137,6 +145,7 @@ export function useTaskStorage() {
         async (id: string) => {
             const prev = tasks;
             setTasks((cur) => cur.filter((t) => t.id !== id));
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch(`/api/tasks/${id}`, {
@@ -209,6 +218,7 @@ export function useTaskStorage() {
                     return { ...t, order: idx };
                 })
             );
+            if (IS_DEMO) return;
 
             const reorderPayload = orderedIds.map((id, idx) => ({ id, order: idx }));
             try {
@@ -239,6 +249,7 @@ export function useTaskStorage() {
             };
             const prev = sections;
             setSections((cur) => [...cur, newSection]);
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch('/api/sections', {
@@ -259,6 +270,7 @@ export function useTaskStorage() {
         async (id: string, name: string) => {
             const prev = sections;
             setSections((cur) => cur.map((s) => (s.id === id ? { ...s, name } : s)));
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch(`/api/sections/${id}`, {
@@ -283,6 +295,7 @@ export function useTaskStorage() {
             setTasks((cur) =>
                 cur.map((t) => (t.sectionId === id ? { ...t, sectionId: 'all' } : t))
             );
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch(`/api/sections/${id}`, {

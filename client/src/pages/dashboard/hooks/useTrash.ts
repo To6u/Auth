@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { IS_DEMO } from '../demoData';
 import type { TrashItem } from '../types';
 
 export function useTrash(onRestored?: () => void) {
@@ -6,6 +7,11 @@ export function useTrash(onRestored?: () => void) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (IS_DEMO) {
+            setLoading(false);
+            return;
+        }
+
         let cancelled = false;
 
         async function load() {
@@ -31,6 +37,7 @@ export function useTrash(onRestored?: () => void) {
         async (item: TrashItem) => {
             const prev = trashItems;
             setTrashItems((cur) => [...cur, item]);
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch('/api/trash', {
@@ -57,6 +64,10 @@ export function useTrash(onRestored?: () => void) {
         async (id: string) => {
             const prev = trashItems;
             setTrashItems((cur) => cur.filter((i) => i.id !== id));
+            if (IS_DEMO) {
+                onRestored?.();
+                return;
+            }
 
             try {
                 const res = await fetch(`/api/trash/${id}/restore`, {
@@ -76,6 +87,7 @@ export function useTrash(onRestored?: () => void) {
         async (id: string) => {
             const prev = trashItems;
             setTrashItems((cur) => cur.filter((i) => i.id !== id));
+            if (IS_DEMO) return;
 
             try {
                 const res = await fetch(`/api/trash/${id}`, {

@@ -1,6 +1,7 @@
 import { getUserProfile, logoutUser } from 'client/src/services/api.service';
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthInfoContext } from '@/context/createAuthInfoContext.ts';
+import { DEMO_USER, IS_DEMO } from '@/pages/dashboard/demoData';
 import type { User } from '@/types/auth-info-context.types.ts';
 
 export const AuthInfoProvider = ({ children }: { children: ReactNode }) => {
@@ -8,6 +9,7 @@ export const AuthInfoProvider = ({ children }: { children: ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     const refreshUser = useCallback(async () => {
+        if (IS_DEMO) return;
         try {
             const profile = await getUserProfile();
             setUser(profile as User);
@@ -17,6 +19,12 @@ export const AuthInfoProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     useEffect(() => {
+        if (IS_DEMO) {
+            setUser(DEMO_USER);
+            setIsLoading(false);
+            return;
+        }
+
         // Всегда проверяем сессию через сервер — cookie прикладывается браузером автоматически
         const checkAuth = async () => {
             try {
@@ -37,6 +45,10 @@ export const AuthInfoProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const logout = useCallback(async () => {
+        if (IS_DEMO) {
+            setUser(null);
+            return;
+        }
         await logoutUser();
         setUser(null);
     }, []);
