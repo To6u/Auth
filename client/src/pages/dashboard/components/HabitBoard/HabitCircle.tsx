@@ -19,38 +19,6 @@ interface HabitCircleProps {
     onLongPress: (habitId: string) => void;
 }
 
-// Точки левой области brain.svg — генерируются по эллипсу (viewBox 0 0 148 148)
-// Центры точек внутри brain.svg (viewBox 0 0 148 148)
-const BRAIN_DOT_CENTERS: [number, number][] = [
-    [93.906, 130.585],
-    [83.953, 130.585],
-    [88.929, 125.608],
-    [98.882, 125.608],
-    [78.977, 125.608],
-    [98.882, 115.655],
-    [78.977, 115.655],
-    [83.953, 110.679],
-    [88.929, 105.703],
-    [98.882, 105.703],
-    [78.977, 105.703],
-    [93.906, 100.726],
-    [78.977, 95.75],
-    [93.906, 90.773],
-    [83.953, 90.773],
-    [78.977, 85.797],
-    [83.953, 80.82],
-    [88.929, 75.844],
-    [98.882, 75.844],
-    [78.977, 75.844],
-    [93.906, 70.867],
-    [88.929, 65.891],
-    [98.882, 65.891],
-    [78.977, 65.891],
-    [83.953, 60.915],
-    [88.929, 55.938],
-];
-const BRAIN_DOT_R = 2.488; // радиус каждой точки в координатах brain.svg
-
 // Matches Skill-Group1.svg: thin ring, large icon
 const STROKE_WIDTH = 3;
 const SEG_GAP = 8;
@@ -64,24 +32,6 @@ const CIRC = 2 * Math.PI * R;
 
 function getDaysInMonth(year: number, month: number): number {
     return new Date(year, month + 1, 0).getDate();
-}
-
-function BrainDots({ x, y, size }: { x: number; y: number; size: number }) {
-    const s = size / 148;
-    const r = BRAIN_DOT_R * s;
-    return (
-        <g className="habit-circle__dots--blink">
-            {BRAIN_DOT_CENTERS.map(([bx, by], i) => (
-                <circle
-                    key={i}
-                    cx={x + bx * s}
-                    cy={y + by * s}
-                    r={r}
-                    style={{ fill: 'var(--habit-color)' }}
-                />
-            ))}
-        </g>
-    );
 }
 
 function BorderRing({ opacity }: { opacity: number }) {
@@ -437,7 +387,7 @@ export const HabitCircle = memo(function HabitCircle({
                     '--shadow-opacity': progress,
                 } as React.CSSProperties
             }
-            onContextMenu={onContextMenu}
+            onContextMenu={(e) => onContextMenu(e, habitId)}
             role="img"
             aria-label={`${habit.name} ${pct}%`}
         >

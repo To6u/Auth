@@ -30,7 +30,7 @@ export function useRecurringReactivation(
                     void updateRef.current(task.id, {
                         status: 'active',
                         completedAt: null,
-                    } as Partial<Task>);
+                    });
                 }
             }
         };

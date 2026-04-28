@@ -170,7 +170,7 @@ export function useTaskStorage() {
                     await updateTask(id, {
                         status: 'active',
                         completedAt: null,
-                    } as Partial<Task>);
+                    });
                     return;
                 }
                 const now = new Date().toISOString();
@@ -187,12 +187,10 @@ export function useTaskStorage() {
                 return;
             }
 
-            let patch: Partial<Task> & { completedAt?: string | null };
-            if (task.status === 'done') {
-                patch = { status: 'active', completedAt: null };
-            } else {
-                patch = { status: 'done', completedAt: new Date().toISOString() };
-            }
+            const patch: Partial<Task> =
+                task.status === 'done'
+                    ? { status: 'active', completedAt: null }
+                    : { status: 'done', completedAt: new Date().toISOString() };
 
             await updateTask(id, patch);
         },

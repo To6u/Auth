@@ -28,7 +28,7 @@ export interface Task {
         offsetMinutes: number;
     };
     estimatedMinutes?: number;
-    completedAt?: string;
+    completedAt?: string | null;
     createdAt: string;
     recurrence?: Recurrence;
     reminders?: Reminders;
